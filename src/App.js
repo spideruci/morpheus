@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import './App.css'
-import { csv } from 'd3'
+import { json } from 'd3'
 import TestMatrixView from './views/TestMatrixView';
+
 
 class App extends Component {
   constructor(props){
@@ -10,45 +11,59 @@ class App extends Component {
     this.testMatrixRef = React.createRef();
 
     this.state = {
-      method_coverage: [],
+      prod_methods: [],
+      test_methods: [],
       width: 750,
       height: 750,
     }
 
-    this.filterData = this.filterData.bind(this)
     this.sortData = this.sortData.bind(this)
   }
 
   componentDidMount() {
-    csv(`${process.env.PUBLIC_URL}/data/data.csv`)
+    json(`${process.env.PUBLIC_URL}/data/commons-io.json`)
       .then((coverage) => {
-        console.log(coverage)
-        this.setState({ method_coverage: coverage })
+        this.setState({
+          prod_methods: coverage.methods.production,
+          test_methods: coverage.methods.test,
+        })
       });
-    // this.setState({ method_coverage: [[0, 0, 1], [1, 0, 0], [0, 0, 1], [0, 0, 1]] })
   }
 
-  sortData() {
-    this.setState({ method_coverage: [[1, 1, 1], [1, 0, 0], [0, 0, 1]] })
-  }
-
-  filterData() {
-    let newData = [[0, 0, 0], [0, 1, 0], [0, 0, 0]]
-    this.setState({
-      method_coverage: newData
-    });
+  sortData(sortFunction) {
+    return () => {this.setState({
+      prod_methods: this.state.prod_methods.sort(sortFunction),
+      test_methods: this.state.test_methods,
+    })}
   }
 
   render() {
     console.log("render")
+    let sortByName = (a, b) =>{
+      if (a.packageName < b.packageName) {
+        return true;
+      }
+      if (a.packageName === b.packageName) {
+        if (a.className < b.className) {
+          return true;
+        }
+        if (a.className === b.className) {
+          if (a.methodName < b.methodName) {
+            return true;
+          }
+        }
+      }
+      return false;
+    };
+
     return (
       <div className='App'>
         <div>
-          <button onClick={this.sortData}>Sort</button>
-          <button onClick={this.filterData}>Filter</button>
+          <button onClick={this.sortData(sortByName)}>Sort Production by Name</button>
+          {/* <button onClick={this.sortData(sortByClassName)}>Sortby className</button> */}
         </div>
         <div>
-          <TestMatrixView ref={this.testMatrixRef} data={this.state.method_coverage} size={[this.state.width, this.state.height]} />
+          <TestMatrixView ref={this.testMatrixRef} prod_methods={this.state.prod_methods} test_methods={this.state.test_methods} size={[this.state.width, this.state.height]} />
         </div>
       </div>
     )

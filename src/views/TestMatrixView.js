@@ -7,27 +7,60 @@ class TestMatrixView extends Component {
         super(props);
         this.state = 
         {
-            data: this.props.data,
+            prod_methods: this.props.prod_methods,
+            test_methods: this.props.test_methods,
             width: this.props.size[0],
             height: this.props.size[1],
         }
 
         this.ref = React.createRef();
+
+        this.createMatrix = this.createMatrix.bind(this);
         this.createTestMatrixView = this.createTestMatrixView.bind(this);
+    }
+
+    createMatrix() {
+        if (this.state.prod_methods.length === 0 || this.state.test_methods.length === 0) {
+            return []
+        }
+
+        let prod_methods = this.state.prod_methods
+        let test_methods = this.state.test_methods
+
+        // Determine number of tests
+        let number_of_tests = test_methods.length
+
+        let matrix = [...Array(prod_methods.length)].map(e => Array(number_of_tests + 1).fill(0));
+
+        console.log("productions", prod_methods);
+        console.log("number of methods: ", prod_methods.length)
+        console.log("number of tests: ", number_of_tests)
+
+        prod_methods.forEach((method, method_index) => {
+            if (method_index < 10) {
+                console.log(method);
+            }
+            method.test_ids.forEach((test_id) => {
+                matrix[method_index][test_id] = 1
+            })
+        })
+
+        return matrix;
     }
 
     componentDidMount() {
         this.createTestMatrixView();
     }
 
-    componentDidUpdate() {
-        this.createTestMatrixView();
-    }
+    // componentDidUpdate() {
+    //     this.createTestMatrixView();
+    // }
 
     componentWillReceiveProps(props) {
-        console.log("componentWillReceiveProps", props.data)
+        console.log("componentWillReceiveProps", props.prod_methods)
         this.setState({
-            data: props.data,
+            prod_methods: props.prod_methods,
+            test_methods: props.test_methods,
             width: props.size[0],
             height: props.size[1],
         }, this.createTestMatrixView);
@@ -35,9 +68,8 @@ class TestMatrixView extends Component {
 
     createTestMatrixView() {
         const node = this.ref.current;
-        console.log("createTestMatrixView" , this.state);
-        let data = this.state.data.map(v => Object.keys(v).map(c => Number(v[c]) ? Number(v[c]) : v[c]));
-        console.log(data);
+        let data = this.createMatrix();
+
         let numColumns;
         let numRows;
 
@@ -45,11 +77,11 @@ class TestMatrixView extends Component {
             numRows = 0;
             numColumns = 0;
         } else {
-            numRows = data.length;
-            numColumns = data[0].length;
+            numRows = data.length
+            numColumns = data[0].length
         }
-        console.log("this.state.width", this.state.width);
 
+        console.log([numRows, numColumns])
         let xScale = d3.scaleBand()
             .domain(d3.range(numColumns))
             .range([0, this.state.width]);
@@ -58,8 +90,9 @@ class TestMatrixView extends Component {
             .domain(d3.range(numRows))
             .range([0, this.state.height]);
 
-
         let svg = d3.select(node);
+        // TODO for some reason data is not updated properly.
+        d3.select(node).selectAll('.row').remove()
         
         let rows = svg.selectAll('.row')
             .data(data);
