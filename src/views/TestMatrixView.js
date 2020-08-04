@@ -30,18 +30,19 @@ class TestMatrixView extends Component {
         // Determine number of tests
         let number_of_tests = test_methods.length
 
-        let matrix = [...Array(prod_methods.length)].map(e => Array(number_of_tests + 1).fill(0));
+        let matrix = [...Array(number_of_tests + 1)].map(e => Array(prod_methods.length).fill(0));
 
         console.log("productions", prod_methods);
         console.log("number of methods: ", prod_methods.length)
         console.log("number of tests: ", number_of_tests)
+        console.log(matrix.length + ", " + matrix[0].length)
 
         prod_methods.forEach((method, method_index) => {
             if (method_index < 10) {
                 console.log(method);
             }
             method.test_ids.forEach((test_id) => {
-                matrix[method_index][test_id] = 1
+                matrix[test_id][method_index] = 1
             })
         })
 

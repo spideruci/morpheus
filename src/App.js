@@ -21,7 +21,10 @@ class App extends Component {
   }
 
   componentDidMount() {
-    json(`${process.env.PUBLIC_URL}/data/commons-io.json`)
+    // json(`${process.env.PUBLIC_URL}/data/commons-io/821ab5fc6140581d0dd4906c9cbcb721de0ec1fb-combined.json`)
+    // json(`${process.env.PUBLIC_URL}/data/gson/3e74bb47d1a72f72873109e8f0407a34d25fe7e6-combined.json`)
+    json(`${process.env.PUBLIC_URL}/data/tarantula/b589f83a9c6bb3631e8c796848c309c2a677b2a8-combined.json`)
+    // json(`${process.env.PUBLIC_URL}/data/commons-cli/3f150ee61685fca466b38292144ce79d4755d749-combined.json`)
       .then((coverage) => {
         this.setState({
           prod_methods: coverage.methods.production,
