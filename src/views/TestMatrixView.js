@@ -5,10 +5,12 @@ import * as d3 from 'd3';
 class TestMatrixView extends Component {
     constructor(props) {
         super(props);
+        console.log("props: ", props);
         this.state = 
         {
             prod_methods: this.props.prod_methods,
             test_methods: this.props.test_methods,
+            links: this.props.links,
             width: this.props.size[0],
             height: this.props.size[1],
         }
@@ -20,18 +22,61 @@ class TestMatrixView extends Component {
     }
 
     createMatrix() {
+        console.log(this.state.prod_methods.length)
+        console.log(this.state.test_methods.length)
         if (this.state.prod_methods.length === 0 || this.state.test_methods.length === 0) {
             return []
         }
 
         let prod_methods = this.state.prod_methods
         let test_methods = this.state.test_methods
+        let edge_map = {};
+
+        
+        this.state.links.forEach( edge => {
+            var id = edge.method_id + "-" + edge.test_id;
+            edge_map[id] = edge;
+        });
+
+    
+        let sortByName = (a, b) =>{
+            if (a.packageName < b.packageName) {
+                return true;
+            }
+            if (a.packageName === b.packageName) {
+                if (a.className < b.className) {
+                    return true;
+                }
+                if (a.className === b.className) {
+                    if (a.methodName < b.methodName) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        };
+
+        let sortTests = (a, b) => {
+            if (a.class_name > b.class_name) {
+                return true;
+            }
+            if (a.class_name === b.class_name) {
+                if (a.method_name > b.method_name) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+        prod_methods = prod_methods.sort(sortByName);
+        test_methods = test_methods.sort(sortTests);
 
         // Determine number of tests
         let number_of_tests = test_methods.length
 
         let matrix = [...Array(number_of_tests + 1)].map(e => Array(prod_methods.length).fill(0));
 
+        console.log("links: ", links);
         console.log("productions", prod_methods);
         console.log("number of methods: ", prod_methods.length)
         console.log("number of tests: ", number_of_tests)
@@ -58,10 +103,11 @@ class TestMatrixView extends Component {
     // }
 
     componentWillReceiveProps(props) {
-        console.log("componentWillReceiveProps", props.prod_methods)
+        console.log("componentWillReceiveProps", props)
         this.setState({
             prod_methods: props.prod_methods,
             test_methods: props.test_methods,
+            links: props.links,
             width: props.size[0],
             height: props.size[1],
         }, this.createTestMatrixView);

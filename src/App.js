@@ -11,8 +11,11 @@ class App extends Component {
     this.testMatrixRef = React.createRef();
 
     this.state = {
+      project: "",
+      commit: "",
       prod_methods: [],
       test_methods: [],
+      links : [],
       width: 750,
       height: 750,
     }
@@ -21,28 +24,27 @@ class App extends Component {
   }
 
   componentDidMount() {
-    // json(`${process.env.PUBLIC_URL}/data/commons-io/821ab5fc6140581d0dd4906c9cbcb721de0ec1fb-combined.json`)
-    // json(`${process.env.PUBLIC_URL}/data/gson/3e74bb47d1a72f72873109e8f0407a34d25fe7e6-combined.json`)
-    json(`${process.env.PUBLIC_URL}/data/tarantula/b589f83a9c6bb3631e8c796848c309c2a677b2a8-combined.json`)
-    // json(`${process.env.PUBLIC_URL}/data/commons-cli/3f150ee61685fca466b38292144ce79d4755d749-combined.json`)
-      .then((coverage) => {
+    // json(`${process.env.PUBLIC_URL}/data/commons-io/2ae025fe5c4a7d2046c53072b0898e37a079fe62-combined.json`)
+    // json(`${process.env.PUBLIC_URL}/data/tarantula/b589f83a9c6bb3631e8c796848c309c2a677b2a8-combined.json`)
+    json('http://localhost:8000/coverage/commons-io/6efbccc88318d15c0f5fdcfa0b87e3dc980dca22')
+      .then((response) => {
+        console.log(response)
+        console.log(response.commit_sha);
         this.setState({
-          prod_methods: coverage.methods.production,
-          test_methods: coverage.methods.test,
+          project: response.project,
+          commit_sha: response.commit_sha,
+          prod_methods: response.coverage.methods,
+          test_methods: response.coverage.tests,
+          links: response.coverage.links,
         })
+      })
+      .catch((e) => {
+        console.log(e);
       });
   }
 
-  sortData(sortFunction) {
-    return () => {this.setState({
-      prod_methods: this.state.prod_methods.sort(sortFunction),
-      test_methods: this.state.test_methods,
-    })}
-  }
-
-  render() {
-    console.log("render")
-    let sortByName = (a, b) =>{
+  sortData() {
+    let sortByName = (a, b) => {
       if (a.packageName < b.packageName) {
         return true;
       }
@@ -59,14 +61,31 @@ class App extends Component {
       return false;
     };
 
+    let sortTests = (a, b) => {
+      if (a.class_name > b.class_name) {
+        return true;
+      }
+      if (a.class_name === b.class_name) {
+        if (a.method_name > b.method_name) {
+          return true;
+        }
+      }
+      return false;
+    };
+    console.log("Test methods:", this.state.test_methods);
+    return () => {this.setState({
+      prod_methods: this.state.prod_methods.sort(sortByName),
+      test_methods: this.state.test_methods.sort(sortTests)
+    })}
+  }
+
+  render() {
     return (
       <div className='App'>
+        <h1>{this.state.project}</h1>
+        <h4 color="grey">{this.state.commit_sha}</h4>
         <div>
-          <button onClick={this.sortData(sortByName)}>Sort Production by Name</button>
-          {/* <button onClick={this.sortData(sortByClassName)}>Sortby className</button> */}
-        </div>
-        <div>
-          <TestMatrixView ref={this.testMatrixRef} prod_methods={this.state.prod_methods} test_methods={this.state.test_methods} size={[this.state.width, this.state.height]} />
+          <TestMatrixView ref={this.testMatrixRef} prod_methods={this.state.prod_methods} test_methods={this.state.test_methods} links={this.state.links} size={[this.state.width, this.state.height]} />
         </div>
       </div>
     )
