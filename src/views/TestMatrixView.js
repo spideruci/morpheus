@@ -21,6 +21,7 @@ class TestMatrixView extends Component {
 
         this.createMatrix = this.createMatrix.bind(this);
         this.createTestMatrixView = this.createTestMatrixView.bind(this);
+        this.update = this.update.bind(this);
     }
 
     createMatrix() {
@@ -62,11 +63,10 @@ class TestMatrixView extends Component {
             width: props.size[0],
             height: props.size[1],
             margin: props.margin,
-        }, this.createTestMatrixView);
+        }, this.update);
     }
 
-    createTestMatrixView() {
-        const node = this.ref.current;
+    update () {
         let data = this.createMatrix();
 
         if (data.x_labels.length === 0 || data.y_labels === 0) return;
@@ -90,6 +90,15 @@ class TestMatrixView extends Component {
             .domain(data.y_labels.map((label) => label.test_name))
             .range([0, vis_height]);
 
+        let zoomed = function () {
+
+        }
+
+        let zoom = d3.zoom()
+            .scaleExtent([1, 32])
+            .on("zoom", zoomed)
+
+
         // Create both axis
         let xAxis = axisTop().scale(xLabel);
 
@@ -100,23 +109,36 @@ class TestMatrixView extends Component {
             // })
             .scale(yLabel);
 
-        let svg = d3.select(node);
-
         // Create visualization 
-        svg.append("g")
-            .attr("transform", `translate(${this.state.margin.left}, ${this.state.margin.top})`)
+        let testmatrix = d3.select("g.testmatrix")
+
+        const t = d3.select('svg')
+            .transition()
+            .duration(1500);
+
+        testmatrix.attr("transform", `translate(${this.state.margin.left}, ${this.state.margin.top})`)
             .selectAll('.cell')
             .data(data.nodes)
-            .join("circle")
+            .join(
+                enter => enter.append("circle").call(enter => enter.transition(t)
+                    .attr("cx", (d) => xScale(d.x))
+                    .attr("cy", (d) => yScale(d.y))
+                ),
+                update => update.call(update => update.transition(t)
+                    .attr("cx", (d) => xScale(d.x))
+                    .attr("cy", (d) => yScale(d.y))
+                ),
+                exit => exit.transition()
+                    .duration(t)
+                    .style('opacity', 0)
+                    .on('end', () => d3.select(this).remove())
+                )
                 .attr("class", "cell")
-                .attr("cx", (d) => xScale(d.x))
-                .attr("cy", (d) => yScale(d.y))
                 .attr("fill", (d) => d.z)
                 .attr("r", Math.max(0.5, xScale.step() / 2));
 
         // Add X and Y axis to the visualization
-        svg.append('g')
-            .attr("class", "x-axis")
+        d3.select("g.x-axis")
             .attr("transform", `translate(${this.state.margin.left}, ${this.state.margin.top})`)
             .call(xAxis)
             .selectAll("text")
@@ -127,13 +149,26 @@ class TestMatrixView extends Component {
                 .attr("transform", "rotate(90)")
                 .style("text-anchor", "end");
 
-        svg.append('g')
+        d3.select("g.y-axis")
             .attr("class", "y-axis")
             .attr("transform", `translate(${this.state.margin.left}, ${this.state.margin.top})`)
             .call(yAxis)
             .selectAll("text")
                 .style("text-anchor", "end")
                 .style("font-size", Math.max(2, yScale.step()) + "px")
+    }
+
+    createTestMatrixView() {
+        const node = this.ref.current;
+
+        let svg = d3.select(node);
+
+        // Connect zoom functionality to the visualization
+        svg.attr("viewBox", [0, 0, this.state.width, this.state.height]);
+
+        svg.append("g").attr("class", "x-axis");
+        svg.append("g").attr("class", "y-axis");
+        svg.append("g").attr("class", "testmatrix");
     }
 
     render() {
