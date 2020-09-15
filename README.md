@@ -70,4 +70,6 @@ This section has moved here: https://facebook.github.io/create-react-app/docs/tr
 
 ## RESOURCES:
 - https://medium.com/@Elijah_Meeks/interactive-applications-with-react-d3-f76f7b3ebc71
+- http://bl.ocks.org/Lichtphyz/88ba061011589c805eb016d0f9d61a79
 - https://www.d3indepth.com/enterexit/
+- http://bl.ocks.org/Lichtphyz/88ba061011589c805eb016d0f9d61a79
