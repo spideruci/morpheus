@@ -19,8 +19,8 @@ class App extends Component {
       width: 1500,
       height: 850,
       margin: {
-        top: 75,
-        left: 75,
+        top: 150,
+        left: 150,
         right: 0,
         bottom: 0
       },

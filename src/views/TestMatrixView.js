@@ -90,15 +90,6 @@ class TestMatrixView extends Component {
             .domain(data.y_labels.map((label) => label.test_name))
             .range([0, vis_height]);
 
-        let zoomed = function () {
-
-        }
-
-        let zoom = d3.zoom()
-            .scaleExtent([1, 32])
-            .on("zoom", zoomed)
-
-
         // Create both axis
         let xAxis = axisTop().scale(xLabel);
 
@@ -109,14 +100,12 @@ class TestMatrixView extends Component {
             // })
             .scale(yLabel);
 
-        // Create visualization 
-        let testmatrix = d3.select("g.testmatrix")
-
         const t = d3.select('svg')
             .transition()
             .duration(1500);
 
-        testmatrix.attr("transform", `translate(${this.state.margin.left}, ${this.state.margin.top})`)
+        d3.select("g.testmatrix")
+            .attr("transform", `translate(${this.state.margin.left}, ${this.state.margin.top})`)
             .selectAll('.cell')
             .data(data.nodes)
             .join(
@@ -135,7 +124,25 @@ class TestMatrixView extends Component {
                 )
                 .attr("class", "cell")
                 .attr("fill", (d) => d.z)
-                .attr("r", Math.max(0.5, xScale.step() / 2));
+                .attr("r", Math.max(0.5, xScale.step() / 2))
+
+        function mouseOverHandler(d, i) {
+            return d3.select(this)
+                .transition()
+                .style("font-size", "10px")
+        }
+
+        function mouseOutHandlerX(d, i) {
+            return d3.select(this)
+                .transition()
+                .style("font-size", Math.max(4, xScale.step()) + "px")
+        }
+
+        function mouseOutHandlerY(d, i) {
+            return d3.select(this)
+                .transition()
+                .style("font-size", Math.max(2, yScale.step()) + "px")
+        }
 
         // Add X and Y axis to the visualization
         d3.select("g.x-axis")
@@ -147,23 +154,24 @@ class TestMatrixView extends Component {
                 .attr("y", 0)
                 .attr("dx", "-2em")
                 .attr("transform", "rotate(90)")
-                .style("text-anchor", "end");
+                .style("text-anchor", "end")
+                .on('mouseover', mouseOverHandler)
+                .on('mouseout', mouseOutHandlerX);
 
         d3.select("g.y-axis")
-            .attr("class", "y-axis")
             .attr("transform", `translate(${this.state.margin.left}, ${this.state.margin.top})`)
             .call(yAxis)
             .selectAll("text")
                 .style("text-anchor", "end")
                 .style("font-size", Math.max(2, yScale.step()) + "px")
+                .on('mouseover', mouseOverHandler)
+                .on('mouseout', mouseOutHandlerY);
     }
 
     createTestMatrixView() {
         const node = this.ref.current;
 
         let svg = d3.select(node);
-
-        // Connect zoom functionality to the visualization
         svg.attr("viewBox", [0, 0, this.state.width, this.state.height]);
 
         svg.append("g").attr("class", "x-axis");
