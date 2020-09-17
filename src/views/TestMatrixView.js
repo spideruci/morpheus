@@ -74,68 +74,85 @@ class TestMatrixView extends Component {
         let vis_width = this.state.width - this.state.margin.left - this.state.margin.right;
         let vis_height = this.state.height - this.state.margin.top - this.state.margin.bottom;
 
-        let xScale = d3.scalePoint()
-            .domain(data.x_labels.map((label) => label.method_id))
-            .range([0, vis_width]);
+        // Scales for X-axis
+        let xRange = d3.scalePoint()
+            .padding(0.5)
+            .range([0, vis_width])
 
-        let yScale = d3.scalePoint()
-            .domain(data.y_labels.map((label) => label.test_id))
-            .range([0, vis_height]);
+        let xScale = xRange.copy()
+            .domain(data.x_labels.map((label) => label.method_id)),
 
-        let xLabel = d3.scalePoint()
-            .domain(data.x_labels.map((label) => label.method_name))
-            .range([0, vis_width]);
+            xLabel = xRange.copy()
+            .domain(data.x_labels.map((label) => label.method_name));
 
-        let yLabel = d3.scalePoint()
-            .domain(data.y_labels.map((label) => label.test_name))
-            .range([0, vis_height]);
+        // Scales for Y-axis
+        let yRange = d3.scalePoint()
+            .padding(0.5)
+            .range([0, vis_height])
+
+        let yScale = yRange.copy()
+            .domain(data.y_labels.map((label) => label.test_id));
+
+        let yLabel = yRange.copy()
+            .domain(data.y_labels.map((label) => label.test_name));
 
         // Create both axis
-        let xAxis = axisTop().scale(xLabel);
+        let xAxis = axisTop().tickFormat((interval, i) => {
+                return i % 3 !== 0 ? " " : interval;
+            })
+            .scale(xLabel);
 
         let yAxis = axisLeft()
             // TODO do we want to filter ticks?
-            // .tickFormat((interval, i) => {
-            //     return i % 3 !== 0 ? " " : interval;
-            // })
+            .tickFormat((interval, i) => {
+                return i % 3 !== 0 ? " " : interval;
+            })
             .scale(yLabel);
 
         const t = d3.select('svg')
             .transition()
             .duration(1500);
 
+        let rectWidth = xScale.step()
+        let rectHeight = yScale.step()
+
         d3.select("g.testmatrix")
             .attr("transform", `translate(${this.state.margin.left}, ${this.state.margin.top})`)
             .selectAll('.cell')
             .data(data.nodes)
             .join(
-                enter => enter.append("circle").call(enter => enter.transition(t)
-                    .attr("cx", (d) => xScale(d.x))
-                    .attr("cy", (d) => yScale(d.y))
+                enter => enter.append("rect").call(enter => enter.transition().duration(t)
+                    .attr("x", (d) => xScale(d.x) - rectWidth/2)
+                    .attr("y", (d) => yScale(d.y) - rectHeight/2)
                 ),
-                update => update.call(update => update.transition(t)
-                    .attr("cx", (d) => xScale(d.x))
-                    .attr("cy", (d) => yScale(d.y))
+                update => update.call(update => update.transition().duration(t)
+                    .attr("x", (d) => xScale(d.x) - rectWidth / 2)
+                    .attr("y", (d) => yScale(d.y) - rectHeight / 2)
                 ),
-                exit => exit.transition()
-                    .duration(t)
-                    .style('opacity', 0)
-                    .on('end', () => d3.select(this).remove())
+                exit => exit.remove()
+                    // .transition()
+                    // .duration(t)
+                    // .style('opacity', 0)
+                    // .on('end', () => d3.select(this).remove())
                 )
                 .attr("class", "cell")
                 .attr("fill", (d) => d.z)
-                .attr("r", Math.max(0.5, xScale.step() / 2))
+                .attr("width", rectWidth)
+                .attr("height", rectHeight)
+                .attr("rx", Math.max(1, xScale.step()/2))
+
+        let max_font_size = 10;
 
         function mouseOverHandler(d, i) {
             return d3.select(this)
                 .transition()
-                .style("font-size", "10px")
+                .style("font-size", max_font_size + "px")
         }
 
         function mouseOutHandlerX(d, i) {
             return d3.select(this)
                 .transition()
-                .style("font-size", Math.max(4, xScale.step()) + "px")
+                .style("font-size", Math.max(2, xScale.step()) + "px")
         }
 
         function mouseOutHandlerY(d, i) {
@@ -163,7 +180,7 @@ class TestMatrixView extends Component {
             .call(yAxis)
             .selectAll("text")
                 .style("text-anchor", "end")
-                .style("font-size", Math.max(2, yScale.step()) + "px")
+                .style("font-size", Math.max(3, yScale.step()) + "px")
                 .on('mouseover', mouseOverHandler)
                 .on('mouseout', mouseOutHandlerY);
     }

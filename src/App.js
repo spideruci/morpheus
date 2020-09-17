@@ -63,6 +63,9 @@ class App extends Component {
         let commits = response.commits.map(commit => {
           return { value: commit.commit_sha, display: commit.commit_sha }
         });
+        if (commits.length === 1) {
+          commits.push(commits[0])
+        }
         return commits;
       })
   }
