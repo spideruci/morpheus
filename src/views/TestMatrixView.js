@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
-import * as d3 from 'd3';
-import { axisTop, axisLeft } from 'd3';
+import { axisTop, axisLeft } from 'd3-axis';
+import { scalePoint } from 'd3-scale';
+import { select } from 'd3-selection';
+import { transition } from 'd3-transition';
+import { easeLinear } from 'd3-ease';
 
 
 class TestMatrixView extends Component {
@@ -75,7 +78,7 @@ class TestMatrixView extends Component {
         let vis_height = this.state.height - this.state.margin.top - this.state.margin.bottom;
 
         // Scales for X-axis
-        let xRange = d3.scalePoint()
+        let xRange = scalePoint()
             .padding(0.5)
             .range([0, vis_width])
 
@@ -86,7 +89,7 @@ class TestMatrixView extends Component {
             .domain(data.x_labels.map((label) => label.method_name));
 
         // Scales for Y-axis
-        let yRange = d3.scalePoint()
+        let yRange = scalePoint()
             .padding(0.5)
             .range([0, vis_height])
 
@@ -109,23 +112,23 @@ class TestMatrixView extends Component {
             })
             .scale(yLabel);
 
-        const t = d3.select('svg')
-            .transition()
-            .duration(1500);
+        const t = transition()
+            .duration(1500)
+            .ease(easeLinear);
 
         let rectWidth = xScale.step()
         let rectHeight = yScale.step()
 
-        d3.select("g.testmatrix")
+        select("g.testmatrix")
             .attr("transform", `translate(${this.state.margin.left}, ${this.state.margin.top})`)
             .selectAll('.cell')
             .data(data.nodes)
             .join(
-                enter => enter.append("rect").call(enter => enter.transition().duration(t)
+                enter => enter.append("rect").call(enter => enter.transition(t)
                     .attr("x", (d) => xScale(d.x) - rectWidth/2)
                     .attr("y", (d) => yScale(d.y) - rectHeight/2)
                 ),
-                update => update.call(update => update.transition().duration(t)
+                update => update.call(update => update.transition(t)
                     .attr("x", (d) => xScale(d.x) - rectWidth / 2)
                     .attr("y", (d) => yScale(d.y) - rectHeight / 2)
                 ),
@@ -144,25 +147,25 @@ class TestMatrixView extends Component {
         let max_font_size = 10;
 
         function mouseOverHandler(d, i) {
-            return d3.select(this)
+            return select(this)
                 .transition()
                 .style("font-size", max_font_size + "px")
         }
 
         function mouseOutHandlerX(d, i) {
-            return d3.select(this)
+            return select(this)
                 .transition()
                 .style("font-size", Math.max(2, xScale.step()) + "px")
         }
 
         function mouseOutHandlerY(d, i) {
-            return d3.select(this)
+            return select(this)
                 .transition()
                 .style("font-size", Math.max(2, yScale.step()) + "px")
         }
 
         // Add X and Y axis to the visualization
-        d3.select("g.x-axis")
+        select("g.x-axis")
             .attr("transform", `translate(${this.state.margin.left}, ${this.state.margin.top})`)
             .call(xAxis)
             .selectAll("text")
@@ -175,7 +178,7 @@ class TestMatrixView extends Component {
                 .on('mouseover', mouseOverHandler)
                 .on('mouseout', mouseOutHandlerX);
 
-        d3.select("g.y-axis")
+        select("g.y-axis")
             .attr("transform", `translate(${this.state.margin.left}, ${this.state.margin.top})`)
             .call(yAxis)
             .selectAll("text")
@@ -188,7 +191,7 @@ class TestMatrixView extends Component {
     createTestMatrixView() {
         const node = this.ref.current;
 
-        let svg = d3.select(node);
+        let svg = select(node);
         svg.attr("viewBox", [0, 0, this.state.width, this.state.height]);
 
         svg.append("g").attr("class", "x-axis");
