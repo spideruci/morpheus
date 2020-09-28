@@ -1,0 +1,20 @@
+html, body {
+  height: 100%;
+}
+
+.app {
+  height: 100%;
+  margin: 0;
+  text-align: left;
+  display: block;
+  nav {
+    a {
+      padding-right: 1rem;
+    }
+  }
+}
+
+.content-wrapper {
+  height: 90%;
+  padding-bottom: 2.5rem;
+}

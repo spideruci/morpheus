@@ -44,7 +44,9 @@ class TestMatrixView extends Component {
 
         // TODO set color based on something and if undefined set to black (#000)
         edges.forEach((edge, index) => {
-            nodes.push({ x: edge["method_id"], y: edge["test_id"], z: "#000" });
+            let test = test_methods.find(test => test.test_id === edge.test_id)
+            let color = test.test_result === 0 ? "#11AA11" : "#FF0000";
+            nodes.push({ x: edge["method_id"], y: edge["test_id"], z: color});
         });
 
         return {
@@ -97,7 +99,7 @@ class TestMatrixView extends Component {
             .domain(data.y_labels.map((label) => label.test_id));
 
         let yLabel = yRange.copy()
-            .domain(data.y_labels.map((label) => label.test_name));
+            .domain(data.y_labels.map((label) => label.method_name));
 
         // Create both axis
         let xAxis = axisTop().tickFormat((interval, i) => {
