@@ -1,9 +1,9 @@
-import React from 'react';
+import React, { Component } from 'react';
 import ReactMarkdown from 'react-markdown';
 import axios from 'axios'
 import './About.scss';
 
-class About extends React.Component {
+class About extends Component {
     constructor() {
         super();
         this.state = { content: ""}
