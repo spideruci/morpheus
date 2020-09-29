@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { json } from 'd3'
 import TestMatrixView from '../visualizations/TestMatrixView';
-
+import './TestMatrixVisualization.scss';
 
 class TestMatrixVisualization extends Component {
     constructor(props) {
@@ -118,23 +118,25 @@ class TestMatrixVisualization extends Component {
     render() {
         console.log("Render")
         return (
-            <div className='test-matrix-visualization'>
-                <h1>{this.state.selectedProject}</h1>
-                <h4 color="grey">{this.state.selectedCommit}</h4>
-                <div>
+            <div class='test-visualization'>
+                <section id='project-info'>
+                    <h1>{this.state.selectedProject}</h1>
+                    <h4 color="grey">{this.state.selectedCommit}</h4>
+                </section>
+
+                <section id='visualization'>
                     <TestMatrixView ref={this.testMatrixRef} prod_methods={this.state.prod_methods} test_methods={this.state.test_methods} links={this.state.links} size={[this.state.width, this.state.height]} margin={this.state.margin} />
-                </div>
-                <select onChange={this.onProjectChange.bind(this)}>
-                    {this.state.projects.map((project) => <option key={project.value} value={project.value}>{project.display}</option>)}
-                </select>
+                </section>
 
-                <select onChange={this.onCommitChange.bind(this)}>
-                    {this.state.commits.map((commit) => <option key={commit.value} value={commit.value}>{commit.display}</option>)}
-                </select>
+                <section id='toolbox'>
+                    <select onChange={this.onProjectChange.bind(this)}>
+                        {this.state.projects.map((project) => <option key={project.value} value={project.value}>{project.display}</option>)}
+                    </select>
 
-                <select>
-                    <option>TODO: Sorting options...</option>
-                </select>
+                    <select onChange={this.onCommitChange.bind(this)}>
+                        {this.state.commits.map((commit) => <option key={commit.value} value={commit.value}>{commit.display}</option>)}
+                    </select>
+                </section>
             </div>
         )
     }
