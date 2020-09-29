@@ -126,13 +126,17 @@ class TestMatrixView extends Component {
             .selectAll('.cell')
             .data(data.nodes)
             .join(
-                enter => enter.append("rect").call(enter => enter.transition(t)
-                    .attr("x", (d) => xScale(d.x) - rectWidth/2)
-                    .attr("y", (d) => yScale(d.y) - rectHeight/2)
+                enter => enter.append("rect").call(enter => enter
+                    .transition(t)
+                        .attr("x", (d) => xScale(d.x) - rectWidth/2)
+                    .transition(t)
+                        .attr("y", (d) => yScale(d.y) - rectHeight/2)
                 ),
-                update => update.call(update => update.transition(t)
-                    .attr("x", (d) => xScale(d.x) - rectWidth / 2)
-                    .attr("y", (d) => yScale(d.y) - rectHeight / 2)
+                update => update.call(update => update
+                    .transition(t)
+                        .attr("x", (d) => xScale(d.x) - rectWidth / 2)
+                    .transition(t)
+                        .attr("y", (d) => yScale(d.y) - rectHeight / 2)
                 ),
                 exit => exit.remove()
                     // .transition()
