@@ -17,12 +17,12 @@ function App() {
       <Header />
       <Router>
         <nav>
-          <Link to="/about-us">About us</Link>
+          <Link to="/about">About</Link>
           <Link to="/visualization">Visualization</Link>
         </nav>
         <Switch>
           <Route exact path="/" component={About} />
-          <Route exact path="/about-us" component={About} />
+          <Route exact path="/about" component={About} />
           <Route exact path="/visualization" component={TestMatrixVisualization} />
         </Switch>
       </Router>
