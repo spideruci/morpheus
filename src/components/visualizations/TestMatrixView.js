@@ -16,7 +16,13 @@ class TestMatrixView extends Component {
             prod_methods: this.props.prod_methods,
             test_methods: this.props.test_methods,
             links: this.props.links,
-            margin: this.props.margin,
+        }
+
+        this.margin = {
+            top: 100,
+            left: 150,
+            right: 0,
+            bottom: 0
         }
 
         this.createMatrix = this.createMatrix.bind(this);
@@ -89,8 +95,8 @@ class TestMatrixView extends Component {
 
         if (data.x_labels.length === 0 || data.y_labels === 0) return;
 
-        let vis_width = this.state.width - this.state.margin.left - this.state.margin.right - 10;
-        let vis_height = this.state.height - this.state.margin.top - this.state.margin.bottom - 10;
+        let vis_width = this.state.width - this.margin.left - this.margin.right - 10;
+        let vis_height = this.state.height - this.margin.top - this.margin.bottom - 10;
 
         // Scales for X-axis
         let xRange = scalePoint()
@@ -135,7 +141,7 @@ class TestMatrixView extends Component {
         let rectHeight = yScale.step()
 
         select("g.testmatrix")
-            .attr("transform", `translate(${this.state.margin.left}, ${this.state.margin.top})`)
+            .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
             .selectAll('.cell')
             .data(data.nodes)
             .join(
@@ -185,7 +191,7 @@ class TestMatrixView extends Component {
 
         // Add X and Y axis to the visualization
         select("g.x-axis")
-            .attr("transform", `translate(${this.state.margin.left}, ${this.state.margin.top})`)
+            .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
             .call(xAxis)
             .selectAll("text")
                 .style("font-size", Math.max(4, xScale.step()) + "px")
@@ -198,7 +204,7 @@ class TestMatrixView extends Component {
                 .on('mouseout', mouseOutHandlerX);
 
         select("g.y-axis")
-            .attr("transform", `translate(${this.state.margin.left}, ${this.state.margin.top})`)
+            .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
             .call(yAxis)
             .selectAll("text")
                 .style("text-anchor", "end")

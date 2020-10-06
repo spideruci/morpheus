@@ -16,14 +16,6 @@ class TestMatrixVisualization extends Component {
             prod_methods: [],
             test_methods: [],
             links: [],
-            width: 1500,
-            height: 850,
-            margin: {
-                top: 150,
-                left: 150,
-                right: 0,
-                bottom: 0
-            },
             projects: [],
             commits: [],
         }
@@ -121,7 +113,7 @@ class TestMatrixVisualization extends Component {
         return (
             <div class='test-visualization'>
                 <div id='visualization'>
-                    <TestMatrixView ref={this.testMatrixRef} prod_methods={this.state.prod_methods} test_methods={this.state.test_methods} links={this.state.links} margin={this.state.margin} />
+                    <TestMatrixView ref={this.testMatrixRef} prod_methods={this.state.prod_methods} test_methods={this.state.test_methods} links={this.state.links} />
                 </div>
 
                 <div id='toolbox'>
