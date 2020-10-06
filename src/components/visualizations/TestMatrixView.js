@@ -9,22 +9,27 @@ import { easeLinear } from 'd3-ease';
 class TestMatrixView extends Component {
     constructor(props) {
         super(props);
-        console.log("props: ", props);
-        this.state =
-        {
+
+        this.ref = React.createRef();
+
+        this.state = {
             prod_methods: this.props.prod_methods,
             test_methods: this.props.test_methods,
             links: this.props.links,
-            width: this.props.size[0],
-            height: this.props.size[1],
             margin: this.props.margin,
         }
-
-        this.ref = React.createRef();
 
         this.createMatrix = this.createMatrix.bind(this);
         this.createTestMatrixView = this.createTestMatrixView.bind(this);
         this.update = this.update.bind(this);
+    }
+
+    updateDimensions() {
+        let visualizationDiv = document.getElementById("visualization");
+        return {
+            width: visualizationDiv.offsetWidth,
+            height: visualizationDiv.offsetHeight,
+        }
     }
 
     createMatrix() {
@@ -61,23 +66,31 @@ class TestMatrixView extends Component {
     }
 
     componentWillReceiveProps(props) {
-        this.setState({
+        let dimensions = this.updateDimensions();
+
+        let newState = {
             prod_methods: props.prod_methods,
             test_methods: props.test_methods,
             links: props.links,
-            width: props.size[0],
-            height: props.size[1],
-            margin: props.margin,
-        }, this.update);
+            width: dimensions.width,
+            height: dimensions.height,
+        }
+
+        this.setState(newState, this.update);
     }
 
     update () {
+        // Update viewBox to the state width and height
+        const node = this.ref.current;
+        let svg = select(node);
+        svg.attr("viewBox", [0, 0, this.state.width, this.state.height]);
+
         let data = this.createMatrix();
 
         if (data.x_labels.length === 0 || data.y_labels === 0) return;
 
-        let vis_width = this.state.width - this.state.margin.left - this.state.margin.right;
-        let vis_height = this.state.height - this.state.margin.top - this.state.margin.bottom;
+        let vis_width = this.state.width - this.state.margin.left - this.state.margin.right - 10;
+        let vis_height = this.state.height - this.state.margin.top - this.state.margin.bottom - 10;
 
         // Scales for X-axis
         let xRange = scalePoint()

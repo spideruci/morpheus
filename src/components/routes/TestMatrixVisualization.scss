@@ -1,9 +1,25 @@
 .test-visualization {
-    #project-info {
-        text-align: left;
+
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    height: 100%;
+
+    #visualization {
+        width: 80%;
+        height: 100%;
+        min-width: 500px;
+        overflow: hidden;
     }
 
     #toolbox {
-        text-align: center;
+        height: 100%;
+        width: 18%;
+        padding-left: 1%;
+        padding-right: 1%;
+        margin:0;
+        min-width: 100px;
+        text-align: left;
+        background-color: grey;
     }
 }

@@ -14,7 +14,7 @@ import './App.scss';
 function App() {
   return (
     <div class='app'>
-      <Header />
+      <Header title='SpiderTest'/>
       <Router>
         <nav>
           <Link to="/about">About</Link>
