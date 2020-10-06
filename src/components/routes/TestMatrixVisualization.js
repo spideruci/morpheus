@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { json } from 'd3'
 import TestMatrixView from '../visualizations/TestMatrixView';
 import './TestMatrixVisualization.scss';
+import { API_ROOT } from '../../config/api-config';
 
 class TestMatrixVisualization extends Component {
     constructor(props) {
@@ -57,7 +58,7 @@ class TestMatrixVisualization extends Component {
     }
 
     async updateCommitData(project_name) {
-        return await json(`http://localhost:8000/commits/${project_name}`)
+        return await json(`${API_ROOT}/commits/${project_name}`)
             .then(response => {
                 let commits = response.commits.map(commit => {
                     return { value: commit.commit_sha, display: commit.commit_sha }
@@ -70,7 +71,7 @@ class TestMatrixVisualization extends Component {
     }
 
     async updateProjectData() {
-        return await json(`http://localhost:8000/projects/`)
+        return await json(`${API_ROOT}/projects/`)
             .then(response => {
                 let projects = response.projects.map(project => {
                     return { value: project.project_name, display: project.project_name }
@@ -81,8 +82,8 @@ class TestMatrixVisualization extends Component {
     }
 
     async updateCoverageData(project_name, commit_sha) {
-        console.log(`http://localhost:8000/coverage/${project_name}/${commit_sha}`);
-        return await json(`http://localhost:8000/coverage/${project_name}/${commit_sha}`)
+        console.log(`${API_ROOT}/coverage/${project_name}/${commit_sha}`);
+        return await json(`${API_ROOT}/coverage/${project_name}/${commit_sha}`)
             .then((response) => {
                 return {
                     prod_methods: response.coverage.methods,
