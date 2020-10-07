@@ -13,9 +13,12 @@ class TestMatrixView extends Component {
         this.ref = React.createRef();
 
         this.state = {
-            prod_methods: this.props.prod_methods,
-            test_methods: this.props.test_methods,
-            links: this.props.links,
+            history: [{
+                prod_methods: props.prod_methods,
+                test_methods: props.test_methods,
+                links: props.links,
+            }],
+            entry: 0
         }
 
         this.margin = {
@@ -28,6 +31,7 @@ class TestMatrixView extends Component {
         this.createMatrix = this.createMatrix.bind(this);
         this.createTestMatrixView = this.createTestMatrixView.bind(this);
         this.update = this.update.bind(this);
+        this.backInTime = this.backInTime.bind(this);
     }
 
     updateDimensions() {
@@ -39,7 +43,10 @@ class TestMatrixView extends Component {
     }
 
     createMatrix() {
-        if (this.state.prod_methods.length === 0 || this.state.test_methods.length === 0) {
+        const history = this.state.history;
+        const current = history[history.length - 1]
+
+        if (current.prod_methods.length === 0 || current.test_methods.length === 0) {
             return {
                 x_labels: [],
                 y_labels: [],
@@ -48,10 +55,10 @@ class TestMatrixView extends Component {
         }
 
         let nodes = []
-        let prod_methods = this.state.prod_methods
-        let test_methods = this.state.test_methods
+        let prod_methods = current.prod_methods
+        let test_methods = current.test_methods
 
-        let edges = this.state.links
+        let edges = current.links
 
         // TODO set color based on something and if undefined set to black (#000)
         edges.forEach((edge, index) => {
@@ -75,9 +82,12 @@ class TestMatrixView extends Component {
         let dimensions = this.updateDimensions();
 
         let newState = {
-            prod_methods: props.prod_methods,
-            test_methods: props.test_methods,
-            links: props.links,
+            history: this.state.history.concat({
+                prod_methods: props.prod_methods,
+                test_methods: props.test_methods,
+                links: props.links
+            }),
+            entry: this.state.entry + 1,
             width: dimensions.width,
             height: dimensions.height,
         }
@@ -194,10 +204,12 @@ class TestMatrixView extends Component {
         // Event Handlers
         // TODO refactor the onMethodClick and onTestClick methods, same stucture and a lot of code in common.
         function onMethodClick(e, label) {
-            console.log("test")
-            let methods = this.state.prod_methods;
-            let test_cases = this.state.test_methods;
-            let edges = this.state.links;
+            const history = this.state.history;
+            const current = history[this.state.entry]
+
+            let methods = current.prod_methods;
+            let test_cases = current.test_methods;
+            let edges = current.links;
 
             const filter_method = methods.find( m => label === `${m.class_name}.${m.method_decl}`);
 
@@ -214,18 +226,22 @@ class TestMatrixView extends Component {
             const filtered_methods = methods.filter(method => method_ids.includes(method.method_id));
 
             this.setState({
-                prod_methods: filtered_methods,
-                test_methods: filtered_tests,
-                links: filtered_edges
+                history: this.state.history.concat({
+                    prod_methods: filtered_methods,
+                    test_methods: filtered_tests,
+                    links: filtered_edges
+                }),
+                entry: this.state.entry + 1
             }, this.update)
         }
 
         function onTestClick(e, label) {
-            console.log(e, label);
+            const history = this.state.history;
+            const current = history[history.length - 1]
 
-            let methods = this.state.prod_methods;
-            let test_cases = this.state.test_methods;
-            let edges = this.state.links;
+            let methods = current.prod_methods;
+            let test_cases = current.test_methods;
+            let edges = current.links;
 
             const filter_test = test_cases.find(test => label === `${test.class_name}.${test.method_name}`);
 
@@ -242,9 +258,12 @@ class TestMatrixView extends Component {
             const filtered_tests = test_cases.filter(test => test_ids.includes(test.test_id));
 
             this.setState({
-                prod_methods: filtered_methods,
-                test_methods: filtered_tests,
-                links: filtered_edges
+                history: this.state.history.concat({
+                    prod_methods: filtered_methods,
+                    test_methods: filtered_tests,
+                    links: filtered_edges
+                }),
+                entry: this.state.entry + 1
             }, this.update)
         }
 
@@ -289,9 +308,25 @@ class TestMatrixView extends Component {
         svg.append("g").attr("class", "testmatrix");
     }
 
+    backInTime() {
+        const new_history = this.state.history.slice(0, this.state.history.length - 1);
+        this.setState({
+            history: new_history,
+            entry: this.state.entry - 1
+        }, this.update)
+    }
+
     render() {
+        console.log("History elements", this.state.history.length)
+        console.log("Entry", this.state.entry)
+        console.log("history", this.state.history)
         return (
-            <svg ref={this.ref} width={this.state.width} height={this.state.height}></svg>
+            <div>
+                {this.state.history.length > 2 &&
+                    <button onClick={this.backInTime} >BACK</button>
+                }
+                <svg ref={this.ref} width={this.state.width} height={this.state.height}></svg>
+            </div>
         )
     }
 }
