@@ -169,6 +169,7 @@ class TestMatrixView extends Component {
                 .attr("width", rectWidth)
                 .attr("height", rectHeight)
                 .attr("rx", Math.max(1, xScale.step()/2))
+                .on('click', onEdgeClick.bind(this));
 
         let max_font_size = 10;
 
@@ -191,7 +192,9 @@ class TestMatrixView extends Component {
         }
 
         // Event Handlers
+        // TODO refactor the onMethodClick and onTestClick methods, same stucture and a lot of code in common.
         function onMethodClick(e, label) {
+            console.log("test")
             let methods = this.state.prod_methods;
             let test_cases = this.state.test_methods;
             let edges = this.state.links;
@@ -210,7 +213,6 @@ class TestMatrixView extends Component {
 
             const filtered_methods = methods.filter(method => method_ids.includes(method.method_id));
 
-
             this.setState({
                 prod_methods: filtered_methods,
                 test_methods: filtered_tests,
@@ -221,6 +223,33 @@ class TestMatrixView extends Component {
         function onTestClick(e, label) {
             console.log(e, label);
 
+            let methods = this.state.prod_methods;
+            let test_cases = this.state.test_methods;
+            let edges = this.state.links;
+
+            const filter_test = test_cases.find(test => label === `${test.class_name}.${test.method_name}`);
+
+            const method_ids = edges.filter(edge => filter_test.test_id === edge.test_id)
+                .map(edge => edge.method_id);
+
+            const filtered_methods = methods.filter(m => method_ids.includes(m.method_id))
+
+            const filtered_edges = edges.filter(
+                edge => method_ids.includes(edge.method_id) || edge.test_id === filter_test.test_id)
+
+            const test_ids = filtered_edges.map(edge => edge.test_id)
+
+            const filtered_tests = test_cases.filter(test => test_ids.includes(test.test_id));
+
+            this.setState({
+                prod_methods: filtered_methods,
+                test_methods: filtered_tests,
+                links: filtered_edges
+            }, this.update)
+        }
+
+        function onEdgeClick(e, label) {
+            console.log(e, label);
         }
 
         // Add X and Y axis to the visualization
