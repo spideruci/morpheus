@@ -140,6 +140,12 @@ class TestMatrixVisualization extends Component {
                         <span>Search Test: </span>
                     </div>
                     <div>
+                        <span>Back Button: </span>
+                    </div>
+                    <div>
+                        <span>Forward Button (only available after back?): </span>
+                    </div>
+                    <div>
                         <span>Reset Button: </span>
                     </div>
                 </div>
