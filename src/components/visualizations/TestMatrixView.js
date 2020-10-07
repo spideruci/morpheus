@@ -127,15 +127,15 @@ class TestMatrixView extends Component {
 
         // Create both axis
         let xAxis = axisTop()
-            .tickFormat((interval, i) => {
-                return i % 3 !== 0 ? " " : interval;
-            })
+            // .tickFormat((interval, i) => {
+            //     return i % 3 !== 0 ? " " : interval;
+            // })
             .scale(xLabel);
 
         let yAxis = axisLeft()
-            .tickFormat((interval, i) => {
-                return i % 5 !== 0 ? " " : interval;
-            })
+            // .tickFormat((interval, i) => {
+            //     return i % 5 !== 0 ? " " : interval;
+            // })
             .scale(yLabel);
 
         const t = transition()
@@ -181,13 +181,46 @@ class TestMatrixView extends Component {
         function mouseOutHandlerX(d, i) {
             return select(this)
                 .transition()
-                .style("font-size", Math.max(2, xScale.step()) + "px")
+                .style("font-size", "2px")
         }
 
         function mouseOutHandlerY(d, i) {
             return select(this)
                 .transition()
-                .style("font-size", Math.max(2, yScale.step()) + "px")
+                .style("font-size", "2px")
+        }
+
+        // Event Handlers
+        function onMethodClick(e, label) {
+            let methods = this.state.prod_methods;
+            let test_cases = this.state.test_methods;
+            let edges = this.state.links;
+
+            const filter_method = methods.find( m => label === `${m.class_name}.${m.method_decl}`);
+
+            const test_ids = edges.filter(edge => filter_method.method_id === edge.method_id )
+                                    .map(edge => edge.test_id);
+
+            const filtered_tests = test_cases.filter( test => test_ids.includes(test.test_id))
+
+            const filtered_edges = edges.filter(
+                edge => test_ids.includes(edge.test_id) || edge.method_id === filter_method.method_id )
+
+            const method_ids = filtered_edges.map(edge => edge.method_id)
+
+            const filtered_methods = methods.filter(method => method_ids.includes(method.method_id));
+
+
+            this.setState({
+                prod_methods: filtered_methods,
+                test_methods: filtered_tests,
+                links: filtered_edges
+            }, this.update)
+        }
+
+        function onTestClick(e, label) {
+            console.log(e, label);
+
         }
 
         // Add X and Y axis to the visualization
@@ -195,23 +228,25 @@ class TestMatrixView extends Component {
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
             .call(xAxis)
             .selectAll("text")
-                .style("font-size", Math.max(4, xScale.step()) + "px")
+                .style("font-size", "2px")
                 .attr("x", 0)
                 .attr("y", 0)
                 .attr("dx", "-2em")
                 .attr("transform", "rotate(45)")
                 .style("text-anchor", "end")
                 .on('mouseover', mouseOverHandler)
-                .on('mouseout', mouseOutHandlerX);
+                .on('mouseout', mouseOutHandlerX)
+                .on('click', onMethodClick.bind(this));
 
         select("g.y-axis")
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
             .call(yAxis)
             .selectAll("text")
                 .style("text-anchor", "end")
-                .style("font-size", Math.max(2, yScale.step()) + "px")
+                .style("font-size", "2px")
                 .on('mouseover', mouseOverHandler)
-                .on('mouseout', mouseOutHandlerY);
+                .on('mouseout', mouseOutHandlerY)
+                .on('click', onTestClick.bind(this));
     }
 
     createTestMatrixView() {
