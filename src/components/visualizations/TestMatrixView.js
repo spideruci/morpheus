@@ -95,8 +95,8 @@ class TestMatrixView extends Component {
 
         if (data.x_labels.length === 0 || data.y_labels === 0) return;
 
-        let vis_width = this.state.width - this.margin.left - this.margin.right - 10;
-        let vis_height = this.state.height - this.margin.top - this.margin.bottom - 10;
+        let vis_width = this.state.width - this.margin.left - this.margin.right -10;
+        let vis_height = this.state.height - this.margin.top - this.margin.bottom -10;
 
         // Scales for X-axis
         let xRange = scalePoint()
@@ -104,10 +104,10 @@ class TestMatrixView extends Component {
             .range([0, vis_width])
 
         let xScale = xRange.copy()
-            .domain(data.x_labels.map((label) => label.method_id)),
+                .domain(data.x_labels.map((label) => label.method_id));
 
-            xLabel = xRange.copy()
-            .domain(data.x_labels.map((label) => label.method_name));
+        let xLabel = xRange.copy()
+            .domain(data.x_labels.map((label) => `${label.class_name}.${label.method_decl}`));
 
         // Scales for Y-axis
         let yRange = scalePoint()
@@ -118,18 +118,23 @@ class TestMatrixView extends Component {
             .domain(data.y_labels.map((label) => label.test_id));
 
         let yLabel = yRange.copy()
-            .domain(data.y_labels.map((label) => label.method_name));
+            .domain(data.y_labels.map((label) => `${label.class_name}.${label.method_name}`));
+
+        if (xLabel.step() !== xScale.step()) {
+            // Meaning duplicate class_name.method_name entries
+            console.error("xLabel and xScale step are not equal...")
+        }
 
         // Create both axis
-        let xAxis = axisTop().tickFormat((interval, i) => {
+        let xAxis = axisTop()
+            .tickFormat((interval, i) => {
                 return i % 3 !== 0 ? " " : interval;
             })
             .scale(xLabel);
 
         let yAxis = axisLeft()
-            // TODO do we want to filter ticks?
             .tickFormat((interval, i) => {
-                return i % 3 !== 0 ? " " : interval;
+                return i % 5 !== 0 ? " " : interval;
             })
             .scale(yLabel);
 
@@ -137,8 +142,8 @@ class TestMatrixView extends Component {
             .duration(1500)
             .ease(easeLinear);
 
-        let rectWidth = xScale.step()
-        let rectHeight = yScale.step()
+        let rectWidth = xLabel.step()
+        let rectHeight = yLabel.step()
 
         select("g.testmatrix")
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
@@ -158,10 +163,6 @@ class TestMatrixView extends Component {
                         .attr("y", (d) => yScale(d.y) - rectHeight / 2)
                 ),
                 exit => exit.remove()
-                    // .transition()
-                    // .duration(t)
-                    // .style('opacity', 0)
-                    // .on('end', () => d3.select(this).remove())
                 )
                 .attr("class", "cell")
                 .attr("fill", (d) => d.z)
@@ -198,7 +199,7 @@ class TestMatrixView extends Component {
                 .attr("x", 0)
                 .attr("y", 0)
                 .attr("dx", "-2em")
-                .attr("transform", "rotate(90)")
+                .attr("transform", "rotate(45)")
                 .style("text-anchor", "end")
                 .on('mouseover', mouseOverHandler)
                 .on('mouseout', mouseOutHandlerX);
@@ -208,7 +209,7 @@ class TestMatrixView extends Component {
             .call(yAxis)
             .selectAll("text")
                 .style("text-anchor", "end")
-                .style("font-size", Math.max(3, yScale.step()) + "px")
+                .style("font-size", Math.max(2, yScale.step()) + "px")
                 .on('mouseover', mouseOverHandler)
                 .on('mouseout', mouseOutHandlerY);
     }

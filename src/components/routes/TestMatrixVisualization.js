@@ -139,6 +139,9 @@ class TestMatrixVisualization extends Component {
                     <div>
                         <span>Search Test: </span>
                     </div>
+                    <div>
+                        <span>Reset Button: </span>
+                    </div>
                 </div>
             </div>
         )
