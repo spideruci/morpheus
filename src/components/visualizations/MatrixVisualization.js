@@ -6,12 +6,13 @@ import { transition } from 'd3-transition';
 import { easeLinear } from 'd3-ease';
 
 
-class TestMatrixView extends Component {
+class MatrixVisualization extends Component {
     constructor(props) {
         super(props);
 
         this.ref = React.createRef();
 
+        // TODO remove historry from here (state in general should be removed.)
         this.state = {
             history: [{
                 methods: props.methods,
@@ -31,7 +32,8 @@ class TestMatrixView extends Component {
         this.createMatrix = this.createMatrix.bind(this);
         this.createTestMatrixView = this.createTestMatrixView.bind(this);
         this.update = this.update.bind(this);
-        this.backInTime = this.backInTime.bind(this);
+        this.onMethodClick = this.props.onMethodClick;
+        this.onTestClick = this.props.onTestClick;
     }
 
     updateDimensions() {
@@ -201,72 +203,6 @@ class TestMatrixView extends Component {
                 .style("font-size", "2px")
         }
 
-        // Event Handlers
-        // TODO refactor the onMethodClick and onTestClick methods, same stucture and a lot of code in common.
-        function onMethodClick(e, label) {
-            const history = this.state.history;
-            const current = history[this.state.entry]
-
-            let methods = current.methods;
-            let test_cases = current.tests;
-            let edges = current.edges;
-
-            const filter_method = methods.find(m => label === `${m.package_name}.${m.class_name}.${m.method_decl}`);
-
-            const test_ids = edges.filter(edge => filter_method.method_id === edge.method_id )
-                                    .map(edge => edge.test_id);
-
-            const filtered_tests = test_cases.filter( test => test_ids.includes(test.test_id))
-
-            const filtered_edges = edges.filter(
-                edge => test_ids.includes(edge.test_id) || edge.method_id === filter_method.method_id )
-
-            const method_ids = filtered_edges.map(edge => edge.method_id)
-
-            const filtered_methods = methods.filter(method => method_ids.includes(method.method_id));
-
-            this.setState({
-                history: this.state.history.concat({
-                    methods: filtered_methods,
-                    tests: filtered_tests,
-                    edges: filtered_edges
-                }),
-                entry: this.state.entry + 1
-            }, this.update)
-        }
-
-        function onTestClick(e, label) {
-            const history = this.state.history;
-            const current = history[history.length - 1]
-
-            let methods = current.methods;
-            let test_cases = current.tests;
-            let edges = current.edges;
-
-            const filter_test = test_cases.find(test => label === `${test.class_name}.${test.method_name}`);
-
-            const method_ids = edges.filter(edge => filter_test.test_id === edge.test_id)
-                .map(edge => edge.method_id);
-
-            const filtered_methods = methods.filter(m => method_ids.includes(m.method_id))
-
-            const filtered_edges = edges.filter(
-                edge => method_ids.includes(edge.method_id) || edge.test_id === filter_test.test_id)
-
-            const test_ids = filtered_edges.map(edge => edge.test_id)
-
-            const filtered_tests = test_cases.filter(test => test_ids.includes(test.test_id));
-
-            this.setState({
-                history: this.state.history.concat({
-                    methods: filtered_methods,
-                    tests: filtered_tests,
-                    edges: filtered_edges
-                }),
-                entry: this.state.entry + 1
-            }, this.update)
-        }
-
         function onEdgeClick(e, label) {
             console.log(e, label);
         }
@@ -284,7 +220,7 @@ class TestMatrixView extends Component {
                 .style("text-anchor", "end")
                 .on('mouseover', mouseOverHandler)
                 .on('mouseout', mouseOutHandlerX)
-                .on('click', onMethodClick.bind(this));
+                .on('click', this.onMethodClick);
 
         select("g.y-axis")
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
@@ -294,7 +230,7 @@ class TestMatrixView extends Component {
                 .style("font-size", "2px")
                 .on('mouseover', mouseOverHandler)
                 .on('mouseout', mouseOutHandlerY)
-                .on('click', onTestClick.bind(this));
+                .on('click', this.onTestClick);
     }
 
     createTestMatrixView() {
@@ -308,27 +244,13 @@ class TestMatrixView extends Component {
         svg.append("g").attr("class", "testmatrix");
     }
 
-    backInTime() {
-        const new_history = this.state.history.slice(0, this.state.history.length - 1);
-        this.setState({
-            history: new_history,
-            entry: this.state.entry - 1
-        }, this.update)
-    }
-
     render() {
-        console.log("History elements", this.state.history.length)
-        console.log("Entry", this.state.entry)
-        console.log("history", this.state.history)
         return (
             <div>
-                {this.state.history.length > 2 &&
-                    <button onClick={this.backInTime} >BACK</button>
-                }
                 <svg ref={this.ref} width={this.state.width} height={this.state.height}></svg>
             </div>
         )
     }
 }
 
-export default TestMatrixView;
+export default MatrixVisualization;

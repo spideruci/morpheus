@@ -6,7 +6,7 @@ import {
   Switch
 } from 'react-router-dom';
 import About from './components/routes/About';
-import TestMatrixVisualization from './components/routes/TestMatrixVisualization';
+import TestMatrixView from './components/routes/TestMatrixView';
 import Header from './components/common/Header';
 import Footer from './components/common/Footer';
 import './App.scss';
@@ -23,7 +23,7 @@ function App() {
         <Switch>
           <Route exact path="/" component={About} />
           <Route exact path="/about" component={About} />
-          <Route exact path="/visualization" component={TestMatrixVisualization} />
+          <Route exact path="/visualization" component={TestMatrixView} />
         </Switch>
       </Router>
       <Footer />
