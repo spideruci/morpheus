@@ -58,7 +58,7 @@ class MatrixVisualization extends Component {
         // TODO set color based on something and if undefined set to black (#000)
         current.edges.forEach((edge, index) => {
             if  (!(edge["test_id"] === null || edge["method_id"] === null)){
-                edges.push({ x: parseInt(edge["method_id"]), y: parseInt(edge["test_id"]), z: edge["color"] ? "#0F0" : "#F00"});
+                edges.push({ x: parseInt(edge["method_id"]), y: parseInt(edge["test_id"]), z: edge["test_result"] ? "#0F0" : "#F00"});
             }
         });
 
