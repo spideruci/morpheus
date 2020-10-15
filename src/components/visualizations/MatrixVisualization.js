@@ -13,14 +13,7 @@ class MatrixVisualization extends Component {
         this.ref = React.createRef();
 
         // TODO remove historry from here (state in general should be removed.)
-        this.state = {
-            history: [{
-                methods: props.methods,
-                tests: props.tests,
-                edges: props.edges,
-            }],
-            entry: 0
-        }
+        this.state = {}
 
         this.margin = {
             top: 100,
@@ -37,6 +30,7 @@ class MatrixVisualization extends Component {
     }
 
     updateDimensions() {
+        // TODO fix this line, it should not be a hardcoded reference.
         let visualizationDiv = document.getElementById("visualization");
         return {
             width: visualizationDiv.offsetWidth,
@@ -45,10 +39,13 @@ class MatrixVisualization extends Component {
     }
 
     createMatrix() {
-        const history = this.state.history;
-        const current = history[history.length - 1]
+        const current = {
+            x: this.props.x,
+            y: this.props.y,
+            edges: this.props.edges
+        }
 
-        if (current.methods.length === 0 || current.tests.length === 0) {
+        if (current.x.length === 0 || current.y.length === 0) {
             return {
                 x_labels: [],
                 y_labels: [],
@@ -56,23 +53,19 @@ class MatrixVisualization extends Component {
             };
         }
 
-        let nodes = []
-        let methods = current.methods
-        let tests = current.tests
-
-        let edges = current.edges
+        let edges = []
 
         // TODO set color based on something and if undefined set to black (#000)
-        edges.forEach((edge, index) => {
+        current.edges.forEach((edge, index) => {
             if  (!(edge["test_id"] === null || edge["method_id"] === null)){
-                nodes.push({ x: parseInt(edge["method_id"]), y: parseInt(edge["test_id"]), z: edge["color"] ? "#0F0" : "#F00"});
+                edges.push({ x: parseInt(edge["method_id"]), y: parseInt(edge["test_id"]), z: edge["color"] ? "#0F0" : "#F00"});
             }
         });
 
         return {
-            x_labels: methods,
-            y_labels: tests,
-            nodes: nodes
+            x_labels: current.x,
+            y_labels: current.y,
+            nodes: edges
         };
     }
 
@@ -84,12 +77,6 @@ class MatrixVisualization extends Component {
         let dimensions = this.updateDimensions();
 
         let newState = {
-            history: this.state.history.concat({
-                methods: props.methods,
-                tests: props.tests,
-                edges: props.edges
-            }),
-            entry: this.state.entry + 1,
             width: dimensions.width,
             height: dimensions.height,
         }
@@ -247,7 +234,7 @@ class MatrixVisualization extends Component {
     render() {
         return (
             <div>
-                <svg ref={this.ref} width={this.state.width} height={this.state.height}></svg>
+                <svg ref={this.ref} width={this.props.width} height={this.props.height}></svg>
             </div>
         )
     }

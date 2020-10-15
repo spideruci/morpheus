@@ -3,6 +3,7 @@ import { json } from 'd3'
 import MatrixVisualization from '../visualizations/MatrixVisualization';
 import './TestMatrixView.scss';
 import { API_ROOT } from '../../config/api-config';
+import FilterMenu from '../common/FilterMenu';
 
 class TestMatrixView extends Component {
     constructor(props) {
@@ -194,7 +195,7 @@ class TestMatrixView extends Component {
         return (
             <div class='test-visualization'>
                 <div id='visualization'>
-                    <MatrixVisualization ref={this.testMatrixRef} methods={current.x} tests={current.y} edges={current.edges} onMethodClick={this.onMethodClick} onTestClick={this.onTestClick}/>
+                    <MatrixVisualization ref={this.testMatrixRef} x={current.x} y={current.y} edges={current.edges} onMethodClick={this.onMethodClick} onTestClick={this.onTestClick}/>
                 </div>
 
                 <div id='toolbox'>
@@ -211,21 +212,23 @@ class TestMatrixView extends Component {
                             {this.state.commits.map((commit) => <option key={commit.value} value={commit.value}>{commit.display}</option>)}
                         </select>
                     </div>
-                    <div>
+                    {/* <div>
                         <span>Tested: </span>
-                    </div>
+                    </div> */}
                     <div>
-                        <span>Search Method: </span>
+                        <span>Search Method:</span>
+                        <FilterMenu entries={current.x}/>
                     </div>
                     <div>
                         <span>Search Test: </span>
+                        <FilterMenu entries={current.y} />
                     </div>
                     <div>
                         <span>Back Button: </span><button onClick={this.backInTime}>BACK</button>
                     </div>
-                    <div>
+                    {/* <div>
                         <span>Reset Button: </span>
-                    </div>
+                    </div> */}
                 </div>
             </div>
         )
