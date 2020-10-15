@@ -13,17 +13,17 @@ class TestMatrixVisualization extends Component {
         this.state = {
             selectedProject: "",
             selectedCommit: "",
-            prod_methods: [],
-            test_methods: [],
-            links: [],
+            methods: [],
+            tests: [],
+            edges: [],
             projects: [],
             commits: [],
         }
 
         this.data = {
-            prod_methods: [],
-            test_methods: [],
-            links: [],
+            methods: [],
+            tests: [],
+            edges: [],
         }
     }
 
@@ -34,9 +34,9 @@ class TestMatrixVisualization extends Component {
 
         this.setState({
             selectedCommit: commit_sha,
-            prod_methods: data.prod_methods,
-            test_methods: data.test_methods,
-            links: data.links,
+            methods: data.methods,
+            tests: data.tests,
+            edges: data.edges,
         })
     }
 
@@ -53,7 +53,7 @@ class TestMatrixVisualization extends Component {
         return await json(`${API_ROOT}/commits/${project_name}`)
             .then(response => {
                 let commits = response.commits.map(commit => {
-                    return { value: commit.commit_sha, display: commit.commit_sha }
+                    return { value: commit.sha, display: commit.sha }
                 });
                 if (commits.length === 1) {
                     commits.push(commits[0])
@@ -63,7 +63,7 @@ class TestMatrixVisualization extends Component {
     }
 
     async updateProjectData() {
-        return await json(`${API_ROOT}/projects/`)
+        return await json(`${API_ROOT}/projects`)
             .then(response => {
                 let projects = response.projects.map(project => {
                     return { value: project.project_name, display: project.project_name }
@@ -78,9 +78,9 @@ class TestMatrixVisualization extends Component {
         return await json(`${API_ROOT}/coverage/${project_name}/${commit_sha}`)
             .then((response) => {
                 return {
-                    prod_methods: response.coverage.methods,
-                    test_methods: response.coverage.tests,
-                    links: response.coverage.links,
+                    methods: response.coverage.methods,
+                    tests: response.coverage.tests,
+                    edges: response.coverage.edges,
                 }
             })
             .catch((e) => {
@@ -94,7 +94,6 @@ class TestMatrixVisualization extends Component {
 
         let commits = await this.updateCommitData(project_name);
         let commit_sha = commits[0].value;
-
         let data = await this.updateCoverageData(project_name, commit_sha);
 
         this.setState({
@@ -102,9 +101,9 @@ class TestMatrixVisualization extends Component {
             selectedCommit: commits[0].value,
             projects: projects,
             commits: commits,
-            prod_methods: data.prod_methods,
-            test_methods: data.test_methods,
-            links: data.links,
+            methods: data.methods,
+            tests: data.tests,
+            edges: data.edges,
         })
     }
 
@@ -113,7 +112,7 @@ class TestMatrixVisualization extends Component {
         return (
             <div class='test-visualization'>
                 <div id='visualization'>
-                    <TestMatrixView ref={this.testMatrixRef} prod_methods={this.state.prod_methods} test_methods={this.state.test_methods} links={this.state.links} />
+                    <TestMatrixView ref={this.testMatrixRef} methods={this.state.methods} tests={this.state.tests} edges={this.state.edges} />
                 </div>
 
                 <div id='toolbox'>

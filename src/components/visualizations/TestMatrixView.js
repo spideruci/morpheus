@@ -14,9 +14,9 @@ class TestMatrixView extends Component {
 
         this.state = {
             history: [{
-                prod_methods: props.prod_methods,
-                test_methods: props.test_methods,
-                links: props.links,
+                methods: props.methods,
+                tests: props.tests,
+                edges: props.edges,
             }],
             entry: 0
         }
@@ -46,7 +46,7 @@ class TestMatrixView extends Component {
         const history = this.state.history;
         const current = history[history.length - 1]
 
-        if (current.prod_methods.length === 0 || current.test_methods.length === 0) {
+        if (current.methods.length === 0 || current.tests.length === 0) {
             return {
                 x_labels: [],
                 y_labels: [],
@@ -55,21 +55,21 @@ class TestMatrixView extends Component {
         }
 
         let nodes = []
-        let prod_methods = current.prod_methods
-        let test_methods = current.test_methods
+        let methods = current.methods
+        let tests = current.tests
 
-        let edges = current.links
+        let edges = current.edges
 
         // TODO set color based on something and if undefined set to black (#000)
         edges.forEach((edge, index) => {
-            let test = test_methods.find(test => test.test_id === edge.test_id)
-            let color = test.test_result === 0 ? "#11AA11" : "#FF0000";
-            nodes.push({ x: edge["method_id"], y: edge["test_id"], z: color});
+            if  (!(edge["test_id"] === null || edge["method_id"] === null)){
+                nodes.push({ x: parseInt(edge["method_id"]), y: parseInt(edge["test_id"]), z: edge["color"] ? "#0F0" : "#F00"});
+            }
         });
 
         return {
-            x_labels: prod_methods,
-            y_labels: test_methods,
+            x_labels: methods,
+            y_labels: tests,
             nodes: nodes
         };
     }
@@ -83,9 +83,9 @@ class TestMatrixView extends Component {
 
         let newState = {
             history: this.state.history.concat({
-                prod_methods: props.prod_methods,
-                test_methods: props.test_methods,
-                links: props.links
+                methods: props.methods,
+                tests: props.tests,
+                edges: props.edges
             }),
             entry: this.state.entry + 1,
             width: dimensions.width,
@@ -114,10 +114,10 @@ class TestMatrixView extends Component {
             .range([0, vis_width])
 
         let xScale = xRange.copy()
-                .domain(data.x_labels.map((label) => label.method_id));
+            .domain(data.x_labels.map((label) => parseInt(label.method_id)));
 
         let xLabel = xRange.copy()
-            .domain(data.x_labels.map((label) => `${label.class_name}.${label.method_decl}`));
+            .domain(data.x_labels.map((label) => `${label.package_name}.${label.class_name}.${label.method_decl}`));
 
         // Scales for Y-axis
         let yRange = scalePoint()
@@ -207,11 +207,11 @@ class TestMatrixView extends Component {
             const history = this.state.history;
             const current = history[this.state.entry]
 
-            let methods = current.prod_methods;
-            let test_cases = current.test_methods;
-            let edges = current.links;
+            let methods = current.methods;
+            let test_cases = current.tests;
+            let edges = current.edges;
 
-            const filter_method = methods.find( m => label === `${m.class_name}.${m.method_decl}`);
+            const filter_method = methods.find(m => label === `${m.package_name}.${m.class_name}.${m.method_decl}`);
 
             const test_ids = edges.filter(edge => filter_method.method_id === edge.method_id )
                                     .map(edge => edge.test_id);
@@ -227,9 +227,9 @@ class TestMatrixView extends Component {
 
             this.setState({
                 history: this.state.history.concat({
-                    prod_methods: filtered_methods,
-                    test_methods: filtered_tests,
-                    links: filtered_edges
+                    methods: filtered_methods,
+                    tests: filtered_tests,
+                    edges: filtered_edges
                 }),
                 entry: this.state.entry + 1
             }, this.update)
@@ -239,9 +239,9 @@ class TestMatrixView extends Component {
             const history = this.state.history;
             const current = history[history.length - 1]
 
-            let methods = current.prod_methods;
-            let test_cases = current.test_methods;
-            let edges = current.links;
+            let methods = current.methods;
+            let test_cases = current.tests;
+            let edges = current.edges;
 
             const filter_test = test_cases.find(test => label === `${test.class_name}.${test.method_name}`);
 
@@ -259,9 +259,9 @@ class TestMatrixView extends Component {
 
             this.setState({
                 history: this.state.history.concat({
-                    prod_methods: filtered_methods,
-                    test_methods: filtered_tests,
-                    links: filtered_edges
+                    methods: filtered_methods,
+                    tests: filtered_tests,
+                    edges: filtered_edges
                 }),
                 entry: this.state.entry + 1
             }, this.update)
