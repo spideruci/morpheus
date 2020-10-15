@@ -37,11 +37,11 @@ class TestMatrixView extends Component {
 
         this.setState({
             selectedCommit: commit_sha,
-            history: this.state.history.concat({
+            history: [{
                 x: data.methods,
                 y: data.tests,
                 edges: data.edges,
-            })
+            }]
         })
     }
 
