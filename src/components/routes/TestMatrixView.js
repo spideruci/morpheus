@@ -10,6 +10,7 @@ class TestMatrixView extends Component {
         super(props);
 
         this.testMatrixRef = React.createRef();
+        this.methodFilterMenu = React.createRef();
 
         this.state = {
             selectedProject: "",
@@ -134,7 +135,7 @@ class TestMatrixView extends Component {
         let test_cases = current.y;
         let edges = current.edges;
 
-        const filter_method = methods.find(m => label === `${m.package_name}.${m.class_name}.${m.method_decl}`);
+        const filter_method = methods.find(m => `${m.package_name}.${m.class_name}.${m.method_decl}`.includes(label));
 
         const test_ids = edges.filter(edge => filter_method.method_id === edge.method_id)
             .map(edge => edge.test_id);
@@ -165,7 +166,7 @@ class TestMatrixView extends Component {
         let test_cases = current.y;
         let edges = current.edges;
 
-        const filter_test = test_cases.find(test => label === `${test.class_name}.${test.method_name}`);
+        const filter_test = test_cases.find(test => `${test.class_name}.${test.method_name}`.includes(label));
 
         const method_ids = edges.filter(edge => filter_test.test_id === edge.test_id)
             .map(edge => edge.method_id);
@@ -189,13 +190,12 @@ class TestMatrixView extends Component {
     }
 
     render() {
-        console.log("Render")
-        const current = this.state.history[this.state.history.length - 1]
+        const current_state = this.state.history[this.state.history.length - 1]
 
         return (
             <div className='test-visualization'>
                 <div id='visualization'>
-                    <MatrixVisualization ref={this.testMatrixRef} x={current.x} y={current.y} edges={current.edges} onMethodClick={this.onMethodClick} onTestClick={this.onTestClick} labelToggle={false}/>
+                    <MatrixVisualization ref={this.testMatrixRef} x={current_state.x} y={current_state.y} edges={current_state.edges} onMethodClick={this.onMethodClick} onTestClick={this.onTestClick} labelToggle={false}/>
                 </div>
 
                 {/* Refactor the following as a separate Component? */}
@@ -218,11 +218,11 @@ class TestMatrixView extends Component {
                     </div> */}
                     <div>
                         <span>Search Method:</span>
-                        <FilterMenu entries={current.x}/>
+                        <FilterMenu entries={current_state.x} onClick={(event) => this.onMethodClick(event, event.target.text)}/>
                     </div>
                     <div>
                         <span>Search Test: </span>
-                        <FilterMenu entries={current.y} />
+                        <FilterMenu entries={current_state.y} onClick={(event) => this.onTestClick(event, event.target.text)} />
                     </div>
                     <div>
                         <span>Back Button: </span><button onClick={this.backInTime}>BACK</button>
