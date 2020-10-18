@@ -13,7 +13,7 @@ import './App.scss';
 
 function App() {
   return (
-    <div class='app'>
+    <div className='app'>
       <Header title='SpiderTest'/>
       <Router>
         <nav>

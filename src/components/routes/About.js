@@ -17,7 +17,7 @@ class About extends Component {
 
     render() {
         return (
-            <div class="content-wrapper">
+            <div className="content-wrapper">
                 <ReactMarkdown source={this.state.content} />
             </div>
         );

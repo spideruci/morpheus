@@ -193,11 +193,12 @@ class TestMatrixView extends Component {
         const current = this.state.history[this.state.history.length - 1]
 
         return (
-            <div class='test-visualization'>
+            <div className='test-visualization'>
                 <div id='visualization'>
                     <MatrixVisualization ref={this.testMatrixRef} x={current.x} y={current.y} edges={current.edges} onMethodClick={this.onMethodClick} onTestClick={this.onTestClick}/>
                 </div>
 
+                {/* Refactor the following as a separate Component? */}
                 <div id='toolbox'>
                     <h4>Toolbar</h4>
                     <div> 

@@ -13,6 +13,7 @@ class MatrixVisualization extends Component {
         this.ref = React.createRef();
 
         // TODO remove historry from here (state in general should be removed.)
+        // Currently used for width/height... 
         this.state = {}
 
         this.margin = {
@@ -25,12 +26,15 @@ class MatrixVisualization extends Component {
         this.createMatrix = this.createMatrix.bind(this);
         this.createTestMatrixView = this.createTestMatrixView.bind(this);
         this.update = this.update.bind(this);
+
+        // Set all methods passed through properties here (we don't use bind because we want to make use of the parent this object.)
         this.onMethodClick = this.props.onMethodClick;
         this.onTestClick = this.props.onTestClick;
     }
 
     updateDimensions() {
         // TODO fix this line, it should not be a hardcoded reference.
+        // Goal is to dynamically size the element based on the parent element.
         let visualizationDiv = document.getElementById("visualization");
         return {
             width: visualizationDiv.offsetWidth,
@@ -55,7 +59,8 @@ class MatrixVisualization extends Component {
 
         let edges = []
 
-        // TODO set color based on something and if undefined set to black (#000)
+        // TODO make this configurable, by adding a get_x(), get_y(), get_z() to the edge objects
+        //  It should be possible to dynamically change implementation of the get_x(), get_y(), and get_z() functions.
         current.edges.forEach((edge, index) => {
             if  (!(edge["test_id"] === null || edge["method_id"] === null)){
                 edges.push({ x: parseInt(edge["method_id"]), y: parseInt(edge["test_id"]), z: edge["test_result"] ? "#0F0" : "#F00"});
