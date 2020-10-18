@@ -154,7 +154,7 @@ class MatrixVisualization extends Component {
             .scale(yLabel);
 
         const t = transition()
-            .duration(1500)
+            .duration(750)
             .ease(easeLinear);
 
         let rectWidth = xLabel.step()
