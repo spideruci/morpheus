@@ -6,8 +6,6 @@ class FilterMenu extends Component {
     constructor(props) {
         super(props);
 
-        this.ref = React.createRef();
-
         this.onClickMethod = this.props.onClick;
 
         this.state = {
@@ -17,7 +15,6 @@ class FilterMenu extends Component {
     }
 
     componentWillReceiveProps(newProps){
-        console.log("ComponenetWillReceiveProps", newProps, this.props.entries);
         if (newProps.entries !== this.props.entries) {
             this.setState({
                 entries: newProps.entries,
@@ -50,10 +47,10 @@ class FilterMenu extends Component {
 
     render () {
         return (
-            <div className="dropdown">
-                <div id="myDropdown" className="dropdown-content">
-                    <input type="text" placeholder="Search..." onKeyUp={this.filterFunction.bind(this)}></input>
-                    <select ref={this.ref} >
+            <div className="filtermenu">
+                <div className="dropdown-content">
+                    <input type="text" placeholder={"Search..."} onKeyUp={this.filterFunction.bind(this)}></input>
+                    <select>
                         {this.state.display.map((entry) => (
                             <option onClick={this.onClickMethod} key={entry.method_id} value={entry.method_id}>{entry.method_name}</option>
                         ))}
