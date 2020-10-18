@@ -107,17 +107,17 @@ class TestMatrixView extends Component {
             selectedCommit: commits[0].value,
             projects: projects,
             commits: commits,
-            history: this.state.history.concat({
+            history: [{
                 x: data.methods,
                 y: data.tests,
                 edges: data.edges,
-            })
+            }]
         })
     }
 
     backInTime() {
         // Only allow to previous state if there is a previous state.
-        if (this.state.history.length <= 2) {
+        if (this.state.history.length <= 1) {
             return;
         }
 
