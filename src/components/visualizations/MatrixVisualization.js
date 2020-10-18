@@ -23,6 +23,8 @@ class MatrixVisualization extends Component {
             bottom: 0
         }
 
+        this.labelToggle = props.hasOwnProperty('labelToggle') ? props['labelOn'] : false;
+
         this.createMatrix = this.createMatrix.bind(this);
         this.createTestMatrixView = this.createTestMatrixView.bind(this);
         this.update = this.update.bind(this);
@@ -103,6 +105,7 @@ class MatrixVisualization extends Component {
         let vis_height = this.state.height - this.margin.top - this.margin.bottom -10;
 
         // Scales for X-axis
+        // TODO how to refactor the following so we can make use of a single scale instead of xScale and xLabel? 
         let xRange = scalePoint()
             .padding(0.5)
             .range([0, vis_width])
@@ -114,6 +117,7 @@ class MatrixVisualization extends Component {
             .domain(data.x_labels.map((label) => `${label.package_name}.${label.class_name}.${label.method_decl}`));
 
         // Scales for Y-axis
+        // TODO how to refactor the following so we can make use of a single scale instead of yScale and yLabel?
         let yRange = scalePoint()
             .padding(0.5)
             .range([0, vis_height])
@@ -129,17 +133,24 @@ class MatrixVisualization extends Component {
             console.error("xLabel and xScale step are not equal...")
         }
 
+
+        // Create tick format function, returns a function using the passed parameters.
+        function createTickFormatter(labelToggle, labelInterval) {
+            return  (label, i) => {
+                if (!labelToggle) {
+                    label = "";
+                }
+                return i % labelInterval !== 0 ? " " : label;
+            }
+        }
+
         // Create both axis
         let xAxis = axisTop()
-            // .tickFormat((interval, i) => {
-            //     return i % 3 !== 0 ? " " : interval;
-            // })
+            .tickFormat(createTickFormatter(this.labelToggle, 3))
             .scale(xLabel);
 
         let yAxis = axisLeft()
-            // .tickFormat((interval, i) => {
-            //     return i % 5 !== 0 ? " " : interval;
-            // })
+            .tickFormat(createTickFormatter(this.labelToggle, 3))
             .scale(yLabel);
 
         const t = transition()

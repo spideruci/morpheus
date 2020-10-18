@@ -195,7 +195,7 @@ class TestMatrixView extends Component {
         return (
             <div className='test-visualization'>
                 <div id='visualization'>
-                    <MatrixVisualization ref={this.testMatrixRef} x={current.x} y={current.y} edges={current.edges} onMethodClick={this.onMethodClick} onTestClick={this.onTestClick}/>
+                    <MatrixVisualization ref={this.testMatrixRef} x={current.x} y={current.y} edges={current.edges} onMethodClick={this.onMethodClick} onTestClick={this.onTestClick} labelToggle={false}/>
                 </div>
 
                 {/* Refactor the following as a separate Component? */}
