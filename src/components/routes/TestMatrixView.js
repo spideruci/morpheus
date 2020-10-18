@@ -117,7 +117,7 @@ class TestMatrixView extends Component {
 
     backInTime() {
         // Only allow to previous state if there is a previous state.
-        if (this.state.history.length <= 1) {
+        if (this.state.history.length <= 2) {
             return;
         }
 
