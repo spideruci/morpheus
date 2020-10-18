@@ -8,7 +8,7 @@ import { easeLinear } from 'd3-ease';
 
 class MatrixVisualization extends Component {
     constructor(props) {
-        super(props);
+        super();
 
         this.ref = React.createRef();
 
@@ -17,8 +17,8 @@ class MatrixVisualization extends Component {
         this.state = {}
 
         this.margin = {
-            top: 100,
-            left: 150,
+            top: 20,
+            left: 20,
             right: 0,
             bottom: 0
         }
@@ -30,8 +30,8 @@ class MatrixVisualization extends Component {
         this.update = this.update.bind(this);
 
         // Set all methods passed through properties here (we don't use bind because we want to make use of the parent this object.)
-        this.onMethodClick = this.props.onMethodClick;
-        this.onTestClick = this.props.onTestClick;
+        this.onMethodClick = props.onMethodClick;
+        this.onTestClick = props.onTestClick;
     }
 
     updateDimensions() {

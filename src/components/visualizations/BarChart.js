@@ -3,10 +3,10 @@ import * as d3 from 'd3';
 
 class BarChart extends Component {
     constructor(props) {
-        super(props);
+        super();
         this.state = {
-            width: this.props.size[0],
-            height: this.props.size[1],
+            width: props.size[0],
+            height: props.size[1],
         }
 
         this.ref = React.createRef();

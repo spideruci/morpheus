@@ -4,21 +4,20 @@ import './FilterMenu.scss'
 class FilterMenu extends Component {
 
     constructor(props) {
-        super(props);
+        super();
 
-        this.onClickMethod = this.props.onClick;
-
+        this.onClickMethod = props.onClick;
         this.state = {
-            entries: this.props.entries,
-            display: this.props.entries,
+            entries: props.entries,
+            display: props.entries,
         }
     }
 
-    componentWillReceiveProps(newProps){
-        if (newProps.entries !== this.props.entries) {
+    componentDidUpdate(prevProps, prevState, snapshot){
+        if (prevProps.entries !== this.props.entries) {
             this.setState({
-                entries: newProps.entries,
-                display: newProps.entries,
+                entries: this.props.entries,
+                display: this.props.entries,
             })
         }
     }

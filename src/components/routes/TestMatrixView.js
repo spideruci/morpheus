@@ -9,10 +9,7 @@ import Menu from '../common/Menu';
 
 class TestMatrixView extends Component {
     constructor(props) {
-        super(props);
-
-        this.testMatrixRef = React.createRef();
-        this.methodFilterMenu = React.createRef();
+        super();
 
         this.state = {
             selectedProject: "",
@@ -239,7 +236,7 @@ class TestMatrixView extends Component {
         return (
             <div className='test-visualization'>
                 <div id='visualization'>
-                    <MatrixVisualization ref={this.testMatrixRef} x={current_state.x} y={current_state.y} edges={current_state.edges} onMethodClick={this.onMethodClick} onTestClick={this.onTestClick} labelToggle={false}/>
+                    <MatrixVisualization x={current_state.x} y={current_state.y} edges={current_state.edges} onMethodClick={this.onMethodClick} onTestClick={this.onTestClick} labelToggle={false}/>
                 </div>
 
                 {/* Refactor the following as a separate Component? */}
