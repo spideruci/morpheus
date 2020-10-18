@@ -48,7 +48,7 @@ class MatrixVisualization extends Component {
         const current = {
             x: this.props.x,
             y: this.props.y,
-            edges: this.props.edges
+            edges: this.props.edges,
         }
 
         if (current.x.length === 0 || current.y.length === 0) {
@@ -80,15 +80,18 @@ class MatrixVisualization extends Component {
         this.createTestMatrixView();
     }
 
-    componentWillReceiveProps(props) {
-        let dimensions = this.updateDimensions();
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        let dimensions = this.updateDimensions()
 
-        let newState = {
-            width: dimensions.width,
-            height: dimensions.height,
+        if (this.state.width !== dimensions.width || this.state.height !== dimensions.height){
+            this.setState({
+                width: dimensions.width,
+                height: dimensions.height,
+            }, this.update)
         }
-
-        this.setState(newState, this.update);
+        else if ((prevProps.x !== this.props.x) || (prevProps.y !== this.props.y) || (prevProps.edges !== this.props.edges)) {
+            this.update()
+        }
     }
 
     update () {
@@ -98,8 +101,6 @@ class MatrixVisualization extends Component {
         svg.attr("viewBox", [0, 0, this.state.width, this.state.height]);
 
         let data = this.createMatrix();
-
-        if (data.x_labels.length === 0 || data.y_labels === 0) return;
 
         let vis_width = this.state.width - this.margin.left - this.margin.right -10;
         let vis_height = this.state.height - this.margin.top - this.margin.bottom -10;
@@ -132,7 +133,6 @@ class MatrixVisualization extends Component {
             // Meaning duplicate class_name.method_name entries
             console.error("xLabel and xScale step are not equal...")
         }
-
 
         // Create tick format function, returns a function using the passed parameters.
         function createTickFormatter(labelToggle, labelInterval) {

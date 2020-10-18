@@ -79,7 +79,7 @@ class TestMatrixView extends Component {
     }
 
     async updateCoverageData(project_name, commit_sha) {
-        console.log(`${API_ROOT}/coverage/${project_name}/${commit_sha}`);
+        console.debug(`${API_ROOT}/coverage/${project_name}/${commit_sha}`);
         return await json(`${API_ROOT}/coverage/${project_name}/${commit_sha}`)
             .then((response) => {
                 return {
@@ -232,14 +232,12 @@ class TestMatrixView extends Component {
 
     render() {
         const current_state = this.state.history[this.state.history.length - 1];
-        console.log("Render", current_state);
         return (
             <div className='test-visualization'>
                 <div id='visualization'>
                     <MatrixVisualization x={current_state.x} y={current_state.y} edges={current_state.edges} onMethodClick={this.onMethodClick} onTestClick={this.onTestClick} labelToggle={false}/>
                 </div>
 
-                {/* Refactor the following as a separate Component? */}
                 <div id='toolbox'>
                     <h4>Toolbar</h4>
 
