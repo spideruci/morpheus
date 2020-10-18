@@ -47,14 +47,17 @@ class FilterMenu extends Component {
 
     render () {
         return (
-            <div className="filtermenu">
-                <div className="dropdown-content">
-                    <input type="text" placeholder={"Search..."} onKeyUp={this.filterFunction.bind(this)}></input>
-                    <select>
-                        {this.state.display.map((entry) => (
-                            <option onClick={this.onClickMethod} key={entry.method_id} value={entry.method_id}>{entry.method_name}</option>
-                        ))}
-                    </select>
+            <div>
+                <span> {this.props.title} </span>
+                <div className="filtermenu">
+                    <div className="dropdown-content">
+                        <input type="text" placeholder={"Search..."} onKeyUp={this.filterFunction.bind(this)}></input>
+                        <select>
+                            {this.state.display.map((entry) => (
+                                <option onClick={this.onClickMethod} key={entry.method_id} value={entry.method_id}>{entry.method_name}</option>
+                            ))}
+                        </select>
+                    </div>
                 </div>
             </div> 
         )

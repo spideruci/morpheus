@@ -4,6 +4,7 @@ import MatrixVisualization from '../visualizations/MatrixVisualization';
 import './TestMatrixView.scss';
 import { API_ROOT } from '../../config/api-config';
 import FilterMenu from '../common/FilterMenu';
+import List from '../common/List';
 
 class TestMatrixView extends Component {
     constructor(props) {
@@ -201,35 +202,14 @@ class TestMatrixView extends Component {
                 {/* Refactor the following as a separate Component? */}
                 <div id='toolbox'>
                     <h4>Toolbar</h4>
-                    <div> 
-                        <span>Project: </span>
-                        <select onChange={this.onProjectChange}>
-                            {this.state.projects.map((project) => <option key={project.value} value={project.value}>{project.display}</option>)}
-                        </select>
-                    </div>
-                    <div>
-                        <span>Commit: </span>
-                        <select onChange={this.onCommitChange}>
-                            {this.state.commits.map((commit) => <option key={commit.value} value={commit.value}>{commit.display}</option>)}
-                        </select>
-                    </div>
-                    {/* <div>
-                        <span>Tested: </span>
-                    </div> */}
-                    <div>
-                        <span>Search Method:</span>
-                        <FilterMenu entries={current_state.x} onClick={(event) => this.onMethodClick(event, event.target.text)}/>
-                    </div>
-                    <div>
-                        <span>Search Test: </span>
-                        <FilterMenu entries={current_state.y} onClick={(event) => this.onTestClick(event, event.target.text)} />
-                    </div>
-                    <div>
-                        <span>Back Button: </span><button onClick={this.backInTime}>BACK</button>
-                    </div>
-                    {/* <div>
-                        <span>Reset Button: </span>
-                    </div> */}
+
+                    <List title="Projects" onProjectChange={this.onProjectChange} entries={this.state.projects} />
+                    <List title="Commit" onProjectChange={this.onCommitChange} entries={this.state.commits} />
+                    
+                    <FilterMenu title="Search Method:" entries={current_state.x} onClick={(event) => this.onMethodClick(event, event.target.text)}/>
+                    <FilterMenu title="Search Test:" entries={current_state.y} onClick={(event) => this.onTestClick(event, event.target.text)} />
+                    
+                    <span>Back Button: </span><button onClick={this.backInTime}>BACK</button>
                 </div>
             </div>
         )
