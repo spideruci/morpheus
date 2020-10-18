@@ -60,9 +60,6 @@ class TestMatrixView extends Component {
                 let commits = response.commits.map(commit => {
                     return { value: commit.sha, display: commit.sha }
                 });
-                if (commits.length === 1) {
-                    commits.push(commits[0])
-                }
                 return commits;
             })
     }

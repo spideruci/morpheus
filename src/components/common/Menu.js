@@ -1,8 +1,7 @@
 import React from 'react'
 import './Menu.scss'
 
-const SliderFilter = (props) => {
-
+const Menu = (props) => {
     return (
         <div className="menu-selector">
             <span> {props.title}: </span>
@@ -15,4 +14,4 @@ const SliderFilter = (props) => {
     )
 }
 
-export default SliderFilter;
+export default Menu;
