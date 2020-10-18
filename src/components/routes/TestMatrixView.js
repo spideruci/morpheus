@@ -5,6 +5,7 @@ import './TestMatrixView.scss';
 import { API_ROOT } from '../../config/api-config';
 import FilterMenu from '../common/FilterMenu';
 import List from '../common/List';
+import Menu from '../common/Menu';
 
 class TestMatrixView extends Component {
     constructor(props) {
@@ -159,6 +160,48 @@ class TestMatrixView extends Component {
         })
     }
 
+    testPassFilter(event) {
+        const index = event.target.index;
+        const current_state = this.state.history[this.state.history.length - 1]
+
+        function test_filter(current_state, predicate) {
+            const methods = current_state.x;
+            const tests = current_state.y;
+            const edges = current_state.edges;
+
+            const new_edges = edges.filter(predicate)
+            const method_ids = new_edges.map(edge => edge.method_id)
+            const test_ids = new_edges.map(edge => edge.test_id)
+
+            const new_methods = methods.filter((method) => method_ids.includes(method.method_id))
+            const new_tests = tests.filter((test) => test_ids.includes(test.test_id))
+            return {
+                x: new_methods,
+                y: new_tests,
+                edges: new_edges,
+            }
+        }
+
+        let new_state;
+        switch (index) {
+            case 1: // Present only passing methods
+                console.info(`Filter all test methods that fail Index: ${index}, was chosen.`);
+                new_state = test_filter(current_state, (edge) => edge.test_result)
+                break;
+            case 2: // Present only failing methods
+                console.info(`Filter all test methods that pass Index: ${index}, was chosen.`);
+                new_state = test_filter(current_state, (edge) => !edge.test_result)
+                break;
+            default:
+                console.info(`No methods have been filtered. Index: ${index}, was chosen.`);
+                return;
+        }
+
+        this.setState({
+            history: this.state.history.concat(new_state)
+        })
+    }
+
     onTestClick(e, label) {
         const history = this.state.history;
         const current = history[this.state.history.length - 1]
@@ -191,8 +234,8 @@ class TestMatrixView extends Component {
     }
 
     render() {
-        const current_state = this.state.history[this.state.history.length - 1]
-
+        const current_state = this.state.history[this.state.history.length - 1];
+        console.log("Render", current_state);
         return (
             <div className='test-visualization'>
                 <div id='visualization'>
@@ -206,6 +249,8 @@ class TestMatrixView extends Component {
                     <List title="Projects" onProjectChange={this.onProjectChange} entries={this.state.projects} />
                     <List title="Commit" onProjectChange={this.onCommitChange} entries={this.state.commits} />
                     
+                    <Menu title="Test Pass Filter" entries={[{ key: 0, value: "All" }, { key: 1, value: "Only Pass" }, { key: 2, value: "Only Fail" }]} onClick={this.testPassFilter.bind(this)}/>
+
                     <FilterMenu title="Search Method:" entries={current_state.x} onClick={(event) => this.onMethodClick(event, event.target.text)}/>
                     <FilterMenu title="Search Test:" entries={current_state.y} onClick={(event) => this.onTestClick(event, event.target.text)} />
                     
