@@ -1,0 +1,18 @@
+.result-text-box {
+    margin-top: 1.5%;
+    margin-bottom: 1.5%;
+    $width-menu: 350px;
+
+    textarea {
+        border: 1px solid #aaa;
+        outline: none;
+        resize: none;
+        white-space: wrap;
+        overflow: auto;
+        display: block;
+
+        width: $width-menu;
+        height: 150px;
+
+    }
+}

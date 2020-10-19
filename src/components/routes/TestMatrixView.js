@@ -6,6 +6,7 @@ import { API_ROOT } from '../../config/api-config';
 import FilterMenu from '../common/FilterMenu';
 import List from '../common/List';
 import Menu from '../common/Menu';
+import ResultTextBox from '../common/ResultTextBox';
 
 class TestMatrixView extends Component {
     constructor(props) {
@@ -80,8 +81,15 @@ class TestMatrixView extends Component {
         return await json(`${API_ROOT}/coverage/${project_name}/${commit_sha}`)
             .then((response) => {
                 return {
-                    methods: response.coverage.methods.map(m => {m.get_id = () => m.method_id; return m;}),
-                    tests: response.coverage.tests.map(t => { t.get_id = () => t.test_id; return t; }),
+                    methods: response.coverage.methods.map(m => {
+                        m.get_id = () => m.method_id;
+                        m.to_string = () => `${m.package_name}.${m.class_name}.${m.method_name}`; 
+                        return m;}),
+                    tests: response.coverage.tests.map(t => {
+                        t.get_id = () => t.test_id;
+                        t.to_string = () => `${t.class_name}.${t.method_name}`;
+                        return t;
+                    }),
                     edges: response.coverage.edges,
                 }
             })
@@ -232,7 +240,6 @@ class TestMatrixView extends Component {
         const current_state = this.state.history[states - 1];
 
         const labelToggle = states > 1 ? true : false;
-        console.log(labelToggle);
         return (
             <div className='test-visualization'>
                 <div id='visualization'>
@@ -250,6 +257,10 @@ class TestMatrixView extends Component {
                     <FilterMenu title="Search Method:" entries={current_state.x} onClick={(event) => this.onMethodClick(event, event.target.text)}/>
                     <FilterMenu title="Search Test:" entries={current_state.y} onClick={(event) => this.onTestClick(event, event.target.text)} />
                     
+                    
+                    <ResultTextBox title="Methods" entries={current_state.x}/>
+                    <ResultTextBox title="Tests" entries={current_state.y}/>
+
                     <span>Back Button: </span><button onClick={this.backInTime}>BACK</button>
                 </div>
             </div>
