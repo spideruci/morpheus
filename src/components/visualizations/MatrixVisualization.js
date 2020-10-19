@@ -201,7 +201,7 @@ class MatrixVisualization extends Component {
             .style("visibility", 'hidden');
 
         tooltip.append("text")
-            .attr("class", "tooltip-text")
+            .attr("id", "tooltip-text")
             .style("font-size", "12px")
 
         // Add X and Y axis to the visualization
@@ -219,13 +219,13 @@ class MatrixVisualization extends Component {
                 .style('fill', 'black')
                 .on('mouseover', (event, d) => {
                     let text_width = 0; 
-                    tooltip.transition()
+                    tooltip
                         .style("visibility", "visible")
-                        .select(".tooltip-text")
+                        .select("#tooltip-text")
                             .text(d)
                             .attr("y", event.layerY - (this.margin.top / 4) + "px")
                             .each((d, i) => {
-                                text_width = select(".tooltip-text").node().getComputedTextLength();
+                                text_width = select("#tooltip-text").node().getComputedTextLength();
                             })
                             .attr("transform", "")
                             .attr("x", () => {
@@ -237,8 +237,7 @@ class MatrixVisualization extends Component {
                             })
                 })
                 .on('mouseout', (event, d) => {
-                    tooltip.transition()
-                        .duration(200)
+                    tooltip
                         .style("visibility", "hidden");
                 })
                 .on('click', this.onMethodClick);
@@ -258,14 +257,14 @@ class MatrixVisualization extends Component {
                 .on('mouseover', (event, d) => {
                     tooltip
                         .style("visibility", "visible")
-                        .select(".tooltip-text")
+                        .select("#tooltip-text")
                             .text(d)
                             .attr("x", 0)
                             .attr("y", 0)
                             .attr("transform", "translate(50, 900)rotate(-90)");
                 })
                 .on('mouseout', (event, d) => {
-                    tooltip.transition()
+                    tooltip
                         .style("visibility", "hidden");
                 })
                 .on('click', this.onTestClick);
