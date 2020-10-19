@@ -80,8 +80,8 @@ class TestMatrixView extends Component {
         return await json(`${API_ROOT}/coverage/${project_name}/${commit_sha}`)
             .then((response) => {
                 return {
-                    methods: response.coverage.methods,
-                    tests: response.coverage.tests,
+                    methods: response.coverage.methods.map(m => {m.get_id = () => m.method_id; return m;}),
+                    tests: response.coverage.tests.map(t => { t.get_id = () => t.test_id; return t; }),
                     edges: response.coverage.edges,
                 }
             })
@@ -228,11 +228,15 @@ class TestMatrixView extends Component {
     }
 
     render() {
-        const current_state = this.state.history[this.state.history.length - 1];
+        const states = this.state.history.length
+        const current_state = this.state.history[states - 1];
+
+        const labelToggle = states > 1 ? true : false;
+        console.log(labelToggle);
         return (
             <div className='test-visualization'>
                 <div id='visualization'>
-                    <MatrixVisualization x={current_state.x} y={current_state.y} edges={current_state.edges} onMethodClick={this.onMethodClick} onTestClick={this.onTestClick} labelToggle={false}/>
+                    <MatrixVisualization x={current_state.x} y={current_state.y} edges={current_state.edges} onMethodClick={this.onMethodClick} onTestClick={this.onTestClick} labelToggle={labelToggle}/>
                 </div>
 
                 <div id='toolbox'>

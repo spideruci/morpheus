@@ -17,13 +17,13 @@ class MatrixVisualization extends Component {
         this.state = {}
 
         this.margin = {
-            top: 20,
-            left: 20,
+            top: 100,
+            left: 100,
             right: 0,
             bottom: 0
         }
 
-        this.labelToggle = props.hasOwnProperty('labelToggle') ? props['labelOn'] : false;
+        this.labelToggle = props.hasOwnProperty('labelToggle') ? props['labelToggle'] : false;
 
         this.createMatrix = this.createMatrix.bind(this);
         this.createTestMatrixView = this.createTestMatrixView.bind(this);
@@ -90,6 +90,7 @@ class MatrixVisualization extends Component {
             }, this.update)
         }
         else if ((prevProps.x !== this.props.x) || (prevProps.y !== this.props.y) || (prevProps.edges !== this.props.edges)) {
+            this.labelToggle = this.props.labelToggle;
             this.update()
         }
     }
@@ -137,20 +138,29 @@ class MatrixVisualization extends Component {
         // Create tick format function, returns a function using the passed parameters.
         function createTickFormatter(labelToggle, labelInterval) {
             return  (label, i) => {
+                label = "";  
                 if (!labelToggle) {
-                    label = "";
+                    label = "";   
                 }
+
                 return i % labelInterval !== 0 ? " " : label;
             }
         }
 
         // Create both axis
+        const max_labels = 20;
+        const x_tick_interval = data.x_labels.length <= max_labels ? 1 : data.x_labels.length / max_labels;
+        const y_tick_interval = data.y_labels.length <= max_labels ? 1 : data.x_labels.length / max_labels;
+
+        const x_toggle = data.x_labels.length <= max_labels && this.labelToggle;
+        const y_toggle = data.y_labels.length <= max_labels && this.labelToggle;
+
         let xAxis = axisTop()
-            .tickFormat(createTickFormatter(this.labelToggle, 3))
+            .tickFormat(createTickFormatter(x_toggle, x_tick_interval))
             .scale(xLabel);
 
         let yAxis = axisLeft()
-            .tickFormat(createTickFormatter(this.labelToggle, 3))
+            .tickFormat(createTickFormatter(y_toggle, y_tick_interval))
             .scale(yLabel);
 
         const t = transition()
@@ -186,53 +196,100 @@ class MatrixVisualization extends Component {
                 .attr("rx", Math.max(1, xScale.step()/2))
                 .on('click', onEdgeClick.bind(this));
 
-        let max_font_size = 10;
-
         function mouseOverHandler(d, i) {
             return select(this)
                 .transition()
-                .style("font-size", max_font_size + "px")
+                .style("font-weight", "bold");
         }
 
         function mouseOutHandlerX(d, i) {
             return select(this)
                 .transition()
-                .style("font-size", "2px")
+                .style("font-weight", "normal");
         }
 
         function mouseOutHandlerY(d, i) {
             return select(this)
                 .transition()
-                .style("font-size", "2px")
+                .style("font-weight", "normal");
         }
 
         function onEdgeClick(e, label) {
             console.log(e, label);
         }
 
+        // Tooltip
+        let tooltip = svg.select(".tooltip")
+            .style("visibility", 'hidden');
+
+        tooltip.append("text")
+            .attr("class", "tooltip-text")
+            .style("font-size", "12px")
+
         // Add X and Y axis to the visualization
-        select("g.x-axis")
+        let g_xAxis = select("g.x-axis")
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
-            .call(xAxis)
-            .selectAll("text")
-                .style("font-size", "2px")
-                .attr("x", 0)
-                .attr("y", 0)
-                .attr("dx", "-2em")
-                .attr("transform", "rotate(45)")
-                .style("text-anchor", "end")
-                .on('mouseover', mouseOverHandler)
-                .on('mouseout', mouseOutHandlerX)
+            .call(xAxis);
+
+        g_xAxis.selectAll('.tick')
+            .append('circle')
+                .attr('cx', 0)
+                .attr('cy', -10)
+                .attr('r', 5)
+                .style('stroke', 'black')
+                .style('stroke-width', '1')
+                .style('fill', 'black')
+                .on('mouseover', (event, d) => {
+                    let text_width = 0; 
+                    tooltip.transition()
+                        .style("visibility", "visible")
+                        .select(".tooltip-text")
+                            .text(d)
+                            .attr("y", event.layerY - (this.margin.top / 4) + "px")
+                            .each((d, i) => {
+                                text_width = select(".tooltip-text").node().getComputedTextLength();
+                            })
+                            .attr("transform", "")
+                            .attr("x", () => {
+                                let x_location = event.layerX - (text_width / 2) + 10;
+                                if (x_location < 10){
+                                    x_location = 10;
+                                }
+                                return x_location + "px";
+                            })
+                })
+                .on('mouseout', (event, d) => {
+                    tooltip.transition()
+                        .duration(200)
+                        .style("visibility", "hidden");
+                })
                 .on('click', this.onMethodClick);
 
-        select("g.y-axis")
+        let g_yAxis = select("g.y-axis")
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
-            .call(yAxis)
-            .selectAll("text")
-                .style("text-anchor", "end")
-                .style("font-size", "2px")
-                .on('mouseover', mouseOverHandler)
-                .on('mouseout', mouseOutHandlerY)
+            .call(yAxis);
+
+        g_yAxis.selectAll(".tick")
+            .append('circle')
+                .attr('cx', -10)
+                .attr('cy', 0)
+                .attr('r', 5)
+                .style('stroke', 'black')
+                .style('stroke-width', '1')
+                .style('fill', 'black')
+                .on('mouseover', (event, d) => {
+                    tooltip
+                        .style("visibility", "visible")
+                        .select(".tooltip-text")
+                            .text(d)
+                            .attr("x", 0)
+                            .attr("y", 0)
+                            .attr("transform", "translate(50, 900)rotate(-90)");
+                })
+                .on('mouseout', (event, d) => {
+                    tooltip.transition()
+                        .style("visibility", "hidden");
+                })
                 .on('click', this.onTestClick);
     }
 
@@ -245,6 +302,7 @@ class MatrixVisualization extends Component {
         svg.append("g").attr("class", "x-axis");
         svg.append("g").attr("class", "y-axis");
         svg.append("g").attr("class", "testmatrix");
+        svg.append("g").attr("class", "tooltip");
     }
 
     render() {
