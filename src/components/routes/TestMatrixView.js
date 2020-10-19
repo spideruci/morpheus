@@ -1,4 +1,9 @@
 import React, { Component } from 'react'
+import Accordion from '@material-ui/core/Accordion';
+import AccordionSummary from '@material-ui/core/AccordionSummary';
+import AccordionDetails from '@material-ui/core/AccordionDetails';
+import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
+
 import { json } from 'd3'
 import MatrixVisualization from '../visualizations/MatrixVisualization';
 import './TestMatrixView.scss';
@@ -83,7 +88,7 @@ class TestMatrixView extends Component {
                 return {
                     methods: response.coverage.methods.map(m => {
                         m.get_id = () => m.method_id;
-                        m.to_string = () => `${m.package_name}.${m.class_name}.${m.method_name}`; 
+                        m.to_string = () => `${m.package_name}.${m.class_name}.${m.method_decl}`;
                         return m;}),
                     tests: response.coverage.tests.map(t => {
                         t.get_id = () => t.test_id;
@@ -248,16 +253,45 @@ class TestMatrixView extends Component {
 
                 <div id='toolbox'>
                     <h4>Toolbar</h4>
+                    <Accordion>
+                        <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="panel1a-content"
+                            id="data-set-selector"
+                        >
+                        <span>Project selector</span>
+                        </AccordionSummary>
+                        <AccordionDetails className="accordion-block">
+                            <List title="Projects" onProjectChange={this.onProjectChange} entries={this.state.projects} />
+                            <List title="Commit" onProjectChange={this.onCommitChange} entries={this.state.commits} />
+                        </AccordionDetails>
+                    </Accordion>
+                    <Accordion>
+                        <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="panel1a-content"
+                            id="data-set-selector"
+                        >
+                            <span>Test Filters</span>
+                        </AccordionSummary>
+                        <AccordionDetails className="accordion-block">
+                            <Menu title="Test Pass Filter" entries={[{ key: 0, value: "All" }, { key: 1, value: "Only Pass" }, { key: 2, value: "Only Fail" }]} onClick={this.testPassFilter.bind(this)} />
+                            <FilterMenu title="Search Test:" entries={current_state.y} onClick={(event) => this.onTestClick(event, event.target.text)} />
+                        </AccordionDetails>
+                    </Accordion>
+                    <Accordion>
+                        <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="panel1a-content"
+                            id="data-set-selector"
+                        >
+                            <span>Method Filters</span>
+                        </AccordionSummary>
+                        <AccordionDetails className="accordion-block">
+                            <FilterMenu title="Search Method:" entries={current_state.x} onClick={(event) => this.onMethodClick(event, event.target.text)} />
+                        </AccordionDetails>
+                    </Accordion>
 
-                    <List title="Projects" onProjectChange={this.onProjectChange} entries={this.state.projects} />
-                    <List title="Commit" onProjectChange={this.onCommitChange} entries={this.state.commits} />
-                    
-                    <Menu title="Test Pass Filter" entries={[{ key: 0, value: "All" }, { key: 1, value: "Only Pass" }, { key: 2, value: "Only Fail" }]} onClick={this.testPassFilter.bind(this)}/>
-
-                    <FilterMenu title="Search Method:" entries={current_state.x} onClick={(event) => this.onMethodClick(event, event.target.text)}/>
-                    <FilterMenu title="Search Test:" entries={current_state.y} onClick={(event) => this.onTestClick(event, event.target.text)} />
-                    
-                    
                     <ResultTextBox title="Methods" entries={current_state.x}/>
                     <ResultTextBox title="Tests" entries={current_state.y}/>
 

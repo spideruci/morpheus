@@ -1,7 +1,8 @@
 .selector {
     margin-top: 1.5%;
     margin-bottom: 1.5%;
-    $width-menu: 350px;
+    $width-menu: 100%;
+    display: block;
 
     select {
         width: $width-menu;

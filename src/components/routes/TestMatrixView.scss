@@ -21,5 +21,9 @@
         min-width: 100px;
         text-align: left;
         background-color: grey;
+
+        .accordion-block {
+            display: block;
+        }
     }
 }
