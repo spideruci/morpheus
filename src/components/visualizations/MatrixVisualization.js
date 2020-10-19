@@ -193,30 +193,8 @@ class MatrixVisualization extends Component {
                 .attr("fill", (d) => d.z)
                 .attr("width", rectWidth)
                 .attr("height", rectHeight)
-                .attr("rx", Math.max(1, xScale.step()/2))
-                .on('click', onEdgeClick.bind(this));
-
-        function mouseOverHandler(d, i) {
-            return select(this)
-                .transition()
-                .style("font-weight", "bold");
-        }
-
-        function mouseOutHandlerX(d, i) {
-            return select(this)
-                .transition()
-                .style("font-weight", "normal");
-        }
-
-        function mouseOutHandlerY(d, i) {
-            return select(this)
-                .transition()
-                .style("font-weight", "normal");
-        }
-
-        function onEdgeClick(e, label) {
-            console.log(e, label);
-        }
+                .attr("rx", Math.max(1, xScale.step()/2));
+                // TODO add tooltip when hovering over a edge
 
         // Tooltip
         let tooltip = svg.select(".tooltip")
