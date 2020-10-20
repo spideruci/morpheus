@@ -12,9 +12,12 @@ class MatrixVisualization extends Component {
 
         this.ref = React.createRef();
 
-        // TODO remove historry from here (state in general should be removed.)
+        // TODO remove history from here (state in general should be removed.)
         // Currently used for width/height... 
-        this.state = {}
+        this.state = {
+            width: 0,
+            height: 0,
+        }
 
         this.margin = {
             top: 50,
@@ -284,7 +287,7 @@ class MatrixVisualization extends Component {
 
     render() {
         return (
-            <div>
+            <div id='visualization'>
                 <svg ref={this.ref} width={this.props.width} height={this.props.height}></svg>
             </div>
         )

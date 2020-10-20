@@ -251,9 +251,9 @@ class TestMatrixView extends Component {
         const labelToggle = states > 1 ? true : false;
         return (
             <div className='test-visualization'>
-                <div id='visualization'>
+                {((current_state.x.length >= 0) || (current_state.y.length >= 0)) &&
                     <MatrixVisualization x={current_state.x} y={current_state.y} edges={current_state.edges} onMethodClick={this.onMethodClick} onTestClick={this.onTestClick} labelToggle={labelToggle}/>
-                </div>
+                }
 
                 <div id='toolbox'>
                     <h4>Toolbar</h4>
