@@ -6,6 +6,7 @@ const Menu = (props) => {
         <div className="menu-selector">
             <span> {props.title}: </span>
             <select onChange={props.onChange}>
+                <option> -- select an option -- </option>
                 {props.entries.map((entry) => (
                     <option key={entry.key} value={entry.key}>{entry.value}</option>
                 ))}

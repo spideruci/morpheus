@@ -55,6 +55,7 @@ class FilterMenu extends Component {
                     <div className="dropdown-content">
                         <input type="text" placeholder={"Search..."} onKeyUp={this.filterFunction.bind(this)}></input>
                         <select onChange={this.onClickMethod}>
+                            <option> -- select an option -- </option>
                             {this.state.display.map((entry) => (
                                 <option key={entry.get_id()} value={entry.get_id()}>{entry.method_name}</option>
                             ))}
