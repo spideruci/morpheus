@@ -25,5 +25,14 @@
         .accordion-block {
             display: block;
         }
+
+        #control-tools {
+            text-align: center;
+            button {
+                display: inline-block;
+                margin-left: 5%;
+                margin-right: 5%;
+            }
+        }
     }
 }

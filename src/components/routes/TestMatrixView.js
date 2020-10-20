@@ -30,6 +30,7 @@ class TestMatrixView extends Component {
         }
 
         this.backInTime = this.backInTime.bind(this);
+        this.reset = this.reset.bind(this);
         this.onProjectChange = this.onProjectChange.bind(this);
         this.onCommitChange = this.onCommitChange.bind(this)
         this.onMethodClick = this.onMethodClick.bind(this);
@@ -136,6 +137,13 @@ class TestMatrixView extends Component {
         })
     }
 
+    reset() {
+        const new_history = this.state.history[0];
+        this.setState({
+            history: [new_history],
+        })
+    }
+
     onMethodClick(event, label) {
         const history = this.state.history;
         const current = history[this.state.history.length - 1]
@@ -144,7 +152,17 @@ class TestMatrixView extends Component {
         let test_cases = current.y;
         let edges = current.edges;
 
-        const filter_method = methods.find(m => `${m.package_name}.${m.class_name}.${m.method_decl}`.includes(label));
+        let filter_method = methods.find(m => `${m.package_name}.${m.class_name}.${m.method_decl}`.includes(label));
+
+        if (filter_method === undefined) {
+            console.log(event.target)
+            filter_method = methods.find(m => m.get_id() === parseInt(event.target.value));
+        }
+
+        if (filter_method === undefined) {
+            console.error("Filter Method was not found...");
+            return;
+        }
 
         const test_ids = edges.filter(edge => filter_method.get_id() === edge.method_id)
             .map(edge => edge.test_id);
@@ -217,7 +235,17 @@ class TestMatrixView extends Component {
         let test_cases = current.y;
         let edges = current.edges;
 
-        const filter_test = test_cases.find(test => `${test.class_name}.${test.method_name}`.includes(label));
+        let filter_test = test_cases.find(test => `${test.class_name}.${test.method_name}`.includes(label));
+
+        if (filter_test === undefined) {
+            console.log(event.target)
+            filter_test = test_cases.find(test => test.get_id() === parseInt(event.target.value));
+        }
+
+        if (filter_test === undefined) {
+            console.error("Filter Method was not found...");
+            return;
+        }
 
         const method_ids = edges.filter(edge => filter_test.test_id === edge.test_id)
             .map(edge => edge.method_id);
@@ -295,7 +323,10 @@ class TestMatrixView extends Component {
                     <ResultTextBox title="Methods" entries={current_state.x}/>
                     <ResultTextBox title="Tests" entries={current_state.y}/>
 
-                    <span>Back Button: </span><button onClick={this.backInTime}>BACK</button>
+                    <div id="control-tools">
+                        <button onClick={this.backInTime}>Back</button>
+                        <button onClick={this.reset}>Reset</button>
+                    </div>
                 </div>
             </div>
         )
