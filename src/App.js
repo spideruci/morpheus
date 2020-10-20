@@ -20,11 +20,13 @@ function App() {
           <Link to="/about">About</Link>
           <Link to="/visualization">Visualization</Link>
         </nav>
-        <Switch>
-          <Route exact path="/" component={About} />
-          <Route exact path="/about" component={About} />
-          <Route exact path="/visualization" component={TestMatrixView} />
-        </Switch>
+        <div className="component">
+          <Switch>
+            <Route exact path="/" component={About} />
+            <Route exact path="/about" component={About} />
+            <Route exact path="/visualization" component={TestMatrixView} />
+          </Switch>
+        </div>
       </Router>
       <Footer />
     </div>
