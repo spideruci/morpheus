@@ -23,14 +23,17 @@ class FilterMenu extends Component {
     }
 
     filterFunction(event) {
-        // Get typed input
-        const user_input = event.target.value;
-        if (user_input === '') {
-            return;
-        }
-
         // Get entry list
         const { entries } = this.state;
+
+        // Get typed input
+        const user_input = event.target.value;
+        if (user_input === "") {
+            this.setState({
+                display: this.state.entries,
+            })
+            return;
+        }
 
         // Filter entry list based on what hsa been typed
         const display = entries.filter(item => {
