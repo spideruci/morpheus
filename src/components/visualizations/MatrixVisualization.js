@@ -17,8 +17,8 @@ class MatrixVisualization extends Component {
         this.state = {}
 
         this.margin = {
-            top: 100,
-            left: 100,
+            top: 50,
+            left: 50,
             right: 0,
             bottom: 0
         }
@@ -261,7 +261,7 @@ class MatrixVisualization extends Component {
                             .text(d)
                             .attr("x", 0)
                             .attr("y", 0)
-                            .attr("transform", "translate(50, 900)rotate(-90)");
+                        .attr("transform", `translate(${this.margin.left/2}, 900)rotate(-90)`);
                 })
                 .on('mouseout', (event, d) => {
                     tooltip
