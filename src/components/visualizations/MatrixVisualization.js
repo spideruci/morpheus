@@ -201,7 +201,7 @@ class MatrixVisualization extends Component {
 
         // Tooltip
         let tooltip = svg.select(".tooltip")
-            .style("visibility", 'hidden');
+            .style("visibility", 'hidden')
 
         tooltip.append("text")
             .attr("id", "tooltip-text")

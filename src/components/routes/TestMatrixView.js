@@ -136,7 +136,7 @@ class TestMatrixView extends Component {
         })
     }
 
-    onMethodClick(e, label) {
+    onMethodClick(event, label) {
         const history = this.state.history;
         const current = history[this.state.history.length - 1]
 
@@ -144,11 +144,9 @@ class TestMatrixView extends Component {
         let test_cases = current.y;
         let edges = current.edges;
 
-        const method_id = parseInt(e.target.value);
-        
-        const filter_method = methods.find(m => m.get_id() === method_id);
+        const filter_method = methods.find(m => `${m.package_name}.${m.class_name}.${m.method_decl}`.includes(label));
 
-        const test_ids = edges.filter(edge => filter_method.method_id === edge.method_id)
+        const test_ids = edges.filter(edge => filter_method.get_id() === edge.method_id)
             .map(edge => edge.test_id);
 
         const filtered_tests = test_cases.filter(test => test_ids.includes(test.test_id))
@@ -211,7 +209,7 @@ class TestMatrixView extends Component {
         })
     }
 
-    onTestClick(event) {
+    onTestClick(event, label) {
         const history = this.state.history;
         const current = history[this.state.history.length - 1]
 
@@ -219,9 +217,7 @@ class TestMatrixView extends Component {
         let test_cases = current.y;
         let edges = current.edges;
 
-        const test_id = parseInt(event.target.value);
-
-        const filter_test = test_cases.find(test => test.get_id() === test_id);
+        const filter_test = test_cases.find(test => `${test.class_name}.${test.method_name}`.includes(label));
 
         const method_ids = edges.filter(edge => filter_test.test_id === edge.test_id)
             .map(edge => edge.method_id);
