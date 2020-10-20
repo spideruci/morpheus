@@ -144,7 +144,9 @@ class TestMatrixView extends Component {
         let test_cases = current.y;
         let edges = current.edges;
 
-        const filter_method = methods.find(m => `${m.package_name}.${m.class_name}.${m.method_decl}`.includes(label));
+        const method_id = parseInt(e.target.value);
+        
+        const filter_method = methods.find(m => m.get_id() === method_id);
 
         const test_ids = edges.filter(edge => filter_method.method_id === edge.method_id)
             .map(edge => edge.test_id);
@@ -168,7 +170,7 @@ class TestMatrixView extends Component {
     }
 
     testPassFilter(event) {
-        const index = event.target.index;
+        const index = parseInt(event.target.value);
         const current_state = this.state.history[this.state.history.length - 1]
 
         function test_filter(current_state, predicate) {
@@ -209,7 +211,7 @@ class TestMatrixView extends Component {
         })
     }
 
-    onTestClick(e, label) {
+    onTestClick(event) {
         const history = this.state.history;
         const current = history[this.state.history.length - 1]
 
@@ -217,7 +219,9 @@ class TestMatrixView extends Component {
         let test_cases = current.y;
         let edges = current.edges;
 
-        const filter_test = test_cases.find(test => `${test.class_name}.${test.method_name}`.includes(label));
+        const test_id = parseInt(event.target.value);
+
+        const filter_test = test_cases.find(test => test.get_id() === test_id);
 
         const method_ids = edges.filter(edge => filter_test.test_id === edge.test_id)
             .map(edge => edge.method_id);
@@ -275,7 +279,7 @@ class TestMatrixView extends Component {
                             <span>Test Filters</span>
                         </AccordionSummary>
                         <AccordionDetails className="accordion-block">
-                            <Menu title="Test Pass Filter" entries={[{ key: 0, value: "All" }, { key: 1, value: "Only Pass" }, { key: 2, value: "Only Fail" }]} onClick={this.testPassFilter.bind(this)} />
+                            <Menu title="Test Pass Filter" entries={[{ key: 0, value: "All" }, { key: 1, value: "Only Pass" }, { key: 2, value: "Only Fail" }]} onChange={this.testPassFilter.bind(this)} />
                             <FilterMenu title="Search Test:" entries={current_state.y} onClick={(event) => this.onTestClick(event, event.target.text)} />
                         </AccordionDetails>
                     </Accordion>

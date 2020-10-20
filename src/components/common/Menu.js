@@ -5,9 +5,9 @@ const Menu = (props) => {
     return (
         <div className="menu-selector">
             <span> {props.title}: </span>
-            <select>
+            <select onChange={props.onChange}>
                 {props.entries.map((entry) => (
-                    <option onClick={props.onClick} key={entry.key} value={entry.value}>{entry.value}</option>
+                    <option key={entry.key} value={entry.key}>{entry.value}</option>
                 ))}
             </select>
         </div>
