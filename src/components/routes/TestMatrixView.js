@@ -9,6 +9,7 @@ import MatrixVisualization from '../visualizations/MatrixVisualization';
 import './TestMatrixView.scss';
 import { API_ROOT } from '../../config/api-config';
 import FilterMenu from '../common/FilterMenu';
+import FilterSlider from '../common/FilterSlider';
 import List from '../common/List';
 import Menu from '../common/Menu';
 import ResultTextBox from '../common/ResultTextBox';
@@ -35,6 +36,8 @@ class TestMatrixView extends Component {
         this.onCommitChange = this.onCommitChange.bind(this)
         this.onMethodClick = this.onMethodClick.bind(this);
         this.onTestClick = this.onTestClick.bind(this);
+        this.methodTestFilter = this.methodTestFilter.bind(this)
+        this.testMethodCountFilter = this.testMethodCountFilter.bind(this)
     }
 
     async onCommitChange(event) {
@@ -227,6 +230,107 @@ class TestMatrixView extends Component {
         })
     }
 
+    async methodTestFilter(event, value) {
+        const history = this.state.history;
+        const current = history[this.state.history.length - 1]
+
+        // let test_id_map = new Map() // Map test_id to methods it covers
+        let method_id_map = new Map() // Map method_id to tests its covered by.
+
+        const edges = current.edges;
+
+        edges.forEach(edge => {
+            // if (test_id_map.has(edge.test_id)) {
+            //     //  Get current Set of methods test covers
+            //     let method_ids = test_id_map.get(edge.test_id)
+
+            //     // Add new method id to set and update map
+            //     method_ids.add(edge.method_id)
+            //     test_id_map.set(edge.test_id, method_ids)
+
+            // } else {
+            //     let method_ids = new Set();
+            //     method_ids.add(edge.method_id);
+            //     test_id_map.set(edge.test_id, method_ids)
+            // }
+            if (method_id_map.has(edge.method_id)) {
+
+                //  Get current Set of methods test covers
+                let test_ids = method_id_map.get(edge.method_id)
+
+                // Add new method id to set and update map
+                test_ids.add(edge.test_id)
+                method_id_map.set(edge.method_id, test_ids)
+
+            } else {
+                let test_ids = new Set();
+                test_ids.add(edge.test_id);
+                method_id_map.set(edge.method_id, test_ids)
+            }
+        })
+        
+        const methods = current.x.filter((m) => {
+            const method_id = m.get_id();
+            return (value === 0) || (method_id_map.has(method_id) && (method_id_map.get(method_id).size > value));
+        })
+
+        const filtered_edges = current.edges.filter((edge) => {
+            const method_id = edge.method_id;
+            return (value === 0) || (method_id_map.has(method_id) && (method_id_map.get(method_id).size > value));
+        });
+
+        this.setState({
+            history: this.state.history.concat({
+                x: methods,
+                y: current.y,
+                edges: filtered_edges,
+            }),
+        })
+    }
+
+    async testMethodCountFilter(event, value) {
+        const history = this.state.history;
+        const current = history[this.state.history.length - 1]
+
+        let test_id_map = new Map() // Map test_id to methods it covers
+
+        const edges = current.edges;
+
+        edges.forEach(edge => {
+            if (test_id_map.has(edge.test_id)) {
+                //  Get current Set of methods test covers
+                let method_ids = test_id_map.get(edge.test_id)
+
+                // Add new method id to set and update map
+                method_ids.add(edge.method_id)
+                test_id_map.set(edge.test_id, method_ids)
+
+            } else {
+                let method_ids = new Set();
+                method_ids.add(edge.method_id);
+                test_id_map.set(edge.test_id, method_ids)
+            }
+        })
+
+        const tests = current.y.filter((test) => {
+            const test_id = test.get_id();
+            return (value === 0) || (test_id_map.has(test_id) && (test_id_map.get(test_id).size > value));
+        })
+
+        const filtered_edges = current.edges.filter((edge) => {
+            const test_id = edge.test_id;
+            return (value === 0) || (test_id_map.has(test_id) && (test_id_map.get(test_id).size > value));
+        });
+
+        this.setState({
+            history: this.state.history.concat({
+                x: current.x,
+                y: tests,
+                edges: filtered_edges,
+            }),
+        })
+    }
+
     onTestClick(event, label) {
         const history = this.state.history;
         const current = history[this.state.history.length - 1]
@@ -305,6 +409,7 @@ class TestMatrixView extends Component {
                         <AccordionDetails className="accordion-block">
                             <Menu title="Test Pass Filter" entries={[{ key: 0, value: "All" }, { key: 1, value: "Only Pass" }, { key: 2, value: "Only Fail" }]} onChange={this.testPassFilter.bind(this)} />
                             <FilterMenu title="Search Test:" entries={current_state.y} onClick={(event) => this.onTestClick(event, event.target.text)} />
+                            <FilterSlider title="Method Count" defaultValue={0} min={0} max={25} onChange={this.testMethodCountFilter} />
                         </AccordionDetails>
                     </Accordion>
                     <Accordion>
@@ -317,6 +422,7 @@ class TestMatrixView extends Component {
                         </AccordionSummary>
                         <AccordionDetails className="accordion-block">
                             <FilterMenu title="Search Method:" entries={current_state.x} onClick={(event) => this.onMethodClick(event, event.target.text)} />
+                            <FilterSlider title="Test Count" defaultValue={0} min={0} max={25} onChange={this.methodTestFilter} />
                         </AccordionDetails>
                     </Accordion>
 
