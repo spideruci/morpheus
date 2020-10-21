@@ -234,25 +234,11 @@ class TestMatrixView extends Component {
         const history = this.state.history;
         const current = history[this.state.history.length - 1]
 
-        // let test_id_map = new Map() // Map test_id to methods it covers
         let method_id_map = new Map() // Map method_id to tests its covered by.
 
         const edges = current.edges;
 
         edges.forEach(edge => {
-            // if (test_id_map.has(edge.test_id)) {
-            //     //  Get current Set of methods test covers
-            //     let method_ids = test_id_map.get(edge.test_id)
-
-            //     // Add new method id to set and update map
-            //     method_ids.add(edge.method_id)
-            //     test_id_map.set(edge.test_id, method_ids)
-
-            // } else {
-            //     let method_ids = new Set();
-            //     method_ids.add(edge.method_id);
-            //     test_id_map.set(edge.test_id, method_ids)
-            // }
             if (method_id_map.has(edge.method_id)) {
 
                 //  Get current Set of methods test covers
@@ -271,12 +257,12 @@ class TestMatrixView extends Component {
         
         const methods = current.x.filter((m) => {
             const method_id = m.get_id();
-            return (value === 0) || (method_id_map.has(method_id) && (method_id_map.get(method_id).size > value));
+            return (value === 0) || (method_id_map.has(method_id) && (method_id_map.get(method_id).size >= value));
         })
 
         const filtered_edges = current.edges.filter((edge) => {
             const method_id = edge.method_id;
-            return (value === 0) || (method_id_map.has(method_id) && (method_id_map.get(method_id).size > value));
+            return (value === 0) || (method_id_map.has(method_id) && (method_id_map.get(method_id).size >= value));
         });
 
         this.setState({
@@ -314,12 +300,12 @@ class TestMatrixView extends Component {
 
         const tests = current.y.filter((test) => {
             const test_id = test.get_id();
-            return (value === 0) || (test_id_map.has(test_id) && (test_id_map.get(test_id).size > value));
+            return (value === 0) || (test_id_map.has(test_id) && (test_id_map.get(test_id).size >= value));
         })
 
         const filtered_edges = current.edges.filter((edge) => {
             const test_id = edge.test_id;
-            return (value === 0) || (test_id_map.has(test_id) && (test_id_map.get(test_id).size > value));
+            return (value === 0) || (test_id_map.has(test_id) && (test_id_map.get(test_id).size >= value));
         });
 
         this.setState({
