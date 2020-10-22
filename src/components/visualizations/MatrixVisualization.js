@@ -33,10 +33,8 @@ class MatrixVisualization extends Component {
         this.update = this.update.bind(this);
 
         // Set all methods passed through properties here (we don't use bind because we want to make use of the parent this object.)
-        // this.onMethodClick = props.onMethodClick;
-        // this.onTestClick = props.onTestClick;
-        this.onMethodClick = () => console.log("Not implemented")
-        this.onTestClick = () => console.log("Not implemented")
+        this.onMethodClick = props.onMethodClick;
+        this.onTestClick = props.onTestClick;
     }
 
     updateDimensions() {

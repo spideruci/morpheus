@@ -1,4 +1,4 @@
-export function testMethodCountFilter (current_state, value) {
+export function filter_by_num_method_covered (current_state, value) {
      // Map test_id to methods it covers
     let test_id_map = new Map()
 
@@ -29,6 +29,7 @@ export function testMethodCountFilter (current_state, value) {
         const test_id = edge.test_id;
         return (value === 0) || (test_id_map.has(test_id) && (test_id_map.get(test_id).size >= value));
     });
+
     return {
         x: current_state.x,
         y: tests,
@@ -37,7 +38,7 @@ export function testMethodCountFilter (current_state, value) {
 }
 
 
-export function testPassFilter(current_state, value) {
+export function filter_by_test_passed(current_state, value) {
     function test_filter(current_state, predicate) {
         const methods = current_state.x;
         const tests = current_state.y;
@@ -76,45 +77,40 @@ export function testPassFilter(current_state, value) {
 }
 
 
-// onTestClick(event, label) {
-//     const history = this.state.history;
-//     const current_filter_map = history[this.state.history.length - 1]
+export function filter_by_coexecuted_tests(current_state, identifier) {
+    console.log(identifier)
+    const current = current_state;
 
-//     const current = process_data(this.state.data, current_filter_map)
+    let methods = current.x;
+    let test_cases = current.y;
+    let edges = current.edges;
 
-//     let methods = current.x;
-//     let test_cases = current.y;
-//     let edges = current.edges;
+    let filter_test = test_cases.find(test => `${test.class_name}.${test.method_name}`.includes(identifier));
 
-//     let filter_test = test_cases.find(test => `${test.class_name}.${test.method_name}`.includes(label));
+    if (filter_test === undefined) {
+        filter_test = test_cases.find(test => test.get_id() === parseInt(identifier));
+    }
 
-//     if (filter_test === undefined) {
-//         console.log(event.target)
-//         filter_test = test_cases.find(test => test.get_id() === parseInt(event.target.value));
-//     }
+    if (filter_test === undefined) {
+        console.error("Filter Method was not found...");
+        return current;
+    }
 
-//     if (filter_test === undefined) {
-//         console.error("Filter Method was not found...");
-//         return;
-//     }
+    const method_ids = edges.filter(edge => filter_test.test_id === edge.test_id)
+        .map(edge => edge.method_id);
 
-//     const method_ids = edges.filter(edge => filter_test.test_id === edge.test_id)
-//         .map(edge => edge.method_id);
+    const filtered_methods = methods.filter(m => method_ids.includes(m.method_id))
 
-//     const filtered_methods = methods.filter(m => method_ids.includes(m.method_id))
+    const filtered_edges = edges.filter(
+        edge => method_ids.includes(edge.method_id) || edge.test_id === filter_test.test_id)
 
-//     const filtered_edges = edges.filter(
-//         edge => method_ids.includes(edge.method_id) || edge.test_id === filter_test.test_id)
+    const test_ids = filtered_edges.map(edge => edge.test_id)
 
-//     const test_ids = filtered_edges.map(edge => edge.test_id)
+    const filtered_tests = test_cases.filter(test => test_ids.includes(test.test_id));
 
-//     const filtered_tests = test_cases.filter(test => test_ids.includes(test.test_id));
-
-//     this.setState({
-//         // history: this.state.history.concat({
-//         //     x: filtered_methods,
-//         //     y: filtered_tests,
-//         //     edges: filtered_edges
-//         // }),
-//     })
-// }
+    return {
+        x: filtered_methods,
+        y: filtered_tests,
+        edges: filtered_edges
+    }
+}

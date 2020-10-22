@@ -14,8 +14,8 @@ import List from '../common/List';
 import Menu from '../common/Menu';
 import ResultTextBox from '../common/ResultTextBox';
 
-import { testMethodCountFilter, testPassFilter } from '../filters/test_filters';
-import { methodTestFilter } from '../filters/method_filters';
+import { filter_by_num_method_covered, filter_by_test_passed, filter_by_coexecuted_tests} from '../filters/test_filters';
+import { filter_method_by_number_of_times_tested, filter_by_coexecuted_methods } from '../filters/method_filters';
 import { process_data, FunctionMap } from '../filters/data_processor';
 
 class TestMatrixView extends Component {
@@ -39,11 +39,6 @@ class TestMatrixView extends Component {
         this.reset = this.reset.bind(this);
         this.onProjectChange = this.onProjectChange.bind(this);
         this.onCommitChange = this.onCommitChange.bind(this)
-        // this.onMethodClick = this.onMethodClick.bind(this);
-        // this.onTestClick = this.onTestClick.bind(this);
-        this.testMethodCountFilter = testMethodCountFilter.bind(this);
-        this.testPassFilter = testPassFilter.bind(this);
-        this.methodTestFilter = methodTestFilter.bind(this);
     }
 
     async onCommitChange(event) {
@@ -162,11 +157,30 @@ class TestMatrixView extends Component {
 
         const current_state = process_data(this.state.data, current_filter_map)
         const labelToggle = history.length > 1 ? true : false;
-        // {/* <MatrixVisualization x={current_state.x} y={current_state.y} edges={current_state.edges} onMethodClick={this.onMethodClick} onTestClick={this.onTestClick} labelToggle={labelToggle}/> */}
         return (
             <div className='test-visualization'>
                 {((current_state.x.length >= 0) || (current_state.y.length >= 0)) &&
-                    <MatrixVisualization x={current_state.x} y={current_state.y} edges={current_state.edges} labelToggle={labelToggle}/>
+                    <MatrixVisualization
+                        x={current_state.x}
+                        y={current_state.y}
+                        edges={current_state.edges}
+                        onMethodClick={(event, label) => {
+                            let new_filter_map = new FunctionMap(current_filter_map);
+                            new_filter_map.add_function("filter_by_coexecuted_methods", filter_by_coexecuted_methods, label)
+
+                            this.setState({
+                                history: this.state.history.concat(new_filter_map)
+                            })
+                        }}
+                        onTestClick={(event, label) => {
+                            let new_filter_map = new FunctionMap(current_filter_map);
+                            new_filter_map.add_function("filter_by_coexecuted_tests", filter_by_coexecuted_tests, label)
+
+                            this.setState({
+                                history: this.state.history.concat(new_filter_map)
+                            })
+                        }}
+                        labelToggle={labelToggle}/>
                 }
 
                 <div id='toolbox'>
@@ -188,28 +202,41 @@ class TestMatrixView extends Component {
                         <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel1a-content"
-                            id="data-set-selector"
-                        >
+                            id="data-set-selector">
                             <span>Test Filters</span>
                         </AccordionSummary>
                         <AccordionDetails className="accordion-block">
-                            <Menu title="Test Pass Filter" entries={[{ key: 0, value: "All" }, { key: 1, value: "Only Pass" }, { key: 2, value: "Only Fail" }]} onChange={(event) => {
-                                const index = parseInt(event.target.value);
-                                let new_filter_map = new FunctionMap(current_filter_map);
-                                new_filter_map.add_function("test_pass_filter", this.testPassFilter, index)
-                                
-                                this.setState({
-                                    history: this.state.history.concat(new_filter_map)
-                                })
+                            <Menu title="Test Pass Filter" 
+                                entries={[{ key: 0, value: "All" }, { key: 1, value: "Only Pass" }, { key: 2, value: "Only Fail" }]}
+                                onChange={(event) => {
+                                    const index = parseInt(event.target.value);
+                                    let new_filter_map = new FunctionMap(current_filter_map);
+                                    new_filter_map.add_function("filter_by_test_passed", filter_by_test_passed, index)
+                                    
+                                    this.setState({
+                                        history: this.state.history.concat(new_filter_map)
+                                    })
                             }} />
-                            <FilterMenu title="Search Test:" entries={current_state.y} onClick={(event) => this.onTestClick(event, event.target.text)} />
+                            <FilterMenu title="Search Test:" 
+                                entries={current_state.y} 
+                                onClick={(event) => {
+                                    const identifier = event.target.value;
+                          
+                                    let new_filter_map = new FunctionMap(current_filter_map);
+                                    new_filter_map.add_function("filter_by_coexecuted_tests", filter_by_coexecuted_tests, identifier)
+
+                                    this.setState({
+                                        history: this.state.history.concat(new_filter_map)
+                                    })
+                                
+                                }} />
                             <FilterSlider title="Method Count"
                                 defaultValue={0}
                                 min={0}
                                 max={25}
                                 onChange={(_, value) => {
                                     let new_filter_map = new FunctionMap(current_filter_map);
-                                    new_filter_map.add_function("test_count_filter", this.testMethodCountFilter, value)
+                                    new_filter_map.add_function("filter_method_by_number_of_times_tested", filter_by_num_method_covered, value);
 
                                     this.setState({
                                         history: this.state.history.concat(new_filter_map)
@@ -226,7 +253,18 @@ class TestMatrixView extends Component {
                             <span>Method Filters</span>
                         </AccordionSummary>
                         <AccordionDetails className="accordion-block">
-                            <FilterMenu title="Search Method:" entries={current_state.x} onClick={(event) => this.onMethodClick(event, event.target.text)} />
+                            <FilterMenu 
+                                title="Search Method:"
+                                entries={current_state.x}
+                                onClick={(event) => {
+                                    const identifier = event.target.value;
+                                    let new_filter_map = new FunctionMap(current_filter_map);
+                                    new_filter_map.add_function("filter_by_coexecuted_methods", filter_by_coexecuted_methods, identifier)
+
+                                    this.setState({
+                                        history: this.state.history.concat(new_filter_map)
+                                    })
+                                }} />
                             <FilterSlider 
                                 title="Test Count"
                                 defaultValue={0}
@@ -234,7 +272,7 @@ class TestMatrixView extends Component {
                                 max={25}
                                 onChange={(_, value) => {
                                     let new_filter_map = new FunctionMap(current_filter_map);
-                                    new_filter_map.add_function("test_count_filter", this.testMethodCountFilter, value)
+                                    new_filter_map.add_function("filter_method_by_number_of_times_tested", filter_method_by_number_of_times_tested, value)
 
                                     this.setState({
                                         history: this.state.history.concat(new_filter_map)
