@@ -14,6 +14,10 @@ import List from '../common/List';
 import Menu from '../common/Menu';
 import ResultTextBox from '../common/ResultTextBox';
 
+import { testMethodCountFilter, testPassFilter } from '../filters/test_filters';
+import { methodTestFilter } from '../filters/method_filters';
+import { process_data, FunctionMap } from '../filters/data_processor';
+
 class TestMatrixView extends Component {
     constructor(props) {
         super();
@@ -21,11 +25,12 @@ class TestMatrixView extends Component {
         this.state = {
             selectedProject: "",
             selectedCommit: "",
-            history: [{
+            data: {
                 x: [],
                 y: [],
                 edges: [],
-            }],
+            },
+            history: [new FunctionMap()],
             projects: [],
             commits: [],
         }
@@ -34,25 +39,29 @@ class TestMatrixView extends Component {
         this.reset = this.reset.bind(this);
         this.onProjectChange = this.onProjectChange.bind(this);
         this.onCommitChange = this.onCommitChange.bind(this)
-        this.onMethodClick = this.onMethodClick.bind(this);
-        this.onTestClick = this.onTestClick.bind(this);
-        this.methodTestFilter = this.methodTestFilter.bind(this)
-        this.testMethodCountFilter = this.testMethodCountFilter.bind(this)
+        // this.onMethodClick = this.onMethodClick.bind(this);
+        // this.onTestClick = this.onTestClick.bind(this);
+        this.testMethodCountFilter = testMethodCountFilter.bind(this);
+        this.testPassFilter = testPassFilter.bind(this);
+        this.methodTestFilter = methodTestFilter.bind(this);
     }
 
     async onCommitChange(event) {
         let commit_sha = event.target.value;
 
-        let data = await this.updateCoverageData(this.state.selectedProject, commit_sha);
-
-        this.setState({
-            selectedCommit: commit_sha,
-            history: [{
-                x: data.methods,
-                y: data.tests,
-                edges: data.edges,
-            }]
-        })
+        this.updateCoverageData(this.state.selectedProject, commit_sha)
+            .then((data) => {
+                this.setState({
+                    selectedCommit: commit_sha,
+                    data: {
+                        x: data.methods,
+                        y: data.tests,
+                        edges: data.edges,
+                    },
+                    history: [new FunctionMap()]
+                })
+            })
+            .catch(e => console.error(e));
     }
 
     async onProjectChange(event) {
@@ -120,11 +129,12 @@ class TestMatrixView extends Component {
             selectedCommit: commits[0].value,
             projects: projects,
             commits: commits,
-            history: [{
+            data: {
                 x: data.methods,
                 y: data.tests,
                 edges: data.edges,
-            }]
+            },
+            history: [new FunctionMap()]
         })
     }
 
@@ -136,237 +146,27 @@ class TestMatrixView extends Component {
 
         const new_history = this.state.history.slice(0, this.state.history.length - 1);
         this.setState({
-            history: new_history,
+            history: new_history
         })
     }
 
     reset() {
-        const new_history = this.state.history[0];
         this.setState({
-            history: [new_history],
-        })
-    }
-
-    onMethodClick(event, label) {
-        const history = this.state.history;
-        const current = history[this.state.history.length - 1]
-
-        let methods = current.x;
-        let test_cases = current.y;
-        let edges = current.edges;
-
-        let filter_method = methods.find(m => `${m.package_name}.${m.class_name}.${m.method_decl}`.includes(label));
-
-        if (filter_method === undefined) {
-            console.log(event.target)
-            filter_method = methods.find(m => m.get_id() === parseInt(event.target.value));
-        }
-
-        if (filter_method === undefined) {
-            console.error("Filter Method was not found...");
-            return;
-        }
-
-        const test_ids = edges.filter(edge => filter_method.get_id() === edge.method_id)
-            .map(edge => edge.test_id);
-
-        const filtered_tests = test_cases.filter(test => test_ids.includes(test.test_id))
-
-        const filtered_edges = edges.filter(
-            edge => test_ids.includes(edge.test_id) || edge.method_id === filter_method.method_id)
-
-        const method_ids = filtered_edges.map(edge => edge.method_id)
-
-        const filtered_methods = methods.filter(method => method_ids.includes(method.method_id));
-
-        this.setState({
-            history: this.state.history.concat({
-                x: filtered_methods,
-                y: filtered_tests,
-                edges: filtered_edges
-            }),
-        })
-    }
-
-    testPassFilter(event) {
-        const index = parseInt(event.target.value);
-        const current_state = this.state.history[this.state.history.length - 1]
-
-        function test_filter(current_state, predicate) {
-            const methods = current_state.x;
-            const tests = current_state.y;
-            const edges = current_state.edges;
-
-            const new_edges = edges.filter(predicate)
-            const method_ids = new_edges.map(edge => edge.method_id)
-            const test_ids = new_edges.map(edge => edge.test_id)
-
-            const new_methods = methods.filter((method) => method_ids.includes(method.method_id))
-            const new_tests = tests.filter((test) => test_ids.includes(test.test_id))
-            return {
-                x: new_methods,
-                y: new_tests,
-                edges: new_edges,
-            }
-        }
-
-        let new_state;
-        switch (index) {
-            case 1: // Present only passing methods
-                console.info(`Filter all test methods that fail Index: ${index}, was chosen.`);
-                new_state = test_filter(current_state, (edge) => edge.test_result)
-                break;
-            case 2: // Present only failing methods
-                console.info(`Filter all test methods that pass Index: ${index}, was chosen.`);
-                new_state = test_filter(current_state, (edge) => !edge.test_result)
-                break;
-            default:
-                console.info(`No methods have been filtered. Index: ${index}, was chosen.`);
-                return;
-        }
-
-        this.setState({
-            history: this.state.history.concat(new_state)
-        })
-    }
-
-    async methodTestFilter(event, value) {
-        const history = this.state.history;
-        const current = history[this.state.history.length - 1]
-
-        let method_id_map = new Map() // Map method_id to tests its covered by.
-
-        const edges = current.edges;
-
-        edges.forEach(edge => {
-            if (method_id_map.has(edge.method_id)) {
-
-                //  Get current Set of methods test covers
-                let test_ids = method_id_map.get(edge.method_id)
-
-                // Add new method id to set and update map
-                test_ids.add(edge.test_id)
-                method_id_map.set(edge.method_id, test_ids)
-
-            } else {
-                let test_ids = new Set();
-                test_ids.add(edge.test_id);
-                method_id_map.set(edge.method_id, test_ids)
-            }
-        })
-        
-        const methods = current.x.filter((m) => {
-            const method_id = m.get_id();
-            return (value === 0) || (method_id_map.has(method_id) && (method_id_map.get(method_id).size >= value));
-        })
-
-        const filtered_edges = current.edges.filter((edge) => {
-            const method_id = edge.method_id;
-            return (value === 0) || (method_id_map.has(method_id) && (method_id_map.get(method_id).size >= value));
-        });
-
-        this.setState({
-            history: this.state.history.concat({
-                x: methods,
-                y: current.y,
-                edges: filtered_edges,
-            }),
-        })
-    }
-
-    async testMethodCountFilter(event, value) {
-        const history = this.state.history;
-        const current = history[this.state.history.length - 1]
-
-        let test_id_map = new Map() // Map test_id to methods it covers
-
-        const edges = current.edges;
-
-        edges.forEach(edge => {
-            if (test_id_map.has(edge.test_id)) {
-                //  Get current Set of methods test covers
-                let method_ids = test_id_map.get(edge.test_id)
-
-                // Add new method id to set and update map
-                method_ids.add(edge.method_id)
-                test_id_map.set(edge.test_id, method_ids)
-
-            } else {
-                let method_ids = new Set();
-                method_ids.add(edge.method_id);
-                test_id_map.set(edge.test_id, method_ids)
-            }
-        })
-
-        const tests = current.y.filter((test) => {
-            const test_id = test.get_id();
-            return (value === 0) || (test_id_map.has(test_id) && (test_id_map.get(test_id).size >= value));
-        })
-
-        const filtered_edges = current.edges.filter((edge) => {
-            const test_id = edge.test_id;
-            return (value === 0) || (test_id_map.has(test_id) && (test_id_map.get(test_id).size >= value));
-        });
-
-        this.setState({
-            history: this.state.history.concat({
-                x: current.x,
-                y: tests,
-                edges: filtered_edges,
-            }),
-        })
-    }
-
-    onTestClick(event, label) {
-        const history = this.state.history;
-        const current = history[this.state.history.length - 1]
-
-        let methods = current.x;
-        let test_cases = current.y;
-        let edges = current.edges;
-
-        let filter_test = test_cases.find(test => `${test.class_name}.${test.method_name}`.includes(label));
-
-        if (filter_test === undefined) {
-            console.log(event.target)
-            filter_test = test_cases.find(test => test.get_id() === parseInt(event.target.value));
-        }
-
-        if (filter_test === undefined) {
-            console.error("Filter Method was not found...");
-            return;
-        }
-
-        const method_ids = edges.filter(edge => filter_test.test_id === edge.test_id)
-            .map(edge => edge.method_id);
-
-        const filtered_methods = methods.filter(m => method_ids.includes(m.method_id))
-
-        const filtered_edges = edges.filter(
-            edge => method_ids.includes(edge.method_id) || edge.test_id === filter_test.test_id)
-
-        const test_ids = filtered_edges.map(edge => edge.test_id)
-
-        const filtered_tests = test_cases.filter(test => test_ids.includes(test.test_id));
-
-        this.setState({
-            history: this.state.history.concat({
-                x: filtered_methods,
-                y: filtered_tests,
-                edges: filtered_edges
-            }),
+            history: [new FunctionMap()]
         })
     }
 
     render() {
-        const states = this.state.history.length
-        const current_state = this.state.history[states - 1];
+        const history = this.state.history
+        const current_filter_map = history[history.length - 1]
 
-        const labelToggle = states > 1 ? true : false;
+        const current_state = process_data(this.state.data, current_filter_map)
+        const labelToggle = history.length > 1 ? true : false;
+        // {/* <MatrixVisualization x={current_state.x} y={current_state.y} edges={current_state.edges} onMethodClick={this.onMethodClick} onTestClick={this.onTestClick} labelToggle={labelToggle}/> */}
         return (
             <div className='test-visualization'>
                 {((current_state.x.length >= 0) || (current_state.y.length >= 0)) &&
-                    <MatrixVisualization x={current_state.x} y={current_state.y} edges={current_state.edges} onMethodClick={this.onMethodClick} onTestClick={this.onTestClick} labelToggle={labelToggle}/>
+                    <MatrixVisualization x={current_state.x} y={current_state.y} edges={current_state.edges} labelToggle={labelToggle}/>
                 }
 
                 <div id='toolbox'>
@@ -393,9 +193,28 @@ class TestMatrixView extends Component {
                             <span>Test Filters</span>
                         </AccordionSummary>
                         <AccordionDetails className="accordion-block">
-                            <Menu title="Test Pass Filter" entries={[{ key: 0, value: "All" }, { key: 1, value: "Only Pass" }, { key: 2, value: "Only Fail" }]} onChange={this.testPassFilter.bind(this)} />
+                            <Menu title="Test Pass Filter" entries={[{ key: 0, value: "All" }, { key: 1, value: "Only Pass" }, { key: 2, value: "Only Fail" }]} onChange={(event) => {
+                                const index = parseInt(event.target.value);
+                                let new_filter_map = new FunctionMap(current_filter_map);
+                                new_filter_map.add_function("test_pass_filter", this.testPassFilter, index)
+                                
+                                this.setState({
+                                    history: this.state.history.concat(new_filter_map)
+                                })
+                            }} />
                             <FilterMenu title="Search Test:" entries={current_state.y} onClick={(event) => this.onTestClick(event, event.target.text)} />
-                            <FilterSlider title="Method Count" defaultValue={0} min={0} max={25} onChange={this.testMethodCountFilter} />
+                            <FilterSlider title="Method Count"
+                                defaultValue={0}
+                                min={0}
+                                max={25}
+                                onChange={(_, value) => {
+                                    let new_filter_map = new FunctionMap(current_filter_map);
+                                    new_filter_map.add_function("test_count_filter", this.testMethodCountFilter, value)
+
+                                    this.setState({
+                                        history: this.state.history.concat(new_filter_map)
+                                    })
+                                }} />
                         </AccordionDetails>
                     </Accordion>
                     <Accordion>
@@ -408,7 +227,19 @@ class TestMatrixView extends Component {
                         </AccordionSummary>
                         <AccordionDetails className="accordion-block">
                             <FilterMenu title="Search Method:" entries={current_state.x} onClick={(event) => this.onMethodClick(event, event.target.text)} />
-                            <FilterSlider title="Test Count" defaultValue={0} min={0} max={25} onChange={this.methodTestFilter} />
+                            <FilterSlider 
+                                title="Test Count"
+                                defaultValue={0}
+                                min={0}
+                                max={25}
+                                onChange={(_, value) => {
+                                    let new_filter_map = new FunctionMap(current_filter_map);
+                                    new_filter_map.add_function("test_count_filter", this.testMethodCountFilter, value)
+
+                                    this.setState({
+                                        history: this.state.history.concat(new_filter_map)
+                                    })
+                                }} />
                         </AccordionDetails>
                     </Accordion>
 
