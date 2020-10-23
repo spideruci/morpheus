@@ -23,7 +23,7 @@ jobs:
       - name: Build Project
         run: |
           yarn install
-          yarn build
+          yarn release
       - name: Create zipped release document
         run: zip -r release.zip build
 

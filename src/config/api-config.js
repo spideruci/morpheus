@@ -1,12 +1,11 @@
-let backendHost;
-
-const hostname = window && window.location && window.location.hostname;
-
-if (hostname === 'http://spidertest.kajdreef.com') {
-    backendHost = 'http://api.kajdreef.com';
-} else {
-    backendHost = process.env.REACT_APP_BACKEND_HOST || 'http://localhost:8000';
+const prod = {
+    backendHost: 'http://api.kajdreef.com'
 }
 
-export const API_ROOT = `${backendHost}`;
+const dev = {
+    backendHost: 'http://localhost:8000'
+}
 
+export const API_ROOT = process.env.REACT_APP_STAGE === 'prod'
+    ? prod.backendHost
+    : dev.backendHost;
