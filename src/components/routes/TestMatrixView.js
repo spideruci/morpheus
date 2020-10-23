@@ -1,19 +1,27 @@
 import React, { Component } from 'react'
+import { json } from 'd3'
+
+// API endpoints
+import { API_ROOT } from '../../config/api-config';
+
+// Material UI components
 import Accordion from '@material-ui/core/Accordion';
 import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
-import { json } from 'd3'
+// Custom Components
 import MatrixVisualization from '../visualizations/MatrixVisualization';
-import './TestMatrixView.scss';
-import { API_ROOT } from '../../config/api-config';
 import FilterMenu from '../common/FilterMenu';
 import FilterSlider from '../common/FilterSlider';
 import List from '../common/List';
 import Menu from '../common/Menu';
 import ResultTextBox from '../common/ResultTextBox';
 
+// Style sheets
+import './TestMatrixView.scss';
+
+//  Filter functions
 import { filter_by_num_method_covered, filter_by_test_passed, filter_by_coexecuted_tests} from '../filters/test_filters';
 import { filter_method_by_number_of_times_tested, filter_by_coexecuted_methods } from '../filters/method_filters';
 import { process_data, FunctionMap } from '../filters/data_processor';
