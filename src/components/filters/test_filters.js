@@ -1,24 +1,10 @@
-export function filter_by_num_method_covered (current_state, value) {
-     // Map test_id to methods it covers
-    let test_id_map = new Map()
+import { create_coverage_map } from './filter_utils'
 
+export function filter_by_num_method_covered (current_state, value) {
     const edges = current_state.edges;
 
-    edges.forEach(edge => {
-        if (test_id_map.has(edge.test_id)) {
-            //  Get current Set of methods test covers
-            let method_ids = test_id_map.get(edge.test_id)
-
-            // Add new method id to set and update map
-            method_ids.add(edge.method_id)
-            test_id_map.set(edge.test_id, method_ids)
-
-        } else {
-            let method_ids = new Set();
-            method_ids.add(edge.method_id);
-            test_id_map.set(edge.test_id, method_ids)
-        }
-    })
+     // Map test_id to methods it covers
+    let test_id_map = create_coverage_map(edges, (e) => e.test_id, e => e.method_id);
 
     const tests = current_state.y.filter((test) => {
         const test_id = test.get_id();
@@ -76,7 +62,6 @@ export function filter_by_test_passed(current_state, value) {
 
 
 export function filter_by_coexecuted_tests(current_state, identifier) {
-    console.log(identifier)
     const current = current_state;
 
     let methods = current.x;

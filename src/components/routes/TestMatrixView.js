@@ -22,7 +22,7 @@ import ResultTextBox from '../common/ResultTextBox';
 import './TestMatrixView.scss';
 
 //  Filter functions
-import { filter_by_num_method_covered, filter_by_test_passed, filter_by_coexecuted_tests} from '../filters/test_filters';
+import { filter_by_num_method_covered, filter_by_test_passed, filter_by_coexecuted_tests } from '../filters/test_filters';
 import { filter_method_by_number_of_times_tested, filter_by_coexecuted_methods } from '../filters/method_filters';
 import { process_data, FunctionMap } from '../filters/data_processor';
 
@@ -214,6 +214,7 @@ class TestMatrixView extends Component {
                             <span>Test Filters</span>
                         </AccordionSummary>
                         <AccordionDetails className="accordion-block">
+
                             <Menu title="Test Pass Filter" 
                                 entries={[{ key: 0, value: "All" }, { key: 1, value: "Only Pass" }, { key: 2, value: "Only Fail" }]}
                                 onChange={(event) => {
@@ -244,7 +245,7 @@ class TestMatrixView extends Component {
                                 max={25}
                                 onChange={(_, value) => {
                                     let new_filter_map = new FunctionMap(current_filter_map);
-                                    new_filter_map.add_function("filter_method_by_number_of_times_tested", filter_by_num_method_covered, value);
+                                    new_filter_map.add_function("filter_by_num_method_covered", filter_by_num_method_covered, value);
 
                                     this.setState({
                                         history: this.state.history.concat(new_filter_map)

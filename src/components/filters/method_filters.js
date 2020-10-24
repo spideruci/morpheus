@@ -1,25 +1,10 @@
-export function filter_method_by_number_of_times_tested(current_state, value) {
-     // Map method_id to tests its covered by.
-    let method_id_map = new Map()
+import { create_coverage_map } from './filter_utils'
 
+export function filter_method_by_number_of_times_tested(current_state, value) {
     const edges = current_state.edges;
 
-    edges.forEach(edge => {
-        if (method_id_map.has(edge.method_id)) {
-
-            //  Get current Set of methods test covers
-            let test_ids = method_id_map.get(edge.method_id)
-
-            // Add new method id to set and update map
-            test_ids.add(edge.test_id)
-            method_id_map.set(edge.method_id, test_ids)
-
-        } else {
-            let test_ids = new Set();
-            test_ids.add(edge.test_id);
-            method_id_map.set(edge.method_id, test_ids)
-        }
-    })
+    // Map method_id to tests its covered by.
+    let method_id_map = create_coverage_map(edges, (e) => e.method_id, (e) => e.test_id)
 
     const methods = current_state.x.filter((m) => {
         const method_id = m.get_id();
