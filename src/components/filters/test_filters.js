@@ -45,14 +45,12 @@ export function filter_by_test_passed(current_state, value) {
         const edges = current_state.edges;
 
         const new_edges = edges.filter(predicate)
-        const method_ids = new_edges.map(edge => edge.method_id)
         const test_ids = new_edges.map(edge => edge.test_id)
 
-        const new_methods = methods.filter((method) => method_ids.includes(method.method_id))
         const new_tests = tests.filter((test) => test_ids.includes(test.test_id))
 
         return {
-            x: new_methods,
+            x: methods,
             y: new_tests,
             edges: new_edges,
         }
