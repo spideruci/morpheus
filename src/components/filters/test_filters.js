@@ -1,6 +1,6 @@
 import { create_coverage_map } from './filter_utils'
 
-export function filter_by_num_method_covered (current_state, value) {
+export function filter_by_num_method_covered(current_state, all_data, value) {
     const edges = current_state.edges;
 
      // Map test_id to methods it covers
@@ -24,7 +24,7 @@ export function filter_by_num_method_covered (current_state, value) {
 }
 
 
-export function filter_by_test_passed(current_state, value) {
+export function filter_by_test_passed(current_state, all_data, value) {
     function test_filter(current_state, predicate) {
         const methods = current_state.x;
         const tests = current_state.y;
@@ -61,7 +61,7 @@ export function filter_by_test_passed(current_state, value) {
 }
 
 
-export function filter_by_coexecuted_tests(current_state, identifier) {
+export function filter_by_coexecuted_tests(current_state, all_data, identifier) {
     const current = current_state;
 
     let methods = current.x;
@@ -98,7 +98,7 @@ export function filter_by_coexecuted_tests(current_state, identifier) {
     }
 }
 
-export function filter_by_test_type(current_state, test_type) {
+export function filter_by_test_type(current_state, all_data, test_type) {
     let result = current_state;
 
     // Create a map to quickly locate all methods
@@ -110,7 +110,7 @@ export function filter_by_test_type(current_state, test_type) {
     })
 
     const edges = current_state.edges;
-    const test_to_meth_map = create_coverage_map(edges, e => e.test_id, e => e.method_id)
+    const test_to_meth_map = create_coverage_map(all_data.edges, e => e.test_id, e => e.method_id)
 
     const tests = current_state.y;
 

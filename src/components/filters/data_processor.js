@@ -1,9 +1,9 @@
 export function process_data (data, fmap) {
-    let result = data;
+    let filtered_data = data;
     fmap.get_map().forEach((func) => {
-        result = func(result);
+        filtered_data = func(filtered_data, data);
     })
-    return result
+    return filtered_data
 }
 
 export class FunctionMap {
@@ -17,7 +17,7 @@ export class FunctionMap {
     }
 
     add_function(function_id, func, ...args) {
-        const wrapped_func = (state) => func(state, ...args)
+        const wrapped_func = (state, data) => func(state, data, ...args)
         this.map.set(function_id, wrapped_func);
     }
 
