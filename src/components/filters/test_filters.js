@@ -97,3 +97,113 @@ export function filter_by_coexecuted_tests(current_state, identifier) {
         edges: filtered_edges
     }
 }
+
+export function filter_by_test_type(current_state, test_type) {
+    let result = current_state;
+
+    // Create a map to quickly locate all methods
+    const methods = current_state.x;
+
+    let map_method_id = new Map();
+    methods.forEach((m) => {
+        map_method_id.set(m.method_id, m)
+    })
+
+    const edges = current_state.edges;
+    const test_to_meth_map = create_coverage_map(edges, e => e.test_id, e => e.method_id)
+
+    const tests = current_state.y;
+
+    let new_tests, new_edges, new_test_ids;
+
+    switch (test_type) {
+        case TEST_TYPES.UNIT:
+            // Only tests that test methods contained within a single class
+            new_tests = tests.filter((t) => {
+                const test_id = t.test_id;
+                const method_ids = test_to_meth_map.get(test_id)
+                let class_set = new Set();
+
+                method_ids.forEach((id) => {
+                    const method = map_method_id.get(id);
+                    class_set.add(`${method.package_name}.${method.class_name}`)
+                });
+
+                return class_set.size === 1;
+            });
+
+            new_test_ids = new_tests.map(test => test.test_id);
+
+            new_edges = edges.filter((edge) => {
+                return new_test_ids.includes(edge.test_id)
+            });
+
+            return {
+                x: methods,
+                y: new_tests,
+                edges: new_edges,
+            }
+        case TEST_TYPES.INTEGRATION:
+            // Only tests that test methods contained within a single package, but across classes
+            new_tests = tests.filter((t) => {
+                const test_id = t.test_id;
+                const method_ids = test_to_meth_map.get(test_id)
+                let package_set = new Set();
+                let class_set = new Set();
+
+                method_ids.forEach((id) => {
+                    const method = map_method_id.get(id);
+                    package_set.add(`${method.package_name}`)
+                    class_set.add(`${method.package_name}.${method.class_name}`)
+                });
+
+                return package_set.size === 1 && class_set.size > 1;
+            });
+
+            new_test_ids = new_tests.map(test => test.test_id);
+
+            new_edges = edges.filter((edge) => {
+                return new_test_ids.includes(edge.test_id)
+            });
+
+            return {
+                x: methods,
+                y: new_tests,
+                edges: new_edges,
+            }
+        case TEST_TYPES.SYSTEM:
+            // Only tests that test methods contained across packages.
+            new_tests = tests.filter((t) => {
+                const test_id = t.test_id;
+                const method_ids = test_to_meth_map.get(test_id)
+                let package_set = new Set();
+
+                method_ids.forEach((id) => {
+                    const method = map_method_id.get(id);
+                    package_set.add(`${method.package_name}`)
+                });
+
+                return package_set.size > 1;
+            });
+
+            new_test_ids = new_tests.map(test => test.test_id);
+
+            new_edges = edges.filter((edge) => {
+                return new_test_ids.includes(edge.test_id)
+            });
+
+            return {
+                x: methods,
+                y: new_tests,
+                edges: new_edges,
+            }
+        default:
+            return result;
+    }
+}
+
+export const TEST_TYPES = {
+    UNIT: 'Unit',
+    INTEGRATION: 'Integration',
+    SYSTEM: 'System',
+}

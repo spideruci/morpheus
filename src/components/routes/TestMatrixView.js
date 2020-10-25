@@ -22,7 +22,7 @@ import ResultTextBox from '../common/ResultTextBox';
 import './TestMatrixView.scss';
 
 //  Filter functions
-import { filter_by_num_method_covered, filter_by_test_passed, filter_by_coexecuted_tests } from '../filters/test_filters';
+import { filter_by_num_method_covered, filter_by_test_passed, filter_by_coexecuted_tests, filter_by_test_type, TEST_TYPES} from '../filters/test_filters';
 import { filter_method_by_number_of_times_tested, filter_by_coexecuted_methods } from '../filters/method_filters';
 import { process_data, FunctionMap } from '../filters/data_processor';
 
@@ -214,7 +214,19 @@ class TestMatrixView extends Component {
                             <span>Test Filters</span>
                         </AccordionSummary>
                         <AccordionDetails className="accordion-block">
+                            <Menu title="Test Type"
+                                entries={[{ key: 0, value: "All" }, { key: TEST_TYPES.UNIT, value: TEST_TYPES.UNIT }, { key: TEST_TYPES.INTEGRATION, value: TEST_TYPES.INTEGRATION }, { key: TEST_TYPES.SYSTEM, value: TEST_TYPES.SYSTEM }]}
+                                onChange={(event) => {
 
+                                    const test_type = event.target.value;
+                                    console.log(event.target)
+                                    let new_filter_map = new FunctionMap(current_filter_map);
+                                    new_filter_map.add_function("filter_by_test_type", filter_by_test_type, test_type)
+
+                                    this.setState({
+                                        history: this.state.history.concat(new_filter_map)
+                                    })
+                                }} />
                             <Menu title="Test Pass Filter" 
                                 entries={[{ key: 0, value: "All" }, { key: 1, value: "Only Pass" }, { key: 2, value: "Only Fail" }]}
                                 onChange={(event) => {
