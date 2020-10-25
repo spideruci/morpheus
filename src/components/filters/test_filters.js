@@ -99,9 +99,25 @@ export function filter_by_coexecuted_tests(current_state, all_data, identifier) 
 }
 
 export function filter_by_test_type(current_state, all_data, test_type) {
-    let result = current_state;
+    let filter_type;
+    switch (test_type) {
+        case TEST_TYPES.UNIT:
+            filter_type = (p, c) => c.size === 1;
+            break;
+        case TEST_TYPES.INTEGRATION:
+            filter_type = (p, c) => p.size === 1 && c.size > 1
+            break;
+        case TEST_TYPES.SYSTEM:
+            filter_type = (p, c) => p.size > 1;
+            break;
+        default:
+            return current_state;
+    }
+    return test_type_filter(current_state, all_data, filter_type);
+}
 
-    // Create a map to quickly locate all methods
+
+function test_type_filter(current_state, all_data, filter) {
     const methods = current_state.x;
 
     let map_method_id = new Map();
@@ -115,90 +131,32 @@ export function filter_by_test_type(current_state, all_data, test_type) {
     const tests = current_state.y;
 
     let new_tests, new_edges, new_test_ids;
+    // Only tests that test methods contained across packages.
+    new_tests = tests.filter((t) => {
+        const test_id = t.test_id;
+        const method_ids = test_to_meth_map.get(test_id)
+        let package_set = new Set();
+        let class_set = new Set();
 
-    switch (test_type) {
-        case TEST_TYPES.UNIT:
-            // Only tests that test methods contained within a single class
-            new_tests = tests.filter((t) => {
-                const test_id = t.test_id;
-                const method_ids = test_to_meth_map.get(test_id)
-                let class_set = new Set();
+        method_ids.forEach((id) => {
+            const method = map_method_id.get(id);
+            package_set.add(`${method.package_name}`)
+            class_set.add(`${method.package_name}.${method.class_name}`)
+        });
 
-                method_ids.forEach((id) => {
-                    const method = map_method_id.get(id);
-                    class_set.add(`${method.package_name}.${method.class_name}`)
-                });
+        return filter(package_set, class_set);
+    });
 
-                return class_set.size === 1;
-            });
+    new_test_ids = new_tests.map(test => test.test_id);
 
-            new_test_ids = new_tests.map(test => test.test_id);
+    new_edges = edges.filter((edge) => {
+        return new_test_ids.includes(edge.test_id)
+    });
 
-            new_edges = edges.filter((edge) => {
-                return new_test_ids.includes(edge.test_id)
-            });
-
-            return {
-                x: methods,
-                y: new_tests,
-                edges: new_edges,
-            }
-        case TEST_TYPES.INTEGRATION:
-            // Only tests that test methods contained within a single package, but across classes
-            new_tests = tests.filter((t) => {
-                const test_id = t.test_id;
-                const method_ids = test_to_meth_map.get(test_id)
-                let package_set = new Set();
-                let class_set = new Set();
-
-                method_ids.forEach((id) => {
-                    const method = map_method_id.get(id);
-                    package_set.add(`${method.package_name}`)
-                    class_set.add(`${method.package_name}.${method.class_name}`)
-                });
-
-                return package_set.size === 1 && class_set.size > 1;
-            });
-
-            new_test_ids = new_tests.map(test => test.test_id);
-
-            new_edges = edges.filter((edge) => {
-                return new_test_ids.includes(edge.test_id)
-            });
-
-            return {
-                x: methods,
-                y: new_tests,
-                edges: new_edges,
-            }
-        case TEST_TYPES.SYSTEM:
-            // Only tests that test methods contained across packages.
-            new_tests = tests.filter((t) => {
-                const test_id = t.test_id;
-                const method_ids = test_to_meth_map.get(test_id)
-                let package_set = new Set();
-
-                method_ids.forEach((id) => {
-                    const method = map_method_id.get(id);
-                    package_set.add(`${method.package_name}`)
-                });
-
-                return package_set.size > 1;
-            });
-
-            new_test_ids = new_tests.map(test => test.test_id);
-
-            new_edges = edges.filter((edge) => {
-                return new_test_ids.includes(edge.test_id)
-            });
-
-            return {
-                x: methods,
-                y: new_tests,
-                edges: new_edges,
-            }
-        default:
-            return result;
+    return {
+        x: methods,
+        y: new_tests,
+        edges: new_edges,
     }
 }
 
