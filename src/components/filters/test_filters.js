@@ -61,7 +61,7 @@ export function filter_by_test_passed(current_state, all_data, value) {
 }
 
 
-export function filter_by_coexecuted_tests(current_state, all_data, identifier) {
+export function filter_by_coexecuted_tests(current_state, _, identifier) {
     const current = current_state;
 
     let methods = current.x;
@@ -79,13 +79,21 @@ export function filter_by_coexecuted_tests(current_state, all_data, identifier) 
         return current;
     }
 
-    const method_ids = edges.filter(edge => filter_test.test_id === edge.test_id)
+    const filtered_test_id = filter_test.get_id();
+
+    const method_ids = edges.filter(edge => filtered_test_id === edge.test_id)
         .map(edge => edge.method_id);
 
     const filtered_methods = methods.filter(m => method_ids.includes(m.method_id))
 
-    const filtered_edges = edges.filter(
-        edge => method_ids.includes(edge.method_id) || edge.test_id === filter_test.test_id)
+    let filtered_edges = edges.filter(
+        edge => method_ids.includes(edge.method_id) || edge.test_id === filtered_test_id)
+
+    filtered_edges.forEach( (edge) => {
+        if (edge.test_id === filtered_test_id) {
+            edge.highlight = true;
+        }
+    })
 
     const test_ids = filtered_edges.map(edge => edge.test_id)
 

@@ -159,8 +159,8 @@ class TestMatrixView extends Component {
     }
 
     render() {
-        const history = this.state.history
-        const current_filter_map = history[history.length - 1]
+        const history = this.state.history;
+        const current_filter_map = history[history.length - 1];
 
         const current_state = process_data(this.state.data, current_filter_map)
         const labelToggle = history.length > 1 ? true : false;
@@ -251,7 +251,6 @@ class TestMatrixView extends Component {
                                 entries={current_state.y} 
                                 onClick={(event) => {
                                     const identifier = event.target.value;
-                          
                                     let new_filter_map = new FunctionMap(current_filter_map);
                                     new_filter_map.add_function("filter_by_coexecuted_tests", filter_by_coexecuted_tests, identifier)
 

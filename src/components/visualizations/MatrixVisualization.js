@@ -68,7 +68,8 @@ class MatrixVisualization extends Component {
         //  It should be possible to dynamically change implementation of the get_x(), get_y(), and get_z() functions.
         current.edges.forEach((edge, index) => {
             if  (!(edge["test_id"] === null || edge["method_id"] === null)){
-                edges.push({ x: parseInt(edge["method_id"]), y: parseInt(edge["test_id"]), z: edge["test_result"] ? "#0F0" : "#F00"});
+                const highlight = edge.hasOwnProperty('highlight') ? edge.highlight : false;
+                edges.push({ x: parseInt(edge["method_id"]), y: parseInt(edge["test_id"]), z: edge["test_result"] ? "#0F0" : "#F00", highlight: highlight});
             }
         });
 
@@ -94,6 +95,8 @@ class MatrixVisualization extends Component {
         }
         else if ((prevProps.x !== this.props.x) || (prevProps.y !== this.props.y) || (prevProps.edges !== this.props.edges)) {
             this.labelToggle = this.props.labelToggle;
+            this.onMethodClick = this.props.onMethodClick;
+            this.onTestClick = this.props.onTestClick;
             this.update()
         }
     }
@@ -196,7 +199,9 @@ class MatrixVisualization extends Component {
                 .attr("fill", (d) => d.z)
                 .attr("width", rectWidth)
                 .attr("height", rectHeight)
-                .attr("rx", Math.max(1, xScale.step()/2));
+                .attr("rx", Math.max(1, xScale.step()/2))
+                .attr("stroke", (d) => d.highlight ? 'black' : null)
+                .attr("stoke-width", (d) => d.highlight ? '1px' : '0px')
                 // TODO add tooltip when hovering over a edge
 
         // Tooltip

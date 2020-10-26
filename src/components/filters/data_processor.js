@@ -1,6 +1,12 @@
+import { cloneDeep} from 'lodash';
+
 export function process_data (data, fmap) {
-    let filtered_data = data;
-    fmap.get_map().forEach((func) => {
+    let filtered_data = {
+        x: cloneDeep(data.x),
+        y: cloneDeep(data.y),
+        edges: cloneDeep(data.edges),
+    };
+    fmap.get_map().forEach((func, index) => {
         filtered_data = func(filtered_data, data);
     })
     return filtered_data

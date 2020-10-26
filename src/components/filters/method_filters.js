@@ -25,7 +25,7 @@ export function filter_method_by_number_of_times_tested(current_state, all_data,
 }
 
 
-export function filter_by_coexecuted_methods(current_state, all_data, identifier) {
+export function filter_by_coexecuted_methods(current_state, _, identifier) {
     const current = current_state;
 
     let methods = current.x;
@@ -43,13 +43,21 @@ export function filter_by_coexecuted_methods(current_state, all_data, identifier
         return current;
     }
 
-    const test_ids = edges.filter(edge => filter_method.get_id() === edge.method_id)
+    const filtered_method_id = filter_method.get_id();
+
+    const test_ids = edges.filter(edge => filtered_method_id === edge.method_id)
         .map(edge => edge.test_id);
 
     const filtered_tests = test_cases.filter(test => test_ids.includes(test.test_id))
 
     const filtered_edges = edges.filter(
         edge => test_ids.includes(edge.test_id) || edge.method_id === filter_method.method_id)
+
+    filtered_edges.forEach((edge) => {
+        if (edge.method_id === filtered_method_id) {
+            edge.highlight = true;
+        }
+    })
 
     const method_ids = filtered_edges.map(edge => edge.method_id)
 
