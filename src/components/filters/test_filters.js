@@ -68,7 +68,7 @@ export function filter_by_coexecuted_tests(current_state, _, identifier) {
     let test_cases = current.y;
     let edges = current.edges;
 
-    let filter_test = test_cases.find(test => `${test.class_name}.${test.method_name}`.includes(identifier));
+    let filter_test = test_cases.find(test => test.to_string().includes(identifier));
 
     if (filter_test === undefined) {
         filter_test = test_cases.find(test => test.get_id() === parseInt(identifier));

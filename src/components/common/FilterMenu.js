@@ -56,7 +56,7 @@ class FilterMenu extends Component {
                         <select onChange={this.props.onClick}>
                             <option> -- select an option -- </option>
                             {this.state.display.map((entry) => (
-                                <option key={entry.get_id()} value={entry.get_id()}>{entry.method_name}</option>
+                                <option key={entry.get_id()} value={entry.get_id()}>{entry.to_string()}</option>
                             ))}
                         </select>
                     </div>

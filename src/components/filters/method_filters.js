@@ -32,7 +32,7 @@ export function filter_by_coexecuted_methods(current_state, _, identifier) {
     let test_cases = current.y;
     let edges = current.edges;
 
-    let filter_method = methods.find(m => `${m.package_name}.${m.class_name}.${m.method_decl}`.includes(identifier));
+    let filter_method = methods.find(m => m.to_string().includes(identifier));
 
     if (filter_method === undefined) {
         filter_method = methods.find(m => m.get_id() === parseInt(identifier));
