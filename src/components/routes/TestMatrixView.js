@@ -14,7 +14,6 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import MatrixVisualization from '../visualizations/MatrixVisualization';
 import FilterMenu from '../common/FilterMenu';
 import FilterSlider from '../common/FilterSlider';
-import List from '../common/List';
 import Menu from '../common/Menu';
 import ResultTextBox from '../common/ResultTextBox';
 
@@ -202,8 +201,8 @@ class TestMatrixView extends Component {
                         <span>Project selector</span>
                         </AccordionSummary>
                         <AccordionDetails className="accordion-block">
-                            <List title="Projects" onProjectChange={this.onProjectChange} entries={this.state.projects} />
-                            <List title="Commit" onProjectChange={this.onCommitChange} entries={this.state.commits} />
+                            <Menu title="Projects" onChange={this.onProjectChange} entries={this.state.projects} />
+                            <Menu title="Commit" onChange={this.onCommitChange} entries={this.state.commits} />
                         </AccordionDetails>
                     </Accordion>
                     <Accordion>
@@ -216,6 +215,12 @@ class TestMatrixView extends Component {
                         <AccordionDetails className="accordion-block">
                             <Menu title="Test Type"
                                 entries={[{ key: 0, value: "All" }, { key: TEST_TYPES.UNIT, value: TEST_TYPES.UNIT }, { key: TEST_TYPES.INTEGRATION, value: TEST_TYPES.INTEGRATION }, { key: TEST_TYPES.SYSTEM, value: TEST_TYPES.SYSTEM }]}
+                                description={["Filter based on type of test:",
+                                    "- All: Present all tests.",
+                                    "- Unit: Only tests that cover methods within a single class.",
+                                    "- Integration: Only tests that cover methods across multiple classes in a single packages.",
+                                    "- System: Only tests that cover methods across multiple packages."
+                                ]}
                                 onChange={(event) => {
 
                                     const test_type = event.target.value;
@@ -229,6 +234,12 @@ class TestMatrixView extends Component {
                                 }} />
                             <Menu title="Test Pass Filter" 
                                 entries={[{ key: 0, value: "All" }, { key: 1, value: "Only Pass" }, { key: 2, value: "Only Fail" }]}
+                                description={[
+                                    "Filter based on the result of each test case:",
+                                    "- All: Present all test cases regardless on passed or failed",
+                                    "- Only Pass: Present only passed test cases",
+                                    "- Only Fail: Present only failed test cases",
+                                ]}
                                 onChange={(event) => {
                                     const index = parseInt(event.target.value);
                                     let new_filter_map = new FunctionMap(current_filter_map);
@@ -251,7 +262,7 @@ class TestMatrixView extends Component {
                                     })
                                 
                                 }} />
-                            <FilterSlider title="Method Count"
+                            <FilterSlider title="Number of methods covered by test"
                                 defaultValue={0}
                                 min={0}
                                 max={25}
@@ -287,7 +298,7 @@ class TestMatrixView extends Component {
                                     })
                                 }} />
                             <FilterSlider 
-                                title="Test Count"
+                                title="Number of tests covering a single method:"
                                 defaultValue={0}
                                 min={0}
                                 max={25}

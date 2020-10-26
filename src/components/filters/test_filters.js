@@ -131,7 +131,7 @@ function test_type_filter(current_state, all_data, filter) {
     const tests = current_state.y;
 
     let new_tests, new_edges, new_test_ids;
-    // Only tests that test methods contained across packages.
+
     new_tests = tests.filter((t) => {
         const test_id = t.test_id;
         const method_ids = test_to_meth_map.get(test_id)
