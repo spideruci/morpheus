@@ -148,6 +148,9 @@ function test_type_filter(current_state, all_data, filter) {
 
         method_ids.forEach((id) => {
             const method = map_method_id.get(id);
+            if (method === undefined) {
+                return;
+            }
             package_set.add(`${method.package_name}`)
             class_set.add(`${method.package_name}.${method.class_name}`)
         });
