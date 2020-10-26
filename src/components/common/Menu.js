@@ -3,13 +3,12 @@ import Tooltip from '@material-ui/core/Tooltip';
 import HelpIcon from '@material-ui/icons/Help';
 import './Menu.scss'
 
-const Menu = ({ title = "", description=[], onChange = (e) => console.log(e), entries = [] }) => {
-    console.log(description)
-
+const Menu = ({ title = "", description=[], onChange=(e) => console.log(e), entries = [] }) => {
     let tooltip = description.length === 0 ? null : (
-        <Tooltip title={
+        <Tooltip
+            title={
             <div className="content"> {
-                description.map(line => (<div>{line}</div>))}
+                description.map((line, index) => (<div key={index}>{line}</div>))}
             </div>}>
             <HelpIcon fontSize="small" />
         </Tooltip>
@@ -21,7 +20,7 @@ const Menu = ({ title = "", description=[], onChange = (e) => console.log(e), en
             <select onChange={onChange}>
                 <option> -- select an option -- </option>
                 {entries.map((entry) => (
-                    <option key={entry.key} value={entry.key}>{entry.value}</option>
+                    <option key={entry.key} value={entry.value}>{entry.value}</option>
                 ))}
             </select>
         </div>

@@ -21,7 +21,7 @@ import ResultTextBox from '../common/ResultTextBox';
 import './TestMatrixView.scss';
 
 //  Filter functions
-import { filter_by_num_method_covered, filter_by_test_passed, filter_by_coexecuted_tests, filter_by_test_type, TEST_TYPES} from '../filters/test_filters';
+import { filter_by_num_method_covered, filter_by_test_passed, filter_by_coexecuted_tests, filter_by_test_type, TEST_TYPES, TEST_RESULT} from '../filters/test_filters';
 import { filter_method_by_number_of_times_tested, filter_by_coexecuted_methods } from '../filters/method_filters';
 import { process_data, FunctionMap } from '../filters/data_processor';
 
@@ -79,7 +79,7 @@ class TestMatrixView extends Component {
         return await json(`${API_ROOT}/commits/${project_name}`)
             .then(response => {
                 let commits = response.commits.map(commit => {
-                    return { value: commit.sha, display: commit.sha }
+                    return { key: commit.id, value: commit.sha, display: commit.sha }
                 });
                 return commits;
             })
@@ -89,7 +89,7 @@ class TestMatrixView extends Component {
         return await json(`${API_ROOT}/projects`)
             .then(response => {
                 let projects = response.projects.map(project => {
-                    return { value: project.project_name, display: project.project_name }
+                    return { key: project.id, value: project.project_name};
                 });
 
                 return projects;
@@ -222,9 +222,7 @@ class TestMatrixView extends Component {
                                     "- System: Only tests that cover methods across multiple packages."
                                 ]}
                                 onChange={(event) => {
-
                                     const test_type = event.target.value;
-                                    console.log(event.target)
                                     let new_filter_map = new FunctionMap(current_filter_map);
                                     new_filter_map.add_function("filter_by_test_type", filter_by_test_type, test_type)
 
@@ -233,17 +231,17 @@ class TestMatrixView extends Component {
                                     })
                                 }} />
                             <Menu title="Test Pass Filter" 
-                                entries={[{ key: 0, value: "All" }, { key: 1, value: "Only Pass" }, { key: 2, value: "Only Fail" }]}
+                                entries={[{ key: 0, value: "All" }, { key: 1, value: TEST_RESULT.PASS }, { key: 2, value: TEST_RESULT.FAIL }]}
                                 description={[
                                     "Filter based on the result of each test case:",
                                     "- All: Present all test cases regardless on passed or failed",
                                     "- Only Pass: Present only passed test cases",
                                     "- Only Fail: Present only failed test cases",
                                 ]}
-                                onChange={(event) => {
-                                    const index = parseInt(event.target.value);
+                                onChange={(event, index) => {
+                                    const test_result = event.target.value;
                                     let new_filter_map = new FunctionMap(current_filter_map);
-                                    new_filter_map.add_function("filter_by_test_passed", filter_by_test_passed, index)
+                                    new_filter_map.add_function("filter_by_test_passed", filter_by_test_passed, test_result)
                                     
                                     this.setState({
                                         history: this.state.history.concat(new_filter_map)

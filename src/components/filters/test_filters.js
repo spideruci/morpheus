@@ -44,11 +44,11 @@ export function filter_by_test_passed(current_state, all_data, value) {
 
     let new_state;
     switch (value) {
-        case 1: // Present only passing methods
+        case TEST_RESULT.PASS:
             console.info(`Filter all test methods that fail Index: ${value}, was chosen.`);
             new_state = test_filter(current_state, (edge) => edge.test_result)
             break;
-        case 2: // Present only failing methods
+        case TEST_RESULT.FAIL:
             console.info(`Filter all test methods that pass Index: ${value}, was chosen.`);
             new_state = test_filter(current_state, (edge) => !edge.test_result)
             break;
@@ -164,4 +164,9 @@ export const TEST_TYPES = {
     UNIT: 'Unit',
     INTEGRATION: 'Integration',
     SYSTEM: 'System',
+}
+
+export const TEST_RESULT = {
+    PASS: 'Only Pass',
+    FAIL: 'Only Fail'
 }
