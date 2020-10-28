@@ -69,7 +69,27 @@ class MatrixVisualization extends Component {
         current.edges.forEach((edge, index) => {
             if  (!(edge["test_id"] === null || edge["method_id"] === null)){
                 const highlight = edge.hasOwnProperty('highlight') ? edge.highlight : false;
-                edges.push({ x: parseInt(edge["method_id"]), y: parseInt(edge["test_id"]), z: edge["test_result"] ? "#0F0" : "#F00", highlight: highlight});
+                let color;
+                console.log(edge["test_result"])
+                switch (edge["test_result"]) {
+                    case "P":
+                        color = "green";
+                        break;
+                    case "F":
+                        color = "red";
+                        break;
+                    case "I":
+                        color = "grey";
+                        break;
+                    default:
+                        color = "black";
+                        break;
+                }
+                edges.push({ 
+                    x: parseInt(edge["method_id"]),
+                    y: parseInt(edge["test_id"]),
+                    z: color,
+                    highlight: highlight});
             }
         });
 
@@ -170,7 +190,7 @@ class MatrixVisualization extends Component {
             .scale(yLabel);
 
         const t = transition()
-            .duration(750)
+            .duration(0)
             .ease(easeLinear);
 
         let rectWidth = xLabel.step()
