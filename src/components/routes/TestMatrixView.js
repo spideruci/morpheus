@@ -237,19 +237,6 @@ class TestMatrixView extends Component {
 
                 <div id='toolbox'>
                     <h4>Toolbar</h4>
-                    <Accordion expanded={this.state.expanded === 'panel1'} onChange={handleChange('panel1')}>
-                        <AccordionSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls="panel1a-content"
-                            id="data-set-selector"
-                        >
-                        <span>Project selector</span>
-                        </AccordionSummary>
-                        <AccordionDetails className="accordion-block">
-                            <Menu title="Projects" onChange={this.onProjectChange} entries={this.state.projects} reset={this.state.reset} updateReset={this.updateReset}/>
-                            <Menu title="Commit" onChange={this.onCommitChange} entries={this.state.commits} reset={this.state.reset} updateReset={this.updateReset}/>
-                        </AccordionDetails>
-                    </Accordion>
                     <Accordion expanded={this.state.expanded === 'panel2'} onChange={handleChange('panel2')}>
                         <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
