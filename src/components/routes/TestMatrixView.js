@@ -231,7 +231,12 @@ class TestMatrixView extends Component {
                                     })
                                 }} />
                             <Menu title="Test Pass Filter" 
-                                entries={[{ key: 0, value: "All" }, { key: 1, value: TEST_RESULT.PASS }, { key: 2, value: TEST_RESULT.FAIL }]}
+                                entries={[
+                                    { key: 0, value: "All" },
+                                    { key: 1, value: TEST_RESULT.PASS },
+                                    { key: 2, value: TEST_RESULT.FAIL },
+                                    { key: 3, value: TEST_RESULT.IGNORED }
+                                ]}
                                 description={[
                                     "Filter based on the result of each test case:",
                                     "- All: Present all test cases regardless on passed or failed",

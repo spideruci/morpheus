@@ -46,11 +46,15 @@ export function filter_by_test_passed(current_state, all_data, value) {
     switch (value) {
         case TEST_RESULT.PASS:
             console.info(`Filter all test methods that fail Index: ${value}, was chosen.`);
-            new_state = test_filter(current_state, (edge) => edge.test_result)
+            new_state = test_filter(current_state, (edge) => edge.test_result === "P")
             break;
         case TEST_RESULT.FAIL:
             console.info(`Filter all test methods that pass Index: ${value}, was chosen.`);
-            new_state = test_filter(current_state, (edge) => !edge.test_result)
+            new_state = test_filter(current_state, (edge) => edge.test_result === "F")
+            break;
+        case TEST_RESULT.IGNORED:
+            console.info(`Filter all test methods that pass Index: ${value}, was chosen.`);
+            new_state = test_filter(current_state, (edge) => edge.test_result === "I")
             break;
         default:
             console.info(`No methods have been filtered. Index: ${value}, was chosen.`);
@@ -179,5 +183,6 @@ export const TEST_TYPES = {
 
 export const TEST_RESULT = {
     PASS: 'Only Pass',
-    FAIL: 'Only Fail'
+    FAIL: 'Only Fail',
+    IGNORED: 'Only Ignored'
 }

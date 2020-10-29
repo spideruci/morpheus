@@ -70,7 +70,7 @@ class MatrixVisualization extends Component {
             if  (!(edge["test_id"] === null || edge["method_id"] === null)){
                 const highlight = edge.hasOwnProperty('highlight') ? edge.highlight : false;
                 let color;
-                console.log(edge["test_result"])
+
                 switch (edge["test_result"]) {
                     case "P":
                         color = "green";
@@ -89,6 +89,7 @@ class MatrixVisualization extends Component {
                     x: parseInt(edge["method_id"]),
                     y: parseInt(edge["test_id"]),
                     z: color,
+                    test_result: edge["test_result"],
                     highlight: highlight});
             }
         });
