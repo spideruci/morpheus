@@ -199,19 +199,6 @@ class TestMatrixView extends Component {
                         <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel1a-content"
-                            id="data-set-selector"
-                        >
-                        <span>Project selector</span>
-                        </AccordionSummary>
-                        <AccordionDetails className="accordion-block">
-                            <Menu title="Projects" onChange={this.onProjectChange} entries={this.state.projects} />
-                            <Menu title="Commit" onChange={this.onCommitChange} entries={this.state.commits} />
-                        </AccordionDetails>
-                    </Accordion>
-                    <Accordion>
-                        <AccordionSummary
-                            expandIcon={<ExpandMoreIcon />}
-                            aria-controls="panel1a-content"
                             id="data-set-selector">
                             <span>Test Filters</span>
                         </AccordionSummary>
