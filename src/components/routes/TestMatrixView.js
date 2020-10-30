@@ -103,7 +103,7 @@ class TestMatrixView extends Component {
                 return {
                     methods: response.coverage.methods.map(m => {
                         m.get_id = () => m.method_id;
-                        m.to_string = () => `${m.package_name}.${m.class_name}.${m.method_decl}`;
+                        m.to_string = () => `${m.package_name}.${m.class_name} ${m.method_decl}`;
                         return m;}),
                     tests: response.coverage.tests.map(t => {
                         t.get_id = () => t.test_id;

@@ -36,8 +36,8 @@ class FilterMenu extends Component {
 
         // Filter entry list based on what hsa been typed
         const display = entries.filter(item => {
-            const method_name = item.method_name.toLowerCase();
-            return method_name.includes(user_input.toLowerCase());
+            const method_str = item.to_string().toLowerCase();
+            return method_str.includes(user_input.toLowerCase());
         })
 
         // Repopulate the list based on what was typed.
