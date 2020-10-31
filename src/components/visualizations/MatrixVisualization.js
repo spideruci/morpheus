@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
 import { axisTop, axisLeft } from 'd3-axis';
-import { scalePoint } from 'd3-scale';
+import { scalePoint, scaleOrdinal } from 'd3-scale';
 import { select } from 'd3-selection';
 import { transition } from 'd3-transition';
 import { easeLinear } from 'd3-ease';
+import { schemeSet3 } from 'd3-scale-chromatic';
 
 
 class MatrixVisualization extends Component {
@@ -143,7 +144,7 @@ class MatrixVisualization extends Component {
             .domain(data.x_labels.map((label) => parseInt(label.method_id)));
 
         let xLabel = xRange.copy()
-            .domain(data.x_labels.map((label) => `${label.package_name}.${label.class_name}.${label.method_decl}`));
+            .domain(data.x_labels.map((label) => label.to_string()));
 
         // Scales for Y-axis
         // TODO how to refactor the following so we can make use of a single scale instead of yScale and yLabel?
@@ -155,7 +156,7 @@ class MatrixVisualization extends Component {
             .domain(data.y_labels.map((label) => label.test_id));
 
         let yLabel = yRange.copy()
-            .domain(data.y_labels.map((label) => `${label.class_name}.${label.method_name}`));
+            .domain(data.y_labels.map((label) => label.to_string()));
 
         if (xLabel.step() !== xScale.step()) {
             // Meaning duplicate class_name.method_name entries
@@ -234,24 +235,40 @@ class MatrixVisualization extends Component {
             .style("font-size", "12px")
 
         // Add X and Y axis to the visualization
-        let g_xAxis = select("g.x-axis")
+        select("g.x-axis")
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
             .call(xAxis);
 
-        g_xAxis.selectAll('.tick')
-            .append('circle')
-                .attr('cx', 0)
+        const colorX = (d) => {
+            const scale = scaleOrdinal(schemeSet3).domain(Array.from(data.x_labels.map((d) => d.get_group())));
+            return scale(d);
+        }
+
+        // Add circler around ticks
+        select("g.x-axis")
+            .selectAll('.axis-dots-x')
+            .data(data.x_labels)
+            .join(
+                enter => enter.append('circle').call(enter => enter
+                    .attr('cx', (d) => xLabel(d.to_string()) - (rectWidth / 2) + xAxis.tickPadding() * 1.5 + "px")
+                ),
+                update => update.call(update => update
+                    .attr('cx', (d) => xLabel(d.to_string()) - (rectWidth / 2) + xAxis.tickPadding() * 1.5 + "px")
+                ),
+                exit => exit.remove()
+            )
+                .attr("class", "axis-dots-x")
                 .attr('cy', -10)
                 .attr('r', 5)
                 .style('stroke', 'black')
                 .style('stroke-width', '1')
-                .style('fill', 'black')
+                .style('fill', (d) => colorX(d.get_group()))
                 .on('mouseover', (event, d) => {
                     let text_width = 0; 
                     tooltip
                         .style("visibility", "visible")
                         .select("#tooltip-text")
-                            .text(d)
+                        .text(d.to_string() + " " + d.get_group() + " " + d.get_id())
                             .attr("y", event.layerY - (this.margin.top / 4) + "px")
                             .each((d, i) => {
                                 text_width = select("#tooltip-text").node().getComputedTextLength();
@@ -271,23 +288,38 @@ class MatrixVisualization extends Component {
                 })
                 .on('click', this.onMethodClick);
 
-        let g_yAxis = select("g.y-axis")
+        select("g.y-axis")
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
             .call(yAxis);
 
-        g_yAxis.selectAll(".tick")
-            .append('circle')
+        const colorY = (d) => {
+            const scale = scaleOrdinal(schemeSet3).domain(Array.from(data.y_labels.map((d) => d.get_group())));
+            return scale(d);
+        }
+
+        select("g.y-axis")
+            .selectAll('.axis-dots-y')
+            .data(data.y_labels)
+            .join(
+                    enter => enter.append('circle').call(enter => enter
+                        .attr('cy', (d) =>  yLabel(d.to_string()) +  "px")
+                    ),
+                    update => update.call(update => update
+                        .attr('cy', (d) => yLabel(d.to_string()) + "px")
+                    ),
+                    exit => exit.remove()
+                )
+                .attr("class", "axis-dots-y")
                 .attr('cx', -10)
-                .attr('cy', 0)
                 .attr('r', 5)
                 .style('stroke', 'black')
                 .style('stroke-width', '1')
-                .style('fill', 'black')
+                .style('fill', (d) => colorY(d.get_group()))
                 .on('mouseover', (event, d) => {
                     tooltip
                         .style("visibility", "visible")
                         .select("#tooltip-text")
-                            .text(d)
+                            .text(d.to_string)
                             .attr("x", 0)
                             .attr("y", 0)
                         .attr("transform", `translate(${this.margin.left/2}, 900)rotate(-90)`);

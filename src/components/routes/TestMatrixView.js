@@ -104,10 +104,13 @@ class TestMatrixView extends Component {
                     methods: response.coverage.methods.map(m => {
                         m.get_id = () => m.method_id;
                         m.to_string = () => `${m.package_name}.${m.class_name} ${m.method_decl}`;
-                        return m;}),
+                        m.get_group = () => m.hasOwnProperty('cluster_id') ? m.cluster_id :  m.package_name;
+                        return m;
+                    }),
                     tests: response.coverage.tests.map(t => {
                         t.get_id = () => t.test_id;
-                        t.to_string = () => `${t.class_name}.${t.method_name}`;
+                        t.to_string = () => `${t.class_name} ${t.method_name}`;
+                        t.get_group = () => t.hasOwnProperty('cluster_id') ? t.cluster_id : t.class_name;
                         return t;
                     }),
                     edges: response.coverage.edges,
@@ -173,7 +176,7 @@ class TestMatrixView extends Component {
                         edges={current_state.edges}
                         onMethodClick={(event, label) => {
                             let new_filter_map = new FunctionMap(current_filter_map);
-                            new_filter_map.add_function("filter_by_coexecuted_methods", filter_by_coexecuted_methods, label)
+                            new_filter_map.add_function("filter_by_coexecuted_methods", filter_by_coexecuted_methods, label.to_string())
 
                             this.setState({
                                 history: this.state.history.concat(new_filter_map)
@@ -181,7 +184,7 @@ class TestMatrixView extends Component {
                         }}
                         onTestClick={(event, label) => {
                             let new_filter_map = new FunctionMap(current_filter_map);
-                            new_filter_map.add_function("filter_by_coexecuted_tests", filter_by_coexecuted_tests, label)
+                            new_filter_map.add_function("filter_by_coexecuted_tests", filter_by_coexecuted_tests, label.to_string())
 
                             this.setState({
                                 history: this.state.history.concat(new_filter_map)
