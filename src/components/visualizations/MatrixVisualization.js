@@ -240,7 +240,7 @@ class MatrixVisualization extends Component {
             .call(xAxis);
 
         const colorX = (d) => {
-            const scale = scaleOrdinal(schemeSet3).domain(Array.from(data.x_labels.map((d) => d.get_group())));
+            const scale = scaleOrdinal(schemeSet3).domain(Array.from(new Set(data.x_labels.map((d) => d.get_group()))));
             return scale(d);
         }
 
@@ -268,7 +268,7 @@ class MatrixVisualization extends Component {
                     tooltip
                         .style("visibility", "visible")
                         .select("#tooltip-text")
-                        .text(d.to_string() + " " + d.get_group() + " " + d.get_id())
+                        .text(d.to_string())
                             .attr("y", event.layerY - (this.margin.top / 4) + "px")
                             .each((d, i) => {
                                 text_width = select("#tooltip-text").node().getComputedTextLength();
@@ -293,7 +293,7 @@ class MatrixVisualization extends Component {
             .call(yAxis);
 
         const colorY = (d) => {
-            const scale = scaleOrdinal(schemeSet3).domain(Array.from(data.y_labels.map((d) => d.get_group())));
+            const scale = scaleOrdinal(schemeSet3).domain(Array.from(new Set(data.y_labels.map((d) => d.get_group()))));
             return scale(d);
         }
 
@@ -316,13 +316,22 @@ class MatrixVisualization extends Component {
                 .style('stroke-width', '1')
                 .style('fill', (d) => colorY(d.get_group()))
                 .on('mouseover', (event, d) => {
+                    let translateY = yLabel(d.to_string());
+                    let translateX = this.margin.left/2
+                    let text_width = 0;
                     tooltip
                         .style("visibility", "visible")
                         .select("#tooltip-text")
-                            .text(d.to_string)
+                            .each((d, i) => {
+                                text_width = select("#tooltip-text").node().getComputedTextLength();
+                            })
+                            .text(d.to_string())
                             .attr("x", 0)
                             .attr("y", 0)
-                        .attr("transform", `translate(${this.margin.left/2}, 900)rotate(-90)`);
+                        .attr("transform", (d) => {
+                            translateY = translateY + this.margin.top + text_width / 2;
+                            return `translate(${translateX}, ${translateY})rotate(-90)`;
+                        });
                 })
                 .on('mouseout', (event, d) => {
                     tooltip
