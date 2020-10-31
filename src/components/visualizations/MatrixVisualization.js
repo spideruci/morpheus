@@ -250,10 +250,10 @@ class MatrixVisualization extends Component {
             .data(data.x_labels)
             .join(
                 enter => enter.append('circle').call(enter => enter
-                    .attr('cx', (d) => xLabel(d.to_string()) - (rectWidth / 2) + xAxis.tickPadding() * 1.5 + "px")
+                    .attr('cx', (d) => xLabel(d.to_string()) + "px")
                 ),
                 update => update.call(update => update
-                    .attr('cx', (d) => xLabel(d.to_string()) - (rectWidth / 2) + xAxis.tickPadding() * 1.5 + "px")
+                    .attr('cx', (d) => xLabel(d.to_string()) + "px")
                 ),
                 exit => exit.remove()
             )
@@ -273,7 +273,6 @@ class MatrixVisualization extends Component {
                             .each((d, i) => {
                                 text_width = select("#tooltip-text").node().getComputedTextLength();
                             })
-                            .attr("transform", "")
                             .attr("x", () => {
                                 let x_location = event.layerX - (text_width / 2) + 10;
                                 if (x_location < 10){
