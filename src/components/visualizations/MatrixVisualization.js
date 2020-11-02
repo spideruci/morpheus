@@ -273,6 +273,7 @@ class MatrixVisualization extends Component {
                             .each((d, i) => {
                                 text_width = select("#tooltip-text").node().getComputedTextLength();
                             })
+                            .attr("transform", "")
                             .attr("x", () => {
                                 let x_location = event.layerX - (text_width / 2) + 10;
                                 if (x_location < 10){
