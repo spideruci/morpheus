@@ -254,7 +254,7 @@ class TestMatrixView extends Component {
                                 
                                 }} />
                             <FilterSlider title="Number of methods covered by test"
-                                defaultValue={0}
+                                defaultValue={1}
                                 min={0}
                                 max={25}
                                 onChange={(_, value) => {
@@ -290,7 +290,7 @@ class TestMatrixView extends Component {
                                 }} />
                             <FilterSlider 
                                 title="Number of tests covering a single method:"
-                                defaultValue={0}
+                                defaultValue={1}
                                 min={0}
                                 max={25}
                                 onChange={(_, value) => {
