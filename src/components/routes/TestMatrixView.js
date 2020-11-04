@@ -29,7 +29,12 @@ class TestMatrixView extends Component {
     constructor(props) {
         super();
 
+        // Default filter values:
+        this.DEFAULT_FILTER_MAP = new FunctionMap();
+        this.DEFAULT_FILTER_MAP.add_function("filter_method_by_number_of_times_tested", filter_method_by_number_of_times_tested, 1);
+
         this.state = {
+            default_filters: true,
             selectedProject: "",
             selectedCommit: "",
             data: {
@@ -60,7 +65,7 @@ class TestMatrixView extends Component {
                         y: data.tests,
                         edges: data.edges,
                     },
-                    history: [new FunctionMap()]
+                    history: []
                 })
             })
             .catch(e => console.error(e));
@@ -165,7 +170,12 @@ class TestMatrixView extends Component {
         const history = this.state.history;
         const current_filter_map = history[history.length - 1];
 
-        const current_state = process_data(this.state.data, current_filter_map)
+        let current_state = process_data(this.state.data, current_filter_map);
+
+        if (this.state.default_filters) {
+            current_state = process_data(current_state, this.DEFAULT_FILTER_MAP);
+        }
+
         const labelToggle = history.length > 1 ? true : false;
         return (
             <div className='test-visualization'>
