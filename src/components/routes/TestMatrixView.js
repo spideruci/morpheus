@@ -24,6 +24,7 @@ import './TestMatrixView.scss';
 import { filter_by_num_method_covered, filter_by_test_passed, filter_by_coexecuted_tests, filter_by_test_type, TEST_TYPES, TEST_RESULT} from '../filters/test_filters';
 import { filter_method_by_number_of_times_tested, filter_by_coexecuted_methods } from '../filters/method_filters';
 import { process_data, FunctionMap } from '../filters/data_processor';
+import { sort_by_coverage_X, sort_by_coverage_Y, sort_by_suspciousness} from '../filters/sorting';
 
 class TestMatrixView extends Component {
     constructor(props) {
@@ -206,6 +207,69 @@ class TestMatrixView extends Component {
                         <AccordionDetails className="accordion-block">
                             <Menu title="Projects" onChange={this.onProjectChange} entries={this.state.projects} />
                             <Menu title="Commit" onChange={this.onCommitChange} entries={this.state.commits} />
+                        </AccordionDetails>
+                    </Accordion>
+                    <Accordion>
+                        <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="panel1a-content"
+                            id="data-set-selector"
+                        >
+                            <span>Sorting</span>
+                        </AccordionSummary>
+                        <AccordionDetails className="accordion-block">
+                            <Menu
+                                title="Sort X-Axis"
+                                onChange={(e) => {
+                                    let new_filter_map = new FunctionMap(current_filter_map);
+                                    let func = (data) => data
+                                    switch(e.target.value) {
+                                        case "Coverage":
+                                            func = sort_by_coverage_X;
+                                            break
+                                        case "Cluster":
+                                            break;
+                                        case "Suspiciousness":
+                                            func = sort_by_suspciousness;
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                    new_filter_map.add_function("sorting-x", func);
+
+                                    this.setState({
+                                        history: this.state.history.concat(new_filter_map)
+                                    })
+                                }}
+                                entries={[
+                                { key: 0, value: "Name" },
+                                { key: 1, value: "Coverage" },
+                                { key: 2, value: "Suspiciousness"}
+                            ]} />
+                            <Menu
+                                title="Sort Y-Axis"
+                                onChange={(e) => {
+                                    let new_filter_map = new FunctionMap(current_filter_map);
+                                    let func = (data) => data
+                                    switch (e.target.value) {
+                                        case "Coverage":
+                                            func = sort_by_coverage_Y;
+                                            break
+                                        case "Cluster":
+                                            break;
+                                        default:
+                                            break;
+                                    }
+                                    new_filter_map.add_function("sorting-y", func);
+
+                                    this.setState({
+                                        history: this.state.history.concat(new_filter_map)
+                                    })
+                                }}
+                                entries={[
+                                    { key: 0, value: "Name" },
+                                    { key: 1, value: "Coverage" }
+                                ]} />
                         </AccordionDetails>
                     </Accordion>
                     <Accordion>
