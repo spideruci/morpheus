@@ -6,7 +6,6 @@ export function sort_by_coverage_X(current_state, all_data) {
     let x = current_state.x;
     let y = current_state.y;
 
-    console.log(x, y);
     let x_map = create_coverage_map(edges, (e) => e.method_id, (e) => e.test_id)
 
     function sort_array(list, map){
@@ -56,16 +55,15 @@ export function sort_by_coverage_Y(current_state, all_data) {
 }
 
 export function sort_by_suspciousness(current_state, all_data) {
-
-    const edges = current_state.edges;
-
     let x = current_state.x;
     let y = current_state.y;
+    const edges = current_state.edges;
 
+    // Create Maps One method id to test id and one test id to test result
     let x_map = create_coverage_map(edges, (e) => e.method_id, (e) => e.test_id)
-
     let test_result_map = new Map()
 
+    // Create a map of testing results 'test_id' --> result
     edges.forEach(edge => {
         const id = edge.test_id;
         const result = edge.test_result === "P";
@@ -73,6 +71,7 @@ export function sort_by_suspciousness(current_state, all_data) {
         test_result_map.set(id, result)
     });
 
+    // Compute the number tests passed/failed.
     let total_tests_failed = 0;
     let total_tests_passed = 0;
 
@@ -84,6 +83,7 @@ export function sort_by_suspciousness(current_state, all_data) {
         }
     });
 
+    // Tarantula Suspciousness calculation
     function suspiciousness(method) {
         let passed = 0;
         let failed = 0;
@@ -94,6 +94,7 @@ export function sort_by_suspciousness(current_state, all_data) {
 
         let tests = x_map.get(method.get_id())
 
+        // Compute passed/failed testcases
         tests.forEach((test_id) => {
             if (test_result_map.has(test_id) && test_result_map.get(test_id)) {
                 passed += 1;
@@ -105,14 +106,16 @@ export function sort_by_suspciousness(current_state, all_data) {
         return (failed / total_tests_failed) / ((passed/total_tests_passed) + (failed/total_tests_failed))
     }
 
-    function sort_array(list, map) {
+    // Sort based on suspiciosness of each test
+    function sort_array(list) {
         return list.sort((e1, e2) => {
             return suspiciousness(e1) < suspiciousness(e2);
         })
     }
 
-    if (total_tests_failed !== 0 || total_tests_passed !== 0) {
-        x = sort_array(x, x_map);
+    // If all tests fail or all tests pass don't compute suspciousness score, because it will fail.
+    if (total_tests_failed !== 0 && total_tests_passed !== 0) {
+        x = sort_array(x);
     }
 
     return {
