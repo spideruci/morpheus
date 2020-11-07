@@ -121,10 +121,10 @@ class TestMatrixView extends Component {
                             let color;
                             switch (e["test_result"]) {
                                 case "P":
-                                    color = "green";
+                                    color = "#03C03C";
                                     break;
                                 case "F":
-                                    color = "red";
+                                    color = "#FF1C00";
                                     break;
                                 default:
                                     color = "black";
