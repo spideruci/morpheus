@@ -6,7 +6,7 @@ export function sort_by_coverage_X(current_state, all_data) {
     let x = current_state.x;
     let y = current_state.y;
 
-    let x_map = create_coverage_map(edges, (e) => e.method_id, (e) => e.test_id)
+    let x_map = create_coverage_map(edges, (e) => e.get_x(), (e) => e.get_y())
 
     function sort_array(list, map){
         return list.sort((e1, e2) => {
@@ -33,7 +33,7 @@ export function sort_by_coverage_Y(current_state, all_data) {
     let x = current_state.x;
     let y = current_state.y;
 
-    let y_map = create_coverage_map(edges, (e) => e.test_id, (e) => e.method_id)
+    let y_map = create_coverage_map(edges, (e) => e.get_y(), (e) => e.get_x())
 
     function sort_array(list, map) {
         return list.sort((e1, e2) => {

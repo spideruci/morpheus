@@ -68,29 +68,13 @@ class MatrixVisualization extends Component {
         // TODO make this configurable, by adding a get_x(), get_y(), get_z() to the edge objects
         //  It should be possible to dynamically change implementation of the get_x(), get_y(), and get_z() functions.
         current.edges.forEach((edge, index) => {
-            if  (!(edge["test_id"] === null || edge["method_id"] === null)){
+            if (!(edge.get_y() === null || edge.get_x() === null)){
                 const highlight = edge.hasOwnProperty('highlight') ? edge.highlight : false;
-                let color;
 
-                switch (edge["test_result"]) {
-                    case "P":
-                        color = "green";
-                        break;
-                    case "F":
-                        color = "red";
-                        break;
-                    case "I":
-                        color = "grey";
-                        break;
-                    default:
-                        color = "black";
-                        break;
-                }
                 edges.push({ 
-                    x: parseInt(edge["method_id"]),
-                    y: parseInt(edge["test_id"]),
-                    z: color,
-                    test_result: edge["test_result"],
+                    x: parseInt(edge.get_x()),
+                    y: parseInt(edge.get_y()),
+                    z: edge.get_color(),
                     highlight: highlight});
             }
         });

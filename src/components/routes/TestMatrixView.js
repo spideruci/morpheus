@@ -114,7 +114,27 @@ class TestMatrixView extends Component {
                         t.get_group = () => t.hasOwnProperty('cluster_id') ? t.cluster_id : t.class_name;
                         return t;
                     }),
-                    edges: response.coverage.edges,
+                    edges: response.coverage.edges.map(e => {
+                        e.get_color = () => {
+                            let color;
+                            switch (e["test_result"]) {
+                                case "P":
+                                    color = "green";
+                                    break;
+                                case "F":
+                                    color = "red";
+                                    break;
+                                default:
+                                    color = "black";
+                                    break;
+                            }
+                            return color;
+                        }
+                        e.get_x = () => e.method_id;
+                        e.get_y = () => e.test_id;
+
+                        return e;
+                    }),
                 }
             })
             .catch((e) => {
