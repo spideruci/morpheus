@@ -224,7 +224,7 @@ class MatrixVisualization extends Component {
             .call(xAxis);
 
         const colorX = (d) => {
-            const scale = scaleOrdinal(schemeSet3).domain(Array.from(new Set(data.x_labels.map((d) => d.get_group()))));
+            const scale = scaleOrdinal(schemeSet3).domain(Array.from(new Set(data.x_labels.map((d) => d.get_color()))));
             return scale(d);
         }
 
@@ -246,7 +246,7 @@ class MatrixVisualization extends Component {
                 .attr('r', 5)
                 .style('stroke', 'black')
                 .style('stroke-width', '1')
-                .style('fill', (d) => colorX(d.get_group()))
+                .style('fill', (d) => colorX(d.get_color()))
                 .on('mouseover', (event, d) => {
                     let text_width = 0; 
                     tooltip
@@ -277,7 +277,7 @@ class MatrixVisualization extends Component {
             .call(yAxis);
 
         const colorY = (d) => {
-            const scale = scaleOrdinal(schemeSet3).domain(Array.from(new Set(data.y_labels.map((d) => d.get_group()))));
+            const scale = scaleOrdinal(schemeSet3).domain(Array.from(new Set(data.y_labels.map((d) => d.get_color()))));
             return scale(d);
         }
 
@@ -298,7 +298,7 @@ class MatrixVisualization extends Component {
                 .attr('r', 5)
                 .style('stroke', 'black')
                 .style('stroke-width', '1')
-                .style('fill', (d) => colorY(d.get_group()))
+                .style('fill', (d) => colorY(d.get_color()))
                 .on('mouseover', (event, d) => {
                     let translateY = yLabel(d.to_string());
                     let translateX = this.margin.left/2

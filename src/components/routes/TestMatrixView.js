@@ -105,13 +105,15 @@ class TestMatrixView extends Component {
                     methods: response.coverage.methods.map(m => {
                         m.get_id = () => m.method_id;
                         m.to_string = () => `${m.package_name}.${m.class_name} ${m.method_decl}`;
-                        m.get_group = () => m.hasOwnProperty('cluster_id') ? m.cluster_id :  m.package_name;
+                        m.get_group = () => m.hasOwnProperty('cluster_id') ? m.cluster_id :  0;
+                        m.get_color = () => m.package_name
                         return m;
                     }),
                     tests: response.coverage.tests.map(t => {
                         t.get_id = () => t.test_id;
                         t.to_string = () => `${t.class_name} ${t.method_name}`;
-                        t.get_group = () => t.hasOwnProperty('cluster_id') ? t.cluster_id : t.class_name;
+                        t.get_group = () => t.hasOwnProperty('cluster_id') ? t.cluster_id : 0;
+                        t.get_color = () => t.class_name
                         return t;
                     }),
                     edges: response.coverage.edges.map(e => {
