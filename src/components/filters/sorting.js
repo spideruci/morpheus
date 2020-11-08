@@ -54,6 +54,31 @@ export function sort_by_coverage_Y(current_state, all_data) {
     }
 }
 
+
+export function sort_by_cluster_X(current_state, all_data) {
+    let x = current_state.x;
+    const y = current_state.y;
+    const edges = current_state.edges;
+
+    return {
+        x: x.sort((e1, e2) => e1.get_cluster() < e2.get_cluster()),
+        y: y,
+        edges: edges,
+    }
+}
+
+export function sort_by_cluster_Y(current_state, all_data) {
+    const x = current_state.x;
+    let y = current_state.y;
+    const edges = current_state.edges;
+
+    return {
+        x: x,
+        y: y.sort((e1, e2) => e1.get_cluster() < e2.get_cluster()),
+        edges: edges,
+    }
+}
+
 export function sort_by_suspciousness(current_state, all_data) {
     let x = current_state.x;
     let y = current_state.y;

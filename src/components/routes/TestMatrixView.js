@@ -24,7 +24,7 @@ import './TestMatrixView.scss';
 import { filter_by_num_method_covered, filter_by_test_passed, filter_by_coexecuted_tests, filter_by_test_type, TEST_TYPES, TEST_RESULT} from '../filters/test_filters';
 import { filter_method_by_number_of_times_tested, filter_by_coexecuted_methods } from '../filters/method_filters';
 import { process_data, FunctionMap } from '../filters/data_processor';
-import { sort_by_coverage_X, sort_by_coverage_Y, sort_by_suspciousness} from '../filters/sorting';
+import { sort_by_cluster_X, sort_by_cluster_Y, sort_by_coverage_X, sort_by_coverage_Y, sort_by_suspciousness} from '../filters/sorting';
 
 class TestMatrixView extends Component {
     constructor(props) {
@@ -101,18 +101,19 @@ class TestMatrixView extends Component {
         console.debug(`${API_ROOT}/coverage/${project_name}/${commit_sha}`);
         return await json(`${API_ROOT}/coverage/${project_name}/${commit_sha}`)
             .then((response) => {
+                console.log("Response: ", response);
                 return {
                     methods: response.coverage.methods.map(m => {
                         m.get_id = () => m.method_id;
                         m.to_string = () => `${m.package_name}.${m.class_name} ${m.method_decl}`;
-                        m.get_group = () => m.hasOwnProperty('cluster_id') ? m.cluster_id :  0;
+                        m.get_cluster = () => m.hasOwnProperty('cluster_id') ? m.cluster_id :  0;
                         m.get_color = () => m.package_name
                         return m;
                     }),
                     tests: response.coverage.tests.map(t => {
                         t.get_id = () => t.test_id;
                         t.to_string = () => `${t.class_name} ${t.method_name}`;
-                        t.get_group = () => t.hasOwnProperty('cluster_id') ? t.cluster_id : 0;
+                        t.get_cluster = () => t.hasOwnProperty('cluster_id') ? t.cluster_id : 0;
                         t.get_color = () => t.class_name
                         return t;
                     }),
@@ -250,6 +251,7 @@ class TestMatrixView extends Component {
                                             func = sort_by_coverage_X;
                                             break
                                         case "Cluster":
+                                            func = sort_by_cluster_X;
                                             break;
                                         case "Suspiciousness":
                                             func = sort_by_suspciousness;
@@ -266,7 +268,8 @@ class TestMatrixView extends Component {
                                 entries={[
                                 { key: 0, value: "Name" },
                                 { key: 1, value: "Coverage" },
-                                { key: 2, value: "Suspiciousness"}
+                                { key: 2, value: "Cluster" },
+                                { key: 3, value: "Suspiciousness"}
                             ]} />
                             <Menu
                                 title="Sort Y-Axis"
@@ -278,6 +281,7 @@ class TestMatrixView extends Component {
                                             func = sort_by_coverage_Y;
                                             break
                                         case "Cluster":
+                                            func = sort_by_cluster_Y;
                                             break;
                                         default:
                                             break;
@@ -290,7 +294,8 @@ class TestMatrixView extends Component {
                                 }}
                                 entries={[
                                     { key: 0, value: "Name" },
-                                    { key: 1, value: "Coverage" }
+                                    { key: 1, value: "Coverage" },
+                                    { key: 2, value: "Cluster" },
                                 ]} />
                         </AccordionDetails>
                     </Accordion>
