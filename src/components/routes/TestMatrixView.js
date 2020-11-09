@@ -163,6 +163,8 @@ const TestMatrixView = () => {
 
     const reset = () => {
         setHistory([new FunctionMap()]);
+        setSelectedCommit("");
+        setSelectedProject("");
     }
 
     const handleChange = (panel) => (event, isExpanded) => {
