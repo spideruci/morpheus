@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 import { json } from 'd3'
 
 // API endpoints
@@ -41,7 +41,7 @@ const TestMatrixView = () => {
     const onCommitChange = async (event) => {
         let commit_sha = event.target.value;
 
-        this.updateCoverageData(this.state.selectedProject, commit_sha)
+        updateCoverageData(selectedProject, commit_sha)
             .then((data) => {
                 setSelectedCommit(commit_sha);
                 setData({
@@ -130,26 +130,30 @@ const TestMatrixView = () => {
             });
     }
 
-    const useEffect = async () =>  {
+    useEffect(() =>  {
         // componentDidMount gets replaced with useEffect in functional components
-        let projects = await updateProjectData();
-        let project_name = projects[0].value;
+        async function fetchData () {
+            let projects = await updateProjectData();
+            let project_name = projects[0].value;
+            let commits = await updateCommitData(project_name);
+            let commit_sha = commits[0].value;
+            let data = await updateCoverageData(project_name, commit_sha);
 
-        let commits = await updateCommitData(project_name);
-        let commit_sha = commits[0].value;
-        let data = await updateCoverageData(project_name, commit_sha);
+            setSelectedProject(projects[0].value);
+            setSelectedCommit(commits[0].value);
+            setProjects(projects);
+            setCommits(commits);
+            setData({
+                x: data.methods,
+                y: data.tests,
+                edges: data.edges,
+            });
+            setHistory([new FunctionMap()]);
+        }
+        
+        fetchData();
+    }, []);
 
-        setSelectedProject(projects[0].value);
-        setSelectedCommit(commits[0].value);
-        setProjects(projects);
-        setCommits(commits);
-        setData({
-            x: data.methods,
-            y: data.tests,
-            edges: data.edges,
-        });
-        setHistory([new FunctionMap()]);
-    }
 
     const backInTime = () => {
         // Only allow to previous state if there is a previous state.
@@ -163,6 +167,8 @@ const TestMatrixView = () => {
 
     const reset = () => {
         setHistory([new FunctionMap()]);
+        setSelectedProject("");
+        setSelectedCommit("");
     }
 
     const handleChange = (panel) => (event, isExpanded) => {
