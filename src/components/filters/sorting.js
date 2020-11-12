@@ -84,15 +84,17 @@ export function sort_by_suspciousness(current_state, all_data) {
     let y = current_state.y;
     const edges = current_state.edges;
 
+    // suspiciousness map
+    let suspciousness_map = new Map();
+
     // Create Maps One method id to test id and one test id to test result
-    let x_map = create_coverage_map(edges, (e) => e.method_id, (e) => e.test_id)
+    let x_map = create_coverage_map(all_data.edges, (e) => e.method_id, (e) => e.test_id)
     let test_result_map = new Map()
 
     // Create a map of testing results 'test_id' --> result
-    edges.forEach(edge => {
+    all_data.edges.forEach(edge => {
         const id = edge.test_id;
         const result = edge.test_result === "P";
-
         test_result_map.set(id, result)
     });
 
@@ -107,6 +109,7 @@ export function sort_by_suspciousness(current_state, all_data) {
             total_tests_failed += 1;
         }
     });
+
 
     // Tarantula Suspciousness calculation
     function suspiciousness(method) {
@@ -134,12 +137,15 @@ export function sort_by_suspciousness(current_state, all_data) {
     // Sort based on suspiciosness of each test
     function sort_array(list) {
         return list.sort((e1, e2) => {
-            return suspiciousness(e1) < suspiciousness(e2);
+            return suspciousness_map.get(e1.get_id()) < suspciousness_map.get(e2.get_id());
         })
     }
 
     // If all tests fail or all tests pass don't compute suspciousness score, because it will fail.
     if (total_tests_failed !== 0 && total_tests_passed !== 0) {
+        all_data.x.forEach((elem) => {
+            suspciousness_map.set(elem.get_id(), suspiciousness(elem));
+        });
         x = sort_array(x);
     }
 
