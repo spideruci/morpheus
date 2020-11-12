@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   height: 100%;
 }
 
@@ -10,7 +11,7 @@ html, body {
   nav {
     background-color: #ddd;
     color: #222;
-    padding: .5%;
+    padding: 0.5%;
     a {
       padding-right: 1rem;
     }
@@ -20,4 +21,3 @@ html, body {
     height: 85%;
   }
 }
-
