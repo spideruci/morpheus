@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react'
+import React, { Component } from 'react'
 import { json } from 'd3'
 
 // API endpoints
@@ -26,42 +26,58 @@ import { filter_method_by_number_of_times_tested, filter_by_coexecuted_methods }
 import { process_data, FunctionMap } from '../filters/data_processor';
 import { sort_by_cluster_X, sort_by_cluster_Y, sort_by_coverage_X, sort_by_coverage_Y, sort_by_suspciousness} from '../filters/sorting';
 
-const TestMatrixView = () => {
-    const[selectedProject, setSelectedProject] = useState("");
-    const[selectedCommit, setSelectedCommit] = useState("");
-    const[data, setData] = useState({
-        x: [],
-        y: [],
-        edges: [],
-    });
-    const[history, setHistory] = useState([new FunctionMap()]);
-    const[projects, setProjects] = useState([]);
-    const[commits, setCommits] = useState([]);
+class TestMatrixView extends Component {
+    constructor(props) {
+        super();
 
-    const onCommitChange = async (event) => {
+        this.state = {
+            selectedProject: "",
+            selectedCommit: "",
+            data: {
+                x: [],
+                y: [],
+                edges: [],
+            },
+            history: [new FunctionMap()],
+            projects: [],
+            commits: [],
+            expanded: false
+        }
+
+        this.backInTime = this.backInTime.bind(this);
+        this.reset = this.reset.bind(this);
+        this.onProjectChange = this.onProjectChange.bind(this);
+        this.onCommitChange = this.onCommitChange.bind(this)
+    }
+
+    async onCommitChange(event) {
         let commit_sha = event.target.value;
 
-        updateCoverageData(selectedProject, commit_sha)
+        this.updateCoverageData(this.state.selectedProject, commit_sha)
             .then((data) => {
-                setSelectedCommit(commit_sha);
-                setData({
-                    x: data.methods,
-                    y: data.tests,
-                    edges: data.edges,
-                });
-                setHistory([new FunctionMap()]);
+                this.setState({
+                    selectedCommit: commit_sha,
+                    data: {
+                        x: data.methods,
+                        y: data.tests,
+                        edges: data.edges,
+                    },
+                    history: [new FunctionMap()]
+                })
             })
             .catch(e => console.error(e));
     }
 
-    const onProjectChange = async (event) => {
+    async onProjectChange(event) {
         let project_name = event.target.value;
 
-        setSelectedProject(project_name);
-        setCommits(await updateCommitData(project_name));
+        this.setState({
+            selectedProject: project_name,
+            commits: await this.updateCommitData(project_name)
+        })
     }
 
-    const updateCommitData = async (project_name) => {
+    async updateCommitData(project_name) {
         return await json(`${API_ROOT}/commits/${project_name}`)
             .then(response => {
                 let commits = response.commits.map(commit => {
@@ -71,7 +87,7 @@ const TestMatrixView = () => {
             })
     }
 
-    const updateProjectData = async () => {
+    async updateProjectData() {
         return await json(`${API_ROOT}/projects`)
             .then(response => {
                 let projects = response.projects.map(project => {
@@ -82,7 +98,7 @@ const TestMatrixView = () => {
             })
     }
 
-    const updateCoverageData = async (project_name, commit_sha) => {
+    async updateCoverageData(project_name, commit_sha) {
         console.debug(`${API_ROOT}/coverage/${project_name}/${commit_sha}`);
         return await json(`${API_ROOT}/coverage/${project_name}/${commit_sha}`)
             .then((response) => {
@@ -130,58 +146,61 @@ const TestMatrixView = () => {
             });
     }
 
-    useEffect(() =>  {
-        // componentDidMount gets replaced with useEffect in functional components
-        async function fetchData () {
-            let projects = await updateProjectData();
-            let project_name = projects[0].value;
-            let commits = await updateCommitData(project_name);
-            let commit_sha = commits[0].value;
-            let data = await updateCoverageData(project_name, commit_sha);
+    async componentDidMount() {
+        let projects = await this.updateProjectData();
+        let project_name = projects[0].value;
 
-            setSelectedProject(projects[0].value);
-            setSelectedCommit(commits[0].value);
-            setProjects(projects);
-            setCommits(commits);
-            setData({
+        let commits = await this.updateCommitData(project_name);
+        let commit_sha = commits[0].value;
+        let data = await this.updateCoverageData(project_name, commit_sha);
+
+        this.setState({
+            selectedProject: projects[0].value,
+            selectedCommit: commits[0].value,
+            projects: projects,
+            commits: commits,
+            data: {
                 x: data.methods,
                 y: data.tests,
                 edges: data.edges,
-            });
-            setHistory([new FunctionMap()]);
-        }
-        
-        fetchData();
-    }, []);
+            },
+            history: [new FunctionMap()]
+        })
+    }
 
-
-    const backInTime = () => {
+    backInTime() {
         // Only allow to previous state if there is a previous state.
-        if (history.length <= 1) {
+        if (this.state.history.length <= 1) {
             return;
         }
 
-        const new_history = history.slice(0, history.length - 1);
-        setHistory(new_history);
+        const new_history = this.state.history.slice(0, this.state.history.length - 1);
+        this.setState({
+            history: new_history
+        })
     }
 
-    const reset = () => {
-        setHistory([new FunctionMap()]);
-        setSelectedProject("");
-        setSelectedCommit("");
+    reset() {
+        this.setState({
+            history: [new FunctionMap()]
+        })
     }
 
-    const handleChange = (panel) => (event, isExpanded) => {
-        setExpanded(isExpanded ? panel : false);
-       }
+    render() {
+        const history = this.state.history;
+        const current_filter_map = history[history.length - 1];
 
-    const current_filter_map = history[history.length - 1];
+        const current_state = process_data(this.state.data, current_filter_map)
+        const labelToggle = history.length > 1 ? true : false;
 
-    const current_state = process_data(data, current_filter_map)
-    const labelToggle = history.length > 1 ? true : false;
-    const [expanded, setExpanded] = React.useState(false);
+        const handleChange = (panel) => (event, isExpanded) => {
+            const expanded = isExpanded ? panel : false;
+            this.setState({
+                expanded: expanded,
+            });
+        }
 
-    return (
+        return (
             <div className='test-visualization'>
                 {((current_state.x.length >= 0) || (current_state.y.length >= 0)) &&
                     <MatrixVisualization
@@ -192,20 +211,24 @@ const TestMatrixView = () => {
                             let new_filter_map = new FunctionMap(current_filter_map);
                             new_filter_map.add_function("filter_by_coexecuted_methods", filter_by_coexecuted_methods, label.to_string())
 
-                            setHistory(history.concat(new_filter_map));
+                            this.setState({
+                                history: this.state.history.concat(new_filter_map)
+                            })
                         }}
                         onTestClick={(event, label) => {
                             let new_filter_map = new FunctionMap(current_filter_map);
                             new_filter_map.add_function("filter_by_coexecuted_tests", filter_by_coexecuted_tests, label.to_string())
 
-                            setHistory(history.concat(new_filter_map));
+                            this.setState({
+                                history: this.state.history.concat(new_filter_map)
+                            })
                         }}
                         labelToggle={labelToggle}/>
                 }
 
                 <div id='toolbox'>
                     <h4>Toolbar</h4>
-                    <Accordion expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
+                    <Accordion expanded={this.state.expanded === 'panel1'} onChange={handleChange('panel1')}>
                         <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel1a-content"
@@ -214,11 +237,11 @@ const TestMatrixView = () => {
                         <span>Project selector</span>
                         </AccordionSummary>
                         <AccordionDetails className="accordion-block">
-                            <Menu title="Projects" onChange={onProjectChange} entries={projects} />
-                            <Menu title="Commit" onChange={onCommitChange} entries={commits} />
+                            <Menu title="Projects" onChange={this.onProjectChange} entries={this.state.projects} />
+                            <Menu title="Commit" onChange={this.onCommitChange} entries={this.state.commits} />
                         </AccordionDetails>
                     </Accordion>
-                    <Accordion expanded={expanded === 'panel2'} onChange={handleChange('panel2')}>
+                    <Accordion expanded={this.state.expanded === 'panel2'} onChange={handleChange('panel2')}>
                         <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel1a-content"
@@ -247,7 +270,9 @@ const TestMatrixView = () => {
                                     }
                                     new_filter_map.add_function("sorting-x", func);
 
-                                    setHistory(history.concat(new_filter_map));
+                                    this.setState({
+                                        history: this.state.history.concat(new_filter_map)
+                                    })
                                 }}
                                 entries={[
                                 { key: 0, value: "Name" },
@@ -272,7 +297,9 @@ const TestMatrixView = () => {
                                     }
                                     new_filter_map.add_function("sorting-y", func);
 
-                                    setHistory(history.concat(new_filter_map));
+                                    this.setState({
+                                        history: this.state.history.concat(new_filter_map)
+                                    })
                                 }}
                                 entries={[
                                     { key: 0, value: "Name" },
@@ -281,7 +308,7 @@ const TestMatrixView = () => {
                                 ]} />
                         </AccordionDetails>
                     </Accordion>
-                    <Accordion expanded={expanded === 'panel3'} onChange={handleChange('panel3')}>
+                    <Accordion expanded={this.state.expanded === 'panel3'} onChange={handleChange('panel3')}>
                         <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel1a-content"
@@ -302,7 +329,9 @@ const TestMatrixView = () => {
                                     let new_filter_map = new FunctionMap(current_filter_map);
                                     new_filter_map.add_function("filter_by_test_type", filter_by_test_type, test_type)
 
-                                    setHistory(history.concat(new_filter_map));
+                                    this.setState({
+                                        history: this.state.history.concat(new_filter_map)
+                                    })
                                 }} />
                             <Menu title="Test Pass Filter" 
                                 entries={[
@@ -321,7 +350,9 @@ const TestMatrixView = () => {
                                     let new_filter_map = new FunctionMap(current_filter_map);
                                     new_filter_map.add_function("filter_by_test_passed", filter_by_test_passed, test_result)
                                     
-                                    setHistory(history.concat(new_filter_map));
+                                    this.setState({
+                                        history: this.state.history.concat(new_filter_map)
+                                    })
                             }} />
                             <FilterMenu title="Search Test:" 
                                 entries={current_state.y} 
@@ -330,7 +361,9 @@ const TestMatrixView = () => {
                                     let new_filter_map = new FunctionMap(current_filter_map);
                                     new_filter_map.add_function("filter_by_coexecuted_tests", filter_by_coexecuted_tests, identifier)
 
-                                    setHistory(history.concat(new_filter_map));
+                                    this.setState({
+                                        history: this.state.history.concat(new_filter_map)
+                                    })
                                 
                                 }} />
                             <FilterSlider title="Number of methods covered by test"
@@ -341,11 +374,13 @@ const TestMatrixView = () => {
                                     let new_filter_map = new FunctionMap(current_filter_map);
                                     new_filter_map.add_function("filter_by_num_method_covered", filter_by_num_method_covered, value);
 
-                                    setHistory(history.concat(new_filter_map));
+                                    this.setState({
+                                        history: this.state.history.concat(new_filter_map)
+                                    })
                                 }} />
                         </AccordionDetails>
                     </Accordion>
-                    <Accordion expanded={expanded === 'panel4'} onChange={handleChange('panel4')}>
+                    <Accordion expanded={this.state.expanded === 'panel4'} onChange={handleChange('panel4')}>
                         <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel1a-content"
@@ -362,7 +397,9 @@ const TestMatrixView = () => {
                                     let new_filter_map = new FunctionMap(current_filter_map);
                                     new_filter_map.add_function("filter_by_coexecuted_methods", filter_by_coexecuted_methods, identifier)
 
-                                    setHistory(history.concat(new_filter_map));
+                                    this.setState({
+                                        history: this.state.history.concat(new_filter_map)
+                                    })
                                 }} />
                             <FilterSlider 
                                 title="Number of tests covering a single method:"
@@ -373,7 +410,9 @@ const TestMatrixView = () => {
                                     let new_filter_map = new FunctionMap(current_filter_map);
                                     new_filter_map.add_function("filter_method_by_number_of_times_tested", filter_method_by_number_of_times_tested, value)
 
-                                    setHistory(history.concat(new_filter_map));
+                                    this.setState({
+                                        history: this.state.history.concat(new_filter_map)
+                                    })
                                 }} />
                         </AccordionDetails>
                     </Accordion>
@@ -382,12 +421,13 @@ const TestMatrixView = () => {
                     <ResultTextBox title="Tests" entries={current_state.y}/>
 
                     <div id="control-tools">
-                        <button onClick={backInTime}>Back</button>
-                        <button onClick={reset}>Reset</button>
+                        <button onClick={this.backInTime}>Back</button>
+                        <button onClick={this.reset}>Reset</button>
                     </div>
                 </div>
             </div>
         )
+    }
 }
 
 export default TestMatrixView;
