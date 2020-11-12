@@ -41,6 +41,7 @@ class TestMatrixView extends Component {
             history: [new FunctionMap()],
             projects: [],
             commits: [],
+            expanded: false
         }
 
         this.backInTime = this.backInTime.bind(this);
@@ -191,6 +192,14 @@ class TestMatrixView extends Component {
 
         const current_state = process_data(this.state.data, current_filter_map)
         const labelToggle = history.length > 1 ? true : false;
+
+        const handleChange = (panel) => (event, isExpanded) => {
+            const expanded = isExpanded ? panel : false;
+            this.setState({
+                expanded: expanded,
+            });
+        }
+
         return (
             <div className='test-visualization'>
                 {((current_state.x.length >= 0) || (current_state.y.length >= 0)) &&
@@ -219,7 +228,7 @@ class TestMatrixView extends Component {
 
                 <div id='toolbox'>
                     <h4>Toolbar</h4>
-                    <Accordion>
+                    <Accordion expanded={this.state.expanded === 'panel1'} onChange={handleChange('panel1')}>
                         <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel1a-content"
@@ -232,7 +241,7 @@ class TestMatrixView extends Component {
                             <Menu title="Commit" onChange={this.onCommitChange} entries={this.state.commits} />
                         </AccordionDetails>
                     </Accordion>
-                    <Accordion>
+                    <Accordion expanded={this.state.expanded === 'panel2'} onChange={handleChange('panel2')}>
                         <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel1a-content"
@@ -299,7 +308,7 @@ class TestMatrixView extends Component {
                                 ]} />
                         </AccordionDetails>
                     </Accordion>
-                    <Accordion>
+                    <Accordion expanded={this.state.expanded === 'panel3'} onChange={handleChange('panel3')}>
                         <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel1a-content"
@@ -371,7 +380,7 @@ class TestMatrixView extends Component {
                                 }} />
                         </AccordionDetails>
                     </Accordion>
-                    <Accordion>
+                    <Accordion expanded={this.state.expanded === 'panel4'} onChange={handleChange('panel4')}>
                         <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel1a-content"
