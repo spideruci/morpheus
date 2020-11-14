@@ -5,7 +5,7 @@ import { select } from 'd3-selection';
 import { transition } from 'd3-transition';
 import { easeLinear } from 'd3-ease';
 import { schemeSet3 } from 'd3-scale-chromatic';
-
+import { isEqual } from 'lodash';
 
 class MatrixVisualization extends Component {
     constructor(props) {
@@ -99,7 +99,7 @@ class MatrixVisualization extends Component {
                 height: dimensions.height,
             }, this.update)
         }
-        else if ((prevProps.x !== this.props.x) || (prevProps.y !== this.props.y) || (prevProps.edges !== this.props.edges)) {
+        else if ((!isEqual(prevProps.x, this.props.x)) || (!isEqual(prevProps.y, this.props.y)) ) {
             this.labelToggle = this.props.labelToggle;
             this.onMethodClick = this.props.onMethodClick;
             this.onTestClick = this.props.onTestClick;
