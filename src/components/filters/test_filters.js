@@ -1,6 +1,6 @@
 import { create_coverage_map } from './filter_utils'
 
-export function filter_by_num_method_covered(current_state, all_data, value) {
+export function filter_by_num_method_covered(current_state, _, value) {
     const edges = current_state.edges;
 
      // Map test_id to methods it covers
@@ -24,7 +24,7 @@ export function filter_by_num_method_covered(current_state, all_data, value) {
 }
 
 
-export function filter_by_test_passed(current_state, all_data, value) {
+export function filter_by_test_passed(current_state, _, value) {
     function test_filter(current_state, predicate) {
         const methods = current_state.x;
         const tests = current_state.y;

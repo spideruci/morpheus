@@ -1,6 +1,6 @@
 import { create_coverage_map } from './filter_utils'
 
-export function filter_method_by_number_of_times_tested(current_state, all_data, value) {
+export function filter_method_by_number_of_times_tested(current_state, _, value) {
     const edges = current_state.edges;
 
     // Map method_id to tests its covered by.
