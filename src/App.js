@@ -14,7 +14,7 @@ import './App.scss';
 function App() {
   return (
     <div className='app'>
-      <Header title='SpiderTest'/>
+      <Header title="Morpheus"/>
       <Router>
         <nav>
           <Link to="/about">About</Link>
