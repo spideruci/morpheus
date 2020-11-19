@@ -41,13 +41,15 @@ class TestMatrixView extends Component {
             history: [new FunctionMap()],
             projects: [],
             commits: [],
-            expanded: false
+            expanded: false,
+            reset: false
         }
 
         this.backInTime = this.backInTime.bind(this);
         this.reset = this.reset.bind(this);
         this.onProjectChange = this.onProjectChange.bind(this);
-        this.onCommitChange = this.onCommitChange.bind(this)
+        this.onCommitChange = this.onCommitChange.bind(this);
+        this.updateReset = this.updateReset.bind(this);
     }
 
     async onCommitChange(event) {
@@ -184,7 +186,13 @@ class TestMatrixView extends Component {
         this.setState({
             history: [new FunctionMap()]
         })
+        this.setState({selectedProject: "", selectedCommit: "", reset: true});
     }
+
+    updateReset(){
+        this.setState({reset: false});
+    }
+
 
     render() {
         const history = this.state.history;
@@ -237,8 +245,8 @@ class TestMatrixView extends Component {
                         <span>Project selector</span>
                         </AccordionSummary>
                         <AccordionDetails className="accordion-block">
-                            <Menu title="Projects" onChange={this.onProjectChange} entries={this.state.projects} />
-                            <Menu title="Commit" onChange={this.onCommitChange} entries={this.state.commits} />
+                            <Menu title="Projects" onChange={this.onProjectChange} entries={this.state.projects} reset={this.state.reset} updateReset={this.updateReset}/>
+                            <Menu title="Commit" onChange={this.onCommitChange} entries={this.state.commits} reset={this.state.reset} updateReset={this.updateReset}/>
                         </AccordionDetails>
                     </Accordion>
                     <Accordion expanded={this.state.expanded === 'panel2'} onChange={handleChange('panel2')}>
@@ -279,7 +287,10 @@ class TestMatrixView extends Component {
                                 { key: 1, value: "Coverage" },
                                 { key: 2, value: "Cluster" },
                                 { key: 3, value: "Suspiciousness"}
-                            ]} />
+                                ]}
+                                reset={this.state.reset}
+                                updateReset={this.updateReset}
+                                />
                             <Menu
                                 title="Sort Y-Axis"
                                 onChange={(e) => {
@@ -305,7 +316,10 @@ class TestMatrixView extends Component {
                                     { key: 0, value: "Name" },
                                     { key: 1, value: "Coverage" },
                                     { key: 2, value: "Cluster" },
-                                ]} />
+                                ]} 
+                                reset={this.state.reset}
+                                updateReset={this.updateReset}
+                                />
                         </AccordionDetails>
                     </Accordion>
                     <Accordion expanded={this.state.expanded === 'panel3'} onChange={handleChange('panel3')}>
@@ -332,7 +346,10 @@ class TestMatrixView extends Component {
                                     this.setState({
                                         history: this.state.history.concat(new_filter_map)
                                     })
-                                }} />
+                                }} 
+                                reset={this.state.reset}
+                                updateReset={this.updateReset}
+                                />
                             <Menu title="Test Pass Filter" 
                                 entries={[
                                     { key: 0, value: "All" },
@@ -353,7 +370,10 @@ class TestMatrixView extends Component {
                                     this.setState({
                                         history: this.state.history.concat(new_filter_map)
                                     })
-                            }} />
+                                }} 
+                                reset={this.state.reset}
+                                updateReset={this.updateReset}
+                               />
                             <FilterMenu title="Search Test:" 
                                 entries={current_state.y} 
                                 onClick={(event) => {

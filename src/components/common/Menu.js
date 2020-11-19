@@ -1,9 +1,20 @@
-import React from 'react'
+import React, {useState, useEffect} from 'react'
 import Tooltip from '@material-ui/core/Tooltip';
 import HelpIcon from '@material-ui/icons/Help';
 import './Menu.scss'
 
-const Menu = ({ title = "", description=[], onChange=(e) => console.log(e), entries = [] }) => {
+const Menu = ({ title = "", description=[], onChange=(e) => console.log(e.target.value), entries = [], reset, updateReset}) => {
+    const [value, setValue] = useState("default");
+
+    const handleChange = e =>{
+        if(reset === true){
+            updateReset();
+        }
+        setValue(e.target.value);
+        onChange(e); 
+         
+    }
+
     let tooltip = description.length === 0 ? null : (
         <Tooltip
             title={
@@ -13,18 +24,25 @@ const Menu = ({ title = "", description=[], onChange=(e) => console.log(e), entr
             <HelpIcon fontSize="small" />
         </Tooltip>
     )
+    useEffect(() => {
+        if(reset) {
+            setValue("default")
+        }
+      }, [reset]); // Only re-run the effect if reset changes
+
     return (
         <div className="menu-selector">
             <span>{title}: </span>
             {tooltip}
-            <select onChange={onChange}>
-                <option> -- select an option -- </option>
+            <select value={value} onChange={handleChange}>
+                <option value="default"> -- select an option -- </option>
                 {entries.map((entry) => (
                     <option key={entry.key} value={entry.value}>{entry.value}</option>
+                    
                 ))}
             </select>
         </div>
     )
-}
 
+}
 export default Menu;
