@@ -348,7 +348,7 @@ class TestMatrixView extends Component {
                                     })
                                 }} 
                                 reset={this.state.reset}
-                                changeReset={this.updateReset}
+                                updateReset={this.updateReset}
                                 />
                             <Menu title="Test Pass Filter" 
                                 entries={[

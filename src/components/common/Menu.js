@@ -3,14 +3,15 @@ import Tooltip from '@material-ui/core/Tooltip';
 import HelpIcon from '@material-ui/icons/Help';
 import './Menu.scss'
 
-const Menu = ({ title = "", description=[], onChange=(event) => console.log(event.target.value), entries = [], reset, updateReset}) => {
+const Menu = ({ title = "", description=[], onChange=(e) => console.log(e.target.value), entries = [], reset, updateReset}) => {
     const [value, setValue] = useState("default");
 
     const handleChange = e =>{
         if(reset === true){
             updateReset();
         }
-        setValue(e.target.value) 
+        setValue(e.target.value);
+        onChange(e); 
          
     }
 
