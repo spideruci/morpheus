@@ -35,7 +35,6 @@ const Menu = ({ title = "", description=[], onChange=(event) => console.log(even
             {tooltip}
             <select value={value} onChange={handleChange}>
                 <option value="default"> -- select an option -- </option>
-                <option value="grapefruit">Grapefruit</option>
                 {entries.map((entry) => (
                     <option key={entry.key} value={entry.value}>{entry.value}</option>
                     
