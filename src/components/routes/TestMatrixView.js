@@ -231,7 +231,8 @@ class TestMatrixView extends Component {
                                 history: this.state.history.concat(new_filter_map)
                             })
                         }}
-                        labelToggle={labelToggle}/>
+                        labelToggle={labelToggle}
+                        xlabel={"methods"}/>
                 }
 
                 <div id='toolbox'>

@@ -42,7 +42,7 @@ class HistoryMatrixView extends Component {
             projects: [],
             commits: [],
             expanded: false,
-            reset: false
+            reset: false,
         }
 
         this.backInTime = this.backInTime.bind(this);
@@ -192,8 +192,6 @@ class HistoryMatrixView extends Component {
     updateReset(){
         this.setState({reset: false});
     }
-
-
     render() {
         const history = this.state.history;
         const current_filter_map = history[history.length - 1];
@@ -207,6 +205,8 @@ class HistoryMatrixView extends Component {
                 expanded: expanded,
             });
         }
+
+       
 
         return (
             <div className='test-visualization'>
@@ -231,9 +231,10 @@ class HistoryMatrixView extends Component {
                                 history: this.state.history.concat(new_filter_map)
                             })
                         }}
-                        labelToggle={labelToggle}/>
+                        labelToggle={labelToggle}
+                        xlabel={"commits"}/>
+                        
                 }
-
                 <div id='toolbox'>
                     <h4>Toolbar</h4>
                     <Accordion expanded={this.state.expanded === 'panel1'} onChange={handleChange('panel1')}>
@@ -242,11 +243,10 @@ class HistoryMatrixView extends Component {
                             aria-controls="panel1a-content"
                             id="data-set-selector"
                         >
-                        <span>Project selector</span>
+                        <span>Project Selector</span>
                         </AccordionSummary>
                         <AccordionDetails className="accordion-block">
-                            <Menu title="Projects" onChange={this.onProjectChange} entries={this.state.projects} reset={this.state.reset} updateReset={this.updateReset}/>
-                            <Menu title="Commit" onChange={this.onCommitChange} entries={this.state.commits} reset={this.state.reset} updateReset={this.updateReset}/>
+                        <Menu title="Projects" onChange={this.onProjectChange} entries={this.state.projects} reset={this.state.reset} updateReset={this.updateReset}/> 
                         </AccordionDetails>
                     </Accordion>
                     <Accordion expanded={this.state.expanded === 'panel2'} onChange={handleChange('panel2')}>
@@ -437,14 +437,16 @@ class HistoryMatrixView extends Component {
                         </AccordionDetails>
                     </Accordion>
 
-                    <ResultTextBox title="Methods" entries={current_state.x}/>
+                    <ResultTextBox title="Commits" entries={current_state.x}/>
                     <ResultTextBox title="Tests" entries={current_state.y}/>
 
                     <div id="control-tools">
                         <button onClick={this.backInTime}>Back</button>
                         <button onClick={this.reset}>Reset</button>
                     </div>
+                   
                 </div>
+                
             </div>
         )
     }

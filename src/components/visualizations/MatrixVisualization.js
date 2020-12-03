@@ -18,6 +18,7 @@ class MatrixVisualization extends Component {
         this.state = {
             width: 0,
             height: 0,
+            xlabel: props.xlabel,
         }
 
         this.margin = {
@@ -219,6 +220,14 @@ class MatrixVisualization extends Component {
             .style("font-size", "12px")
 
         // Add X and Y axis to the visualization
+
+        // text label for the x axis
+        svg.append("text")
+        .attr("x", this.state.width/2 )
+        .attr("y",  11 )
+        .style("text-anchor", "middle")
+        .text(this.state.xlabel);
+
         select("g.x-axis")
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
             .call(xAxis);
@@ -271,7 +280,6 @@ class MatrixVisualization extends Component {
                         .style("visibility", "hidden");
                 })
                 .on('click', this.onMethodClick);
-
         select("g.y-axis")
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
             .call(yAxis);
@@ -322,6 +330,14 @@ class MatrixVisualization extends Component {
                         .style("visibility", "hidden");
                 })
                 .on('click', this.onTestClick);
+
+        svg.append("text")
+                .attr("transform", "rotate(-90)")
+                .attr("y", 1)
+                .attr("x",-this.state.height/2)
+                .attr("dy", "0.7em")
+                .style("text-anchor", "middle")
+                .text("test cases");
     }
 
     createTestMatrixView() {
