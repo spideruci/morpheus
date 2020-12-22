@@ -90,6 +90,7 @@ class TestMatrixView extends Component {
     }
 
     async updateProjectData() {
+        console.debug(`${API_ROOT}/projects`);
         return await json(`${API_ROOT}/projects`)
             .then(response => {
                 let projects = response.projects.map(project => {
@@ -232,7 +233,8 @@ class TestMatrixView extends Component {
                             })
                         }}
                         labelToggle={labelToggle}
-                        xlabel={"methods"}/>
+                        xlabel={"methods"}
+                        ylabel={"test cases"} />
                 }
 
                 <div id='toolbox'>
