@@ -325,7 +325,6 @@ class MatrixVisualization extends Component {
                 .on('click', this.onTestClick);
 
         // text label for the x axis
-        console.log(svg.select("xlabel"));
         svg.select(".xlabel")
             .attr("x", this.state.width / 2)
             .attr("y", 11)
