@@ -19,6 +19,7 @@ class MatrixVisualization extends Component {
             width: 0,
             height: 0,
             xlabel: props.xlabel,
+            ylabel: props.ylabel,
         }
 
         this.margin = {
@@ -220,14 +221,6 @@ class MatrixVisualization extends Component {
             .style("font-size", "12px")
 
         // Add X and Y axis to the visualization
-
-        // text label for the x axis
-        svg.append("text")
-        .attr("x", this.state.width/2 )
-        .attr("y",  11 )
-        .style("text-anchor", "middle")
-        .text(this.state.xlabel);
-
         select("g.x-axis")
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
             .call(xAxis);
@@ -331,13 +324,21 @@ class MatrixVisualization extends Component {
                 })
                 .on('click', this.onTestClick);
 
-        svg.append("text")
-                .attr("transform", "rotate(-90)")
-                .attr("y", 1)
-                .attr("x",-this.state.height/2)
-                .attr("dy", "0.7em")
-                .style("text-anchor", "middle")
-                .text("test cases");
+        // text label for the x axis
+        svg.select(".xlabel")
+            .attr("x", this.state.width / 2)
+            .attr("y", 11)
+            .style("text-anchor", "middle")
+            .text(this.state.xlabel);
+
+        // text label for the y axis
+        svg.select(".ylabel")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 1)
+            .attr("x", -this.state.height / 2)
+            .attr("dy", "0.7em")
+            .style("text-anchor", "middle")
+            .text(this.state.ylabel);
     }
 
     createTestMatrixView() {
@@ -350,6 +351,10 @@ class MatrixVisualization extends Component {
         svg.append("g").attr("class", "y-axis");
         svg.append("g").attr("class", "testmatrix");
         svg.append("g").attr("class", "tooltip");
+
+        // Create empty labels, they are updated within the update function.
+        svg.append("text").attr("class", "xlabel");
+        svg.append("text").attr("class", "ylabel");
     }
 
     render() {

@@ -232,7 +232,8 @@ class TestMatrixView extends Component {
                             })
                         }}
                         labelToggle={labelToggle}
-                        xlabel={"methods"}/>
+                        xlabel={"methods"}
+                        ylabel={"test cases"} />
                 }
 
                 <div id='toolbox'>
