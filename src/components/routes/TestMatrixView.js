@@ -100,8 +100,9 @@ class TestMatrixView extends Component {
     }
 
     async updateCoverageData(project_name, commit_sha) {
-        console.debug(`${API_ROOT}/coverage/${project_name}/${commit_sha}`);
-        return await json(`${API_ROOT}/coverage/${project_name}/${commit_sha}`)
+        console.warn("For demo we hardcode the project of interest....")
+        console.debug(`${API_ROOT}/coverage/jpacman-framework/43aac19db93e73646297dde14dbc2c3d7f167e9e`);
+        return await json(`${API_ROOT}/coverage/jpacman-framework/43aac19db93e73646297dde14dbc2c3d7f167e9e`)
             .then((response) => {
                 console.log("Response: ", response);
                 return {
