@@ -15,7 +15,6 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 // Custom Components
 import MatrixVisualization from '../visualizations/MatrixVisualization';
 import FilterMenu from '../common/FilterMenu';
-import FilterSlider from '../common/FilterSlider';
 import Menu from '../common/Menu';
 import ResultTextBox from '../common/ResultTextBox';
 
@@ -23,7 +22,7 @@ import ResultTextBox from '../common/ResultTextBox';
 import './TestMatrixView.scss';
 
 //  Filter functions
-import { filter_by_num_method_covered, filter_by_test_passed, filter_by_coexecuted_tests, filter_by_test_type, TEST_TYPES, TEST_RESULT} from '../filters/test_filters';
+import { filter_by_test_passed, filter_by_coexecuted_tests, filter_by_test_type, TEST_TYPES, TEST_RESULT} from '../filters/test_filters';
 import { filter_method_by_number_of_times_tested, filter_by_coexecuted_methods } from '../filters/method_filters';
 import { process_data, FunctionMap } from '../filters/data_processor';
 import { sort_by_cluster_X, sort_by_cluster_Y, sort_by_coverage_X, sort_by_coverage_Y, sort_by_suspciousness} from '../filters/sorting';
@@ -384,6 +383,8 @@ class TestMatrixView extends Component {
                                     const test_type = event.target.value;
                                     let new_filter_map = new FunctionMap(current_filter_map);
                                     new_filter_map.add_function("filter_by_test_type", filter_by_test_type, test_type)
+                                    new_filter_map.add_function("filter_method_by_number_of_times_tested",
+                                        filter_method_by_number_of_times_tested, 1)
 
                                     this.setState({
                                         history: this.state.history.concat(new_filter_map)
@@ -408,6 +409,8 @@ class TestMatrixView extends Component {
                                     const test_result = event.target.value;
                                     let new_filter_map = new FunctionMap(current_filter_map);
                                     new_filter_map.add_function("filter_by_test_passed", filter_by_test_passed, test_result)
+                                    new_filter_map.add_function("filter_method_by_number_of_times_tested",
+                                        filter_method_by_number_of_times_tested, 1)
                                     
                                     this.setState({
                                         history: this.state.history.concat(new_filter_map)
@@ -422,23 +425,13 @@ class TestMatrixView extends Component {
                                     const identifier = event.target.value;
                                     let new_filter_map = new FunctionMap(current_filter_map);
                                     new_filter_map.add_function("filter_by_coexecuted_tests", filter_by_coexecuted_tests, identifier)
+                                    new_filter_map.add_function("filter_method_by_number_of_times_tested",
+                                        filter_method_by_number_of_times_tested, 1)
 
                                     this.setState({
                                         history: this.state.history.concat(new_filter_map)
                                     })
                                 
-                                }} />
-                            <FilterSlider title="Number of methods covered by test"
-                                defaultValue={0}
-                                min={0}
-                                max={25}
-                                onChange={(_, value) => {
-                                    let new_filter_map = new FunctionMap(current_filter_map);
-                                    new_filter_map.add_function("filter_by_num_method_covered", filter_by_num_method_covered, value);
-
-                                    this.setState({
-                                        history: this.state.history.concat(new_filter_map)
-                                    })
                                 }} />
                         </AccordionDetails>
                     </Accordion>
@@ -458,19 +451,8 @@ class TestMatrixView extends Component {
                                     const identifier = event.target.value;
                                     let new_filter_map = new FunctionMap(current_filter_map);
                                     new_filter_map.add_function("filter_by_coexecuted_methods", filter_by_coexecuted_methods, identifier)
-
-                                    this.setState({
-                                        history: this.state.history.concat(new_filter_map)
-                                    })
-                                }} />
-                            <FilterSlider 
-                                title="Number of tests covering a single method:"
-                                defaultValue={0}
-                                min={0}
-                                max={25}
-                                onChange={(_, value) => {
-                                    let new_filter_map = new FunctionMap(current_filter_map);
-                                    new_filter_map.add_function("filter_method_by_number_of_times_tested", filter_method_by_number_of_times_tested, value)
+                                    new_filter_map.add_function("filter_method_by_number_of_times_tested",
+                                        filter_method_by_number_of_times_tested, 1)
 
                                     this.setState({
                                         history: this.state.history.concat(new_filter_map)
