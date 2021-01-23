@@ -23,6 +23,10 @@ export class FunctionMap {
     }
 
     add_function(function_id, func, ...args) {
+        if (this.map.has(function_id)) {
+            this.map.delete(function_id);
+        }
+
         const wrapped_func = (state, data) => func(state, data, ...args)
         this.map.set(function_id, wrapped_func);
     }
