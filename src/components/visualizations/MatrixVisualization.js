@@ -13,13 +13,10 @@ class MatrixVisualization extends Component {
 
         this.ref = React.createRef();
 
-        // TODO remove history from here (state in general should be removed.)
-        // Currently used for width/height... 
+        // TODO pass width/height as properties instead of state.
         this.state = {
             width: 0,
             height: 0,
-            xlabel: props.xlabel,
-            ylabel: props.ylabel,
         }
 
         this.margin = {
@@ -67,8 +64,6 @@ class MatrixVisualization extends Component {
 
         let edges = []
 
-        // TODO make this configurable, by adding a get_x(), get_y(), get_z() to the edge objects
-        //  It should be possible to dynamically change implementation of the get_x(), get_y(), and get_z() functions.
         current.edges.forEach((edge, index) => {
             if (!(edge.get_y() === null || edge.get_x() === null)){
                 const highlight = edge.hasOwnProperty('highlight') ? edge.highlight : false;
@@ -329,7 +324,7 @@ class MatrixVisualization extends Component {
             .attr("x", this.state.width / 2)
             .attr("y", 11)
             .style("text-anchor", "middle")
-            .text(this.state.xlabel);
+            .text(this.props.xlabel);
 
         // text label for the y axis
         svg.select(".ylabel")
@@ -338,7 +333,7 @@ class MatrixVisualization extends Component {
             .attr("x", -this.state.height / 2)
             .attr("dy", "0.7em")
             .style("text-anchor", "middle")
-            .text(this.state.ylabel);
+            .text(this.props.ylabel);
     }
 
     createTestMatrixView() {
