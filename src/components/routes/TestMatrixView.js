@@ -1,8 +1,7 @@
 import React, { Component } from 'react'
-import { json } from 'd3'
 
-// API endpoints
-import { API_ROOT } from '../../config/api-config';
+// MorpheusAPI endpoints
+import { fetchProjects, fetchCommits, fetchCoverage } from '../logic/morpheusAPI';
 
 // Material UI components
 import Accordion from '@material-ui/core/Accordion';
@@ -55,7 +54,7 @@ class TestMatrixView extends Component {
     async onCommitChange(event) {
         let commit_sha = event.target.value;
 
-        this.updateCoverageData(this.state.selectedProject, commit_sha)
+        fetchCoverage(this.state.selectedProject, commit_sha)
             .then((data) => {
                 this.setState({
                     selectedCommit: commit_sha,
@@ -75,86 +74,17 @@ class TestMatrixView extends Component {
 
         this.setState({
             selectedProject: project_name,
-            commits: await this.updateCommitData(project_name)
+            commits: await fetchCommits(project_name)
         })
     }
 
-    async updateCommitData(project_name) {
-        return await json(`${API_ROOT}/commits/${project_name}`)
-            .then(response => {
-                let commits = response.commits.map(commit => {
-                    return { key: commit.id, value: commit.sha, display: commit.sha }
-                });
-                return commits;
-            })
-    }
-
-    async updateProjectData() {
-        return await json(`${API_ROOT}/projects`)
-            .then(response => {
-                let projects = response.projects.map(project => {
-                    return { key: project.id, value: project.project_name};
-                });
-
-                return projects;
-            })
-    }
-
-    async updateCoverageData(project_name, commit_sha) {
-        console.debug(`${API_ROOT}/coverage/${project_name}/${commit_sha}`);
-        return await json(`${API_ROOT}/coverage/${project_name}/${commit_sha}`)
-            .then((response) => {
-                console.log("Response: ", response);
-                return {
-                    methods: response.coverage.methods.map(m => {
-                        m.get_id = () => m.method_id;
-                        m.to_string = () => `${m.package_name}.${m.class_name} ${m.method_decl}`;
-                        m.get_cluster = () => m.hasOwnProperty('cluster_id') ? m.cluster_id :  0;
-                        m.get_color = () => m.package_name
-                        return m;
-                    }),
-                    tests: response.coverage.tests.map(t => {
-                        t.get_id = () => t.test_id;
-                        t.to_string = () => `${t.class_name} ${t.method_name}`;
-                        t.get_cluster = () => t.hasOwnProperty('cluster_id') ? t.cluster_id : 0;
-                        t.get_color = () => t.class_name
-                        return t;
-                    }),
-                    edges: response.coverage.edges.map(e => {
-                        e.get_color = () => {
-                            let color;
-                            switch (e["test_result"]) {
-                                case "P":
-                                    color = "#03C03C";
-                                    break;
-                                case "F":
-                                    color = "#FF1C00";
-                                    break;
-                                default:
-                                    color = "black";
-                                    break;
-                            }
-                            return color;
-                        }
-                        e.get_x = () => e.method_id;
-                        e.get_y = () => e.test_id;
-
-                        return e;
-                    }),
-                }
-            })
-            .catch((e) => {
-                console.log(e);
-            });
-    }
-
     async componentDidMount() {
-        let projects = await this.updateProjectData();
+        let projects = await fetchProjects();
         let project_name = projects[0].value;
 
-        let commits = await this.updateCommitData(project_name);
+        let commits = await fetchCommits(project_name);
         let commit_sha = commits[0].value;
-        let data = await this.updateCoverageData(project_name, commit_sha);
+        let data = await fetchCoverage(project_name, commit_sha);
 
         this.setState({
             selectedProject: projects[0].value,
