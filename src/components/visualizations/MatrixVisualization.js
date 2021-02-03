@@ -13,7 +13,6 @@ class MatrixVisualization extends Component {
 
         this.ref = React.createRef();
 
-        // TODO pass width/height as properties instead of state.
         this.state = {
             width: 0,
             height: 0,
@@ -35,16 +34,6 @@ class MatrixVisualization extends Component {
         // Set all methods passed through properties here (we don't use bind because we want to make use of the parent this object.)
         this.onMethodClick = props.onMethodClick;
         this.onTestClick = props.onTestClick;
-    }
-
-    updateDimensions() {
-        // TODO fix this line, it should not be a hardcoded reference.
-        // Goal is to dynamically size the element based on the parent element.
-        let visualizationDiv = document.getElementById("visualization");
-        return {
-            width: visualizationDiv.offsetWidth,
-            height: visualizationDiv.offsetHeight,
-        }
     }
 
     createMatrix() {
@@ -84,19 +73,32 @@ class MatrixVisualization extends Component {
     }
 
     componentDidMount() {
+        window.addEventListener("resize", () => {
+            setTimeout(500);
+            this.setState({
+                width: this.ref.current.parentElement.offsetWidth,
+                height: this.ref.current.parentElement.offsetHeight
+            }, this.update)
+        });
+
         this.createTestMatrixView();
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        let dimensions = this.updateDimensions()
-
-        if (this.state.width !== dimensions.width || this.state.height !== dimensions.height){
-            this.setState({
-                width: dimensions.width,
-                height: dimensions.height,
-            }, this.update)
+        if (this.ref.current !== null) {
+            const width = this.ref.current.parentElement.offsetWidth;
+            const height = this.ref.current.parentElement.offsetHeight;
+            if (this.state.width !== width || this.state.height !== height) {
+                console.log("COMPONENT DID UPDATE ")
+                this.setState({
+                    width: width,
+                    height: height,
+                }, this.update)
+            }
         }
-        else if ((!isEqual(prevProps.x, this.props.x)) || (!isEqual(prevProps.y, this.props.y)) ) {
+        
+
+        if ((!isEqual(prevProps.x, this.props.x)) || (!isEqual(prevProps.y, this.props.y)) ) {
             this.labelToggle = this.props.labelToggle;
             this.onMethodClick = this.props.onMethodClick;
             this.onTestClick = this.props.onTestClick;
@@ -355,7 +357,7 @@ class MatrixVisualization extends Component {
     render() {
         return (
             <div id='visualization'>
-                <svg ref={this.ref} width={this.props.width} height={this.props.height}></svg>
+                <svg ref={this.ref}></svg>
             </div>
         )
     }
