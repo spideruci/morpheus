@@ -1,9 +1,6 @@
-import React, {useState, useEffect, useReducer} from 'react';
-import { process_data } from '../../filters/data_processor';
-import { fetchCoverage } from '../../logic/morpheusAPI';
-import MatrixVisualization from '../../visualizations/MatrixVisualization';
-import useMorpheusHistoryManager from './MorpheusController';
-import { CoverageToolbar } from './Toolbar';
+import { useState, useEffect, useReducer } from 'react';
+import { process_data, FunctionMap } from '../logic/filters/data_processor'
+import { fetchCoverage } from '../logic/api/morpheusAPIv2';
 
 const initialState = () => {
     return {
@@ -43,7 +40,7 @@ const reducer = (state, action) => {
     }
 }
 
-const useMorpheusController = () => {
+export const useMorpheusController = () => {
     let [coverageMatrix, setCoverageMatrix] = useState({
         x: [],
         y: [],
@@ -56,7 +53,7 @@ const useMorpheusController = () => {
         edges: []
     });
 
-    let [history, historyDispatch] = useReducer(historyReducer, historyInitialState());
+    let [history, onUpdateState, onUndo, onRedo, onReset] = useMorpheusHistoryManager();
     let [selectedProject, projectDispatch] = useReducer(reducer, initialState());
 
     //  Upon changing the selected commit, retrieve coverage data.
@@ -67,7 +64,7 @@ const useMorpheusController = () => {
             return;
         }
 
-        fetchCoverage(selectedProject.project.value, selectedProject.commit.value)
+        fetchCoverage(selectedProject.project.key, selectedProject.commit.key)
             .then((data) => {
                 if (data === undefined) {
                     console.error("Data undefined...")
@@ -94,48 +91,60 @@ const useMorpheusController = () => {
     return [
         visualizationData,
         selectedProject,
-        historyDispatch,
+        onUpdateState,
+        onUndo,
+        onRedo,
+        onReset,
         projectDispatch
     ];
 };
 
-const useLoading = (Component, LoadingComponent = <div />) => {
-    return (props) => props.isLoading ? LoadingComponent : <Component {...props} />;
+
+const historyInitialState = () => {
+    return {
+        functionMap: [new FunctionMap()]
+    }
 }
 
-const MatrixVisualizationWithLoading = useLoading(
-    MatrixVisualization,
-    <div>Please select a project using the toolbar.</div>
-)
+const historyReducer = (state, action) => {
+    let currentMap = state.functionMap[state.functionMap.length - 1];
+    let newMap = new FunctionMap(currentMap);
+    switch (action.type) {
+        case 'FILTER':
+            newMap.add_function(action.filter_type, action.filter);
+            return {
+                ...state,
+                functionMap: state.functionMap.concat(newMap)
+            }
+        case 'SORT':
+            newMap.add_function(action.sort_type, action.sort);
+            return {
+                ...state,
+                functionMap: state.functionMap.concat(newMap)
+            }
+        case 'NEW_DATA':
+            return {
+                ...state,
+            }
+        case 'UNDO':
+            return historyInitialState();
+        case 'RESET':
+            return historyInitialState();
+        default:
+            return historyInitialState();
+    }
+}
 
-const Morpheus = () => {
-    const [coverage, selectedProject, historyDispatch, projectDispatch] = useMorpheusController();
+const useMorpheusHistoryManager = () => {
+    let [history, historyDispatch] = useReducer(historyReducer, historyInitialState());
 
-    const [history, onUpdateState, onUndo, onRedo, onReset] = useMorpheusHistoryManager();
+    const onUpdateState = (name, func, args=null) => historyDispatch(
+        { type: "UPDATE", name: name, func: func, args: args}
+    )
 
-    return (
-        <div className='test-visualization'>
-            <MatrixVisualizationWithLoading
-                isLoading={selectedProject.isLoading}
-                x={coverage.x}
-                y={coverage.y}
-                edges={coverage.edges}
-                xlabel={"methods"}
-                ylabel={"test cases"} />
+    const onUndo = () => historyDispatch({ type: 'UNDO'})
+    const onRedo = () => historyDispatch({ type: 'REDO' })
+    const onReset = () => historyDispatch({ type: 'RESET' })
 
-            <CoverageToolbar
-                updateProject={(project, commit) => projectDispatch({ type: 'COVERAGE', project: project, commit: commit })}
-                
-                setSortingMethod={onUpdateState}
-                addFilter={onUpdateState}
-
-                onReset={onReset}
-
-                onUndo={onUndo}
-                onRedo={onRedo}
-            />
-        </div>
-    );
-};
-
-export default Morpheus;
+    return [history, onUpdateState, onUndo, onRedo, onReset]
+}

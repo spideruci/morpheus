@@ -1,7 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import { fetchProjects, fetchCommits } from '../../logic/morpheusAPI';
+import { fetchProjects, fetchCommits } from '../../logic/api/morpheusAPIv2';
 import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
+
+import styles from './Toolbar.module.scss';
 
 // Accordion
 import Accordion from '@material-ui/core/Accordion';
@@ -9,7 +11,9 @@ import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
-import Menu from '../../common/Menu';
+import Button from '@material-ui/core/Button';
+
+import Menu from '../../components/common/Menu';
 
 import {
     sort_by_cluster_X,
@@ -17,16 +21,16 @@ import {
     sort_by_coverage_X,
     sort_by_coverage_Y,
     sort_by_suspciousness
-} from '../../filters/sorting';
+} from '../../logic/filters/sorting';
 
 const ToolBar = (props) => {
     return (
-        <div className='Toolbar'>
+        <div className={styles.toolbar}>
             <h4>Toolbar</h4>
             { props.children }
-            <button onClick={props.onUndo}>Undo</button>
-            <button onClick={props.onRedo}>Redo</button>
-            <button onClick={props.onReset}>Reset</button>
+            <Button onClick={props.onUndo}>Undo</Button>
+            <Button onClick={props.onRedo}>Redo</Button>
+            <Button onClick={props.onReset}>Reset</Button>
         </div>
     )
 }
@@ -36,8 +40,8 @@ export const CoverageToolbar = ({ updateProject, setSortingMethod, addFilter}) =
         <ToolBar>
             <ProjectSelectors updateProject={updateProject} />
             <CoverageSorter setSortingMethod={setSortingMethod} />
-            <XCoverageFilter addFilter={addFilter} />
-            <YCoverageFilter addFilter={addFilter} />
+            <MethodFilter addFilter={addFilter} />
+            <TestFilter addFilter={addFilter} />
         </ToolBar>
     )
 }
@@ -62,8 +66,13 @@ const ProjectSelectors = ({updateProject}) => {
 
         setProject(project)
 
-        fetchCommits(project.value)
+        console.log(project)
+        fetchCommits(project.key)
             .then(setCommitList)
+            .catch((err) => {
+                console.error(err);
+                setCommitList([])
+            })
     }
 
     return (
@@ -167,7 +176,7 @@ const CoverageSorter = ({ setSortingMethod }) => {
     )
 }
 
-const XCoverageFilter = ({ addFilter }) => {
+const MethodFilter = ({ addFilter }) => {
     return (
         <Accordion>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -180,7 +189,7 @@ const XCoverageFilter = ({ addFilter }) => {
     )
 }
 
-const YCoverageFilter = ({ addFilter }) => {
+const TestFilter = ({ addFilter }) => {
     return (
         <Accordion>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>

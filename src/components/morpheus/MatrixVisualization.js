@@ -118,16 +118,21 @@ class MatrixVisualization extends Component {
         let vis_height = this.state.height - this.margin.top - this.margin.bottom -10;
 
         // Scales for X-axis
-        // TODO how to refactor the following so we can make use of a single scale instead of xScale and xLabel? 
+        // TODO how to refactor the following so we can make use of a single scale instead of xScale and xLabel?
         let xRange = scalePoint()
             .padding(0.5)
             .range([0, vis_width])
 
         let xScale = xRange.copy()
-            .domain(data.x_labels.map((label) => parseInt(label.method_id)));
+            .domain(data.x_labels.map((label) => parseInt(label.get_id())));
 
         let xLabel = xRange.copy()
             .domain(data.x_labels.map((label) => label.to_string()));
+
+        if (xLabel.step() !== xScale.step()) {
+            // Meaning duplicate class_name.method_name entries
+            console.error("xLabel and xScale step are not equal...")
+        }
 
         // Scales for Y-axis
         // TODO how to refactor the following so we can make use of a single scale instead of yScale and yLabel?
@@ -136,14 +141,15 @@ class MatrixVisualization extends Component {
             .range([0, vis_height])
 
         let yScale = yRange.copy()
-            .domain(data.y_labels.map((label) => label.test_id));
+            .domain(data.y_labels.map((label) => label.get_id()));
 
         let yLabel = yRange.copy()
             .domain(data.y_labels.map((label) => label.to_string()));
 
-        if (xLabel.step() !== xScale.step()) {
+        if (yLabel.step() !== yScale.step()) {
             // Meaning duplicate class_name.method_name entries
-            console.error("xLabel and xScale step are not equal...")
+            console.error("yLabel and yScale step are not equal...")
+            debugger;
         }
 
         // Create tick format function, returns a function using the passed parameters.
@@ -356,7 +362,7 @@ class MatrixVisualization extends Component {
 
     render() {
         return (
-            <div id='visualization'>
+            <div style={{width: '100%', height:'100%'}}>
                 <svg ref={this.ref}></svg>
             </div>
         )

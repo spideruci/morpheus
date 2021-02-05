@@ -1,23 +1,21 @@
 import React from "react";
-import "./navbar.scss";
+import "./Navbar.module.scss";
 import { Link } from "react-router-dom";
-import Header from "./Header";
 
 const Navbar = () => {
   return (
     <nav>
       <Link to="/">
-        <Header title="Morpheus" />
+        <div className='header'>
+          <h1>Morpheus</h1>
+        </div>
       </Link>
       <ul>
         <li>
           <Link to="/about">About</Link>
         </li>
         <li>
-          <Link to="/visualization">Visualization</Link>
-        </li>
-        <li>
-          <Link to="/history">History</Link>
+          <Link to="/morpheus">Visualization</Link>
         </li>
       </ul>
     </nav>

@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 
 // MorpheusAPI endpoints
-import { fetchProjects, fetchCommits, fetchCoverage } from '../logic/morpheusAPI';
+import { fetchProjects, fetchCommits, fetchCoverage } from '../../logic/morpheusAPI';
 
 // Material UI components
 import Accordion from '@material-ui/core/Accordion';

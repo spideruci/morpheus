@@ -4,13 +4,14 @@ import {
   BrowserRouter as Router,
   Switch
 } from 'react-router-dom';
-import About from './components/routes/About';
-import Morpheus from './components/routes/Morpheus/Morpheus';
-import TestMatrixView from './components/routes/TestMatrixView';
-import HistoryMatrixView from './components/routes/HistoryMatrixView';
-import Footer from './components/common/Footer';
-import Navbar from './components/common/navbar';
-import './App.scss';
+
+import Footer from './components/Footer';
+import Navbar from './components/Navbar';
+
+import About from './pages/About';
+import Morpheus from './pages/Morpheus';
+
+import './styles/global.scss';
 
 function App() {
   return (
@@ -22,9 +23,7 @@ function App() {
           <Switch>
             <Route exact path="/" component={About} />
             <Route exact path="/about" component={About} />
-            <Route exact path="/visualization" component={TestMatrixView} />
-            <Route exact path="/history" component={HistoryMatrixView} />
-            <Route exact path="/playground" component={Morpheus} />
+            <Route exact path="/morpheus" component={Morpheus} />
           </Switch>
         </div>
       </Router>
