@@ -1,8 +1,8 @@
 import React, {useState, useEffect, useReducer} from 'react';
-import { FunctionMap, process_data } from '../../filters/data_processor';
+import { process_data } from '../../filters/data_processor';
 import { fetchCoverage } from '../../logic/morpheusAPI';
 import MatrixVisualization from '../../visualizations/MatrixVisualization';
-
+import useMorpheusHistoryManager from './MorpheusController';
 import { CoverageToolbar } from './Toolbar';
 
 const initialState = () => {
@@ -40,41 +40,6 @@ const reducer = (state, action) => {
         default:
             console.error(`Did not expect ${action.type}. Reset to initial state.`)
             return initialState();
-    }
-}
-
-const historyInitialState = () => {
-    return {
-        functionMap: [new FunctionMap()]
-    }
-}
-
-const historyReducer = (state, action) => {
-    let currentMap = state.functionMap[state.functionMap.length - 1];
-    let newMap = new FunctionMap(currentMap);
-    switch(action.type) {
-        case 'FILTER':
-            newMap.add_function(action.filter_type, action.filter);
-            return {
-                ...state,
-                functionMap: state.functionMap.concat(newMap)
-            }
-        case 'SORT':
-            newMap.add_function(action.sort_type, action.sort);
-            return {
-                ...state,
-                functionMap: state.functionMap.concat(newMap)
-            }
-        case 'NEW_DATA':
-            return {
-                ...state,
-            }
-        case 'BACK':
-            return historyInitialState();
-        case 'RESET':
-            return historyInitialState();
-        default:
-            return historyInitialState();
     }
 }
 
@@ -146,6 +111,8 @@ const MatrixVisualizationWithLoading = useLoading(
 const Morpheus = () => {
     const [coverage, selectedProject, historyDispatch, projectDispatch] = useMorpheusController();
 
+    const [history, onUpdateState, onUndo, onRedo, onReset] = useMorpheusHistoryManager();
+
     return (
         <div className='test-visualization'>
             <MatrixVisualizationWithLoading
@@ -158,14 +125,14 @@ const Morpheus = () => {
 
             <CoverageToolbar
                 updateProject={(project, commit) => projectDispatch({ type: 'COVERAGE', project: project, commit: commit })}
+                
+                setSortingMethod={onUpdateState}
+                addFilter={onUpdateState}
 
-                setSortingMethod={(sort_type, sort) => historyDispatch({ type: 'SORT', sort_type: sort_type, sort: sort })}
+                onReset={onReset}
 
-                addFilter={(filter_type, filter, args) => historyDispatch({ type: 'FILTER', filter_type: filter_type, filter: filter, args: args })}
-
-                onReset={() => historyDispatch({ type: 'RESET' })}
-
-                onBack={() => historyDispatch({ type: 'BACK' })}
+                onUndo={onUndo}
+                onRedo={onRedo}
             />
         </div>
     );
