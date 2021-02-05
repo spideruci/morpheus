@@ -19,16 +19,26 @@ import {
     sort_by_suspciousness
 } from '../../filters/sorting';
 
-export const CoverageToolbar = ({ updateProject, setSortingMethod, addFilter}) => {
+const ToolBar = (props) => {
     return (
         <div className='Toolbar'>
             <h4>Toolbar</h4>
+            { props.children }
+            <button onClick={props.onUndo}>Undo</button>
+            <button onClick={props.onRedo}>Redo</button>
+            <button onClick={props.onReset}>Reset</button>
+        </div>
+    )
+}
 
+export const CoverageToolbar = ({ updateProject, setSortingMethod, addFilter}) => {
+    return (
+        <ToolBar>
             <ProjectSelectors updateProject={updateProject} />
             <CoverageSorter setSortingMethod={setSortingMethod} />
             <XCoverageFilter addFilter={addFilter} />
             <YCoverageFilter addFilter={addFilter} />
-        </div>
+        </ToolBar>
     )
 }
 
