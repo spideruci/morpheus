@@ -22,19 +22,13 @@ const MethodPopover = ({anchor, setAnchor, current_method, current_project, onMe
         }}
     >
         <h3>
-          {current_method.split(' ')[2]}
+          {current_method.split(' ').slice(2)}
            <Button sz="xs" onClick={setAnchor}>
               <ClearIcon fontSize="small" />
           </Button> 
         </h3>
         <p>Project: {current_project} </p>
         <p>Package: {current_method.split(' ')[0]}{   }</p>
-        {/* <div>
-          <Button variant ="contained" color="primary">Filter by Method (default)</Button>
-        </div>
-        <div>
-          <Button variant="contained" color="primary">View Method History</Button>
-        </div> */}
         <Button appearance="default" onClick={onMethodClick}>Filter by Method (default)</Button>
         <Button appearance="primary">View Method History</Button>
         
