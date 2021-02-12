@@ -7,6 +7,12 @@ import { easeLinear } from 'd3-ease';
 import { schemeSet3 } from 'd3-scale-chromatic';
 import { isEqual } from 'lodash';
 
+// rsuite menu (popover)
+import { Popover, Whisper, Button } from 'rsuite';
+
+// remove later 
+import * as d3 from "d3";
+
 class MatrixVisualization extends Component {
     constructor(props) {
         super();
@@ -37,6 +43,7 @@ class MatrixVisualization extends Component {
         // Set all methods passed through properties here (we don't use bind because we want to make use of the parent this object.)
         this.onMethodClick = props.onMethodClick;
         this.onTestClick = props.onTestClick;
+        this.onRightClick = props.onRightClick;
     }
 
     updateDimensions() {
@@ -65,6 +72,7 @@ class MatrixVisualization extends Component {
         }
 
         let edges = []
+        console.log(current);
 
         // TODO make this configurable, by adding a get_x(), get_y(), get_z() to the edge objects
         //  It should be possible to dynamically change implementation of the get_x(), get_y(), and get_z() functions.
@@ -105,6 +113,8 @@ class MatrixVisualization extends Component {
             this.onMethodClick = this.props.onMethodClick;
             this.onTestClick = this.props.onTestClick;
             this.update()
+
+            // TODO: call onRightClick here?
         }
     }
 
@@ -126,7 +136,7 @@ class MatrixVisualization extends Component {
             .range([0, vis_width])
 
         let xScale = xRange.copy()
-            .domain(data.x_labels.map((label) => parseInt(label.method_id)));
+            .domain(data.x_labels.map((label) => parseInt(label.get_id())));
 
         let xLabel = xRange.copy()
             .domain(data.x_labels.map((label) => label.to_string()));
@@ -138,7 +148,7 @@ class MatrixVisualization extends Component {
             .range([0, vis_height])
 
         let yScale = yRange.copy()
-            .domain(data.y_labels.map((label) => label.test_id));
+            .domain(data.y_labels.map((label) => label.get_id()));
 
         let yLabel = yRange.copy()
             .domain(data.y_labels.map((label) => label.to_string()));
@@ -146,6 +156,10 @@ class MatrixVisualization extends Component {
         if (xLabel.step() !== xScale.step()) {
             // Meaning duplicate class_name.method_name entries
             console.error("xLabel and xScale step are not equal...")
+        }
+        if (yLabel.step() !== yScale.step()) {
+            // Meaning duplicate class_name.method_name entries
+            console.error("yLabel and yScale step are not equal...")
         }
 
         // Create tick format function, returns a function using the passed parameters.
@@ -279,7 +293,13 @@ class MatrixVisualization extends Component {
                     tooltip
                         .style("visibility", "hidden");
                 })
-                .on('click', this.onMethodClick);
+                .on('click', this.onMethodClick)
+                // .on("contextmenu", (event, d) => {
+                //     event.preventDefault();
+                //     console.log("right clicked");
+
+                // });
+                .on('contextmenu', this.onRightClick);
         select("g.y-axis")
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
             .call(yAxis);
