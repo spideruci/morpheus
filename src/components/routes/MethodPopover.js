@@ -3,7 +3,6 @@ import {Button} from 'rsuite';
 import 'rsuite/dist/styles/rsuite-default.css';
 import Popover from '@material-ui/core/Popover';
 import ClearIcon from '@material-ui/icons/Clear';
-// import Button from '@material-ui/core/Button';
 
 const MethodPopover = ({anchor, setAnchor, current_method, current_project, onMethodClick}) => {
   return(

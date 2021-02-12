@@ -7,12 +7,6 @@ import { easeLinear } from 'd3-ease';
 import { schemeSet3 } from 'd3-scale-chromatic';
 import { isEqual } from 'lodash';
 
-// rsuite menu (popover)
-import { Popover, Whisper, Button } from 'rsuite';
-
-// remove later 
-import * as d3 from "d3";
-
 class MatrixVisualization extends Component {
     constructor(props) {
         super();
@@ -114,7 +108,6 @@ class MatrixVisualization extends Component {
             this.onTestClick = this.props.onTestClick;
             this.update()
 
-            // TODO: call onRightClick here?
         }
     }
 
@@ -294,11 +287,6 @@ class MatrixVisualization extends Component {
                         .style("visibility", "hidden");
                 })
                 .on('click', this.onMethodClick)
-                // .on("contextmenu", (event, d) => {
-                //     event.preventDefault();
-                //     console.log("right clicked");
-
-                // });
                 .on('contextmenu', this.onRightClick);
         select("g.y-axis")
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
