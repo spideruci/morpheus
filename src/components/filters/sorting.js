@@ -16,14 +16,21 @@ export function sort_by_coverage_X(current_state, all_data) {
             const size1 = map.has(id1) ? map.get(id1).size : 0;
             const size2 = map.has(id2) ? map.get(id2).size : 0;
 
-            return size1 < size2
+            if (size1 < size2) {
+                return 1;
+            }
+            else if (size1 > size2){
+                return -1;
+            }
+            else {
+                return 0;
+            }
         })
     }
-
     return {
-        "edges": edges,
         "x": sort_array(x, x_map),
         "y": y,
+        "edges": edges,
     }
 }
 
@@ -43,7 +50,15 @@ export function sort_by_coverage_Y(current_state, all_data) {
             const size1 = map.has(id1) ? map.get(id1).size : 0;
             const size2 = map.has(id2) ? map.get(id2).size : 0;
 
-            return size1 < size2
+            if (size1 < size2) {
+                return 1;
+            }
+            else if (size1 > size2) {
+                return -1;
+            }
+            else {
+                return 0;
+            }
         })
     }
 
@@ -61,7 +76,14 @@ export function sort_by_cluster_X(current_state, all_data) {
     const edges = current_state.edges;
 
     return {
-        x: x.sort((e1, e2) => e1.get_cluster() < e2.get_cluster()),
+        x: x.sort((e1, e2) => {
+            if (e1.get_cluster() < e2.get_cluster()){
+                return 1;
+            } else if(e1.get_cluster() > e2.get_cluster()) {
+                return -1
+            } else {
+                return 0;
+            }}),
         y: y,
         edges: edges,
     }
@@ -74,7 +96,15 @@ export function sort_by_cluster_Y(current_state, all_data) {
 
     return {
         x: x,
-        y: y.sort((e1, e2) => e1.get_cluster() < e2.get_cluster()),
+        y: y.sort((e1, e2) => {
+            if (e1.get_cluster() < e2.get_cluster()) {
+                return 1;
+            } else if (e1.get_cluster() > e2.get_cluster()) {
+                return -1
+            } else {
+                return 0;
+            }
+        }),
         edges: edges,
     }
 }
@@ -137,8 +167,18 @@ export function sort_by_suspciousness(current_state, all_data) {
     // Sort based on suspiciosness of each test
     function sort_array(list) {
         return list.sort((e1, e2) => {
-            return suspciousness_map.get(e1.get_id()) < suspciousness_map.get(e2.get_id());
-        })
+            const s1 = suspciousness_map.get(e1.get_id())
+            const s2 = suspciousness_map.get(e2.get_id())
+
+                if (s1 < s2) {
+                    return 1;
+                } else if (s1 > s2){
+                    return -1
+                } else {
+                    return 0;
+                }
+            }
+        )
     }
 
     // If all tests fail or all tests pass don't compute suspciousness score, because it will fail.

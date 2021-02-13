@@ -13,12 +13,9 @@ class MatrixVisualization extends Component {
 
         this.ref = React.createRef();
 
-        // TODO remove history from here (state in general should be removed.)
-        // Currently used for width/height... 
         this.state = {
             width: 0,
             height: 0,
-            xlabel: props.xlabel,
         }
 
         this.margin = {
@@ -40,16 +37,6 @@ class MatrixVisualization extends Component {
         this.onRightClick = props.onRightClick;
     }
 
-    updateDimensions() {
-        // TODO fix this line, it should not be a hardcoded reference.
-        // Goal is to dynamically size the element based on the parent element.
-        let visualizationDiv = document.getElementById("visualization");
-        return {
-            width: visualizationDiv.offsetWidth,
-            height: visualizationDiv.offsetHeight,
-        }
-    }
-
     createMatrix() {
         const current = {
             x: this.props.x,
@@ -68,8 +55,6 @@ class MatrixVisualization extends Component {
         let edges = []
         console.log(current);
 
-        // TODO make this configurable, by adding a get_x(), get_y(), get_z() to the edge objects
-        //  It should be possible to dynamically change implementation of the get_x(), get_y(), and get_z() functions.
         current.edges.forEach((edge, index) => {
             if (!(edge.get_y() === null || edge.get_x() === null)){
                 const highlight = edge.hasOwnProperty('highlight') ? edge.highlight : false;
@@ -90,19 +75,32 @@ class MatrixVisualization extends Component {
     }
 
     componentDidMount() {
+        window.addEventListener("resize", () => {
+            setTimeout(500);
+            this.setState({
+                width: this.ref.current.parentElement.offsetWidth,
+                height: this.ref.current.parentElement.offsetHeight
+            }, this.update)
+        });
+
         this.createTestMatrixView();
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        let dimensions = this.updateDimensions()
-
-        if (this.state.width !== dimensions.width || this.state.height !== dimensions.height){
-            this.setState({
-                width: dimensions.width,
-                height: dimensions.height,
-            }, this.update)
+        if (this.ref.current !== null) {
+            const width = this.ref.current.parentElement.offsetWidth;
+            const height = this.ref.current.parentElement.offsetHeight;
+            if (this.state.width !== width || this.state.height !== height) {
+                console.log("COMPONENT DID UPDATE ")
+                this.setState({
+                    width: width,
+                    height: height,
+                }, this.update)
+            }
         }
-        else if ((!isEqual(prevProps.x, this.props.x)) || (!isEqual(prevProps.y, this.props.y)) ) {
+        
+
+        if ((!isEqual(prevProps.x, this.props.x)) || (!isEqual(prevProps.y, this.props.y)) ) {
             this.labelToggle = this.props.labelToggle;
             this.onMethodClick = this.props.onMethodClick;
             this.onTestClick = this.props.onTestClick;
@@ -227,14 +225,6 @@ class MatrixVisualization extends Component {
             .style("font-size", "12px")
 
         // Add X and Y axis to the visualization
-
-        // text label for the x axis
-        svg.append("text")
-        .attr("x", this.state.width/2 )
-        .attr("y",  11 )
-        .style("text-anchor", "middle")
-        .text(this.state.xlabel);
-
         select("g.x-axis")
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
             .call(xAxis);
@@ -339,13 +329,21 @@ class MatrixVisualization extends Component {
                 })
                 .on('click', this.onTestClick);
 
-        svg.append("text")
-                .attr("transform", "rotate(-90)")
-                .attr("y", 1)
-                .attr("x",-this.state.height/2)
-                .attr("dy", "0.7em")
-                .style("text-anchor", "middle")
-                .text("test cases");
+        // text label for the x axis
+        svg.select(".xlabel")
+            .attr("x", this.state.width / 2)
+            .attr("y", 11)
+            .style("text-anchor", "middle")
+            .text(this.props.xlabel);
+
+        // text label for the y axis
+        svg.select(".ylabel")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 1)
+            .attr("x", -this.state.height / 2)
+            .attr("dy", "0.7em")
+            .style("text-anchor", "middle")
+            .text(this.props.ylabel);
     }
 
     createTestMatrixView() {
@@ -358,12 +356,16 @@ class MatrixVisualization extends Component {
         svg.append("g").attr("class", "y-axis");
         svg.append("g").attr("class", "testmatrix");
         svg.append("g").attr("class", "tooltip");
+
+        // Create empty labels, they are updated within the update function.
+        svg.append("text").attr("class", "xlabel");
+        svg.append("text").attr("class", "ylabel");
     }
 
     render() {
         return (
             <div id='visualization'>
-                <svg ref={this.ref} width={this.props.width} height={this.props.height}></svg>
+                <svg ref={this.ref}></svg>
             </div>
         )
     }

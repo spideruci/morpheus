@@ -1,11 +1,1 @@
-const prod = {
-    backendHost: 'http://api.kajdreef.com'
-}
-
-const dev = {
-    backendHost: 'http://localhost:8000'
-}
-
-export const API_ROOT = process.env.REACT_APP_STAGE === 'prod'
-    ? prod.backendHost
-    : dev.backendHost;
+export const API_ROOT = process.env.hasOwnProperty('REACT_APP_API_ENDPOINT') ? process.env.REACT_APP_API_ENDPOINT : 'http://localhost:8000';

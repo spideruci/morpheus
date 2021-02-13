@@ -1,8 +1,10 @@
 import React, { Component } from 'react'
+
+import { API_ROOT } from '../../config/api-config';
 import { json } from 'd3'
 
-// API endpoints
-import { API_ROOT } from '../../config/api-config';
+// MorpheusAPI endpoints
+import { fetchProjects, fetchCommits, fetchCoverage } from '../logic/morpheusAPI';
 
 // Material UI components
 import Accordion from '@material-ui/core/Accordion';
@@ -62,7 +64,7 @@ class TestMatrixView extends Component {
     async onCommitChange(event) {
         let commit_sha = event.target.value;
 
-        this.updateCoverageData(this.state.selectedProject, commit_sha)
+        fetchCoverage(this.state.selectedProject, commit_sha)
             .then((data) => {
                 this.setState({
                     selectedCommit: commit_sha,
@@ -82,29 +84,8 @@ class TestMatrixView extends Component {
 
         this.setState({
             selectedProject: project_name,
-            commits: await this.updateCommitData(project_name)
+            commits: await fetchCommits(project_name)
         })
-    }
-
-    async updateCommitData(project_name) {
-        return await json(`${API_ROOT}/commits/${project_name}`)
-            .then(response => {
-                let commits = response.commits.map(commit => {
-                    return { key: commit.id, value: commit.sha, display: commit.sha }
-                });
-                return commits;
-            })
-    }
-
-    async updateProjectData() {
-        return await json(`${API_ROOT}/projects`)
-            .then(response => {
-                let projects = response.projects.map(project => {
-                    return { key: project.id, value: project.project_name};
-                });
-
-                return projects;
-            })
     }
 
     selectColors = e => {
@@ -185,12 +166,12 @@ class TestMatrixView extends Component {
     }
 
     async componentDidMount() {
-        let projects = await this.updateProjectData();
+        let projects = await fetchProjects();
         let project_name = projects[0].value;
 
-        let commits = await this.updateCommitData(project_name);
+        let commits = await fetchCommits(project_name);
         let commit_sha = commits[0].value;
-        let data = await this.updateCoverageData(project_name, commit_sha);
+        let data = await fetchCoverage(project_name, commit_sha);
 
         this.setState({
             selectedProject: projects[0].value,
@@ -292,7 +273,8 @@ class TestMatrixView extends Component {
                             });
                         }}
                         labelToggle={labelToggle}
-                        xlabel={"methods"}/>
+                        xlabel={"methods"}
+                        ylabel={"test cases"} />
                 }
                 <div id='toolbox'>
                     <h4>Toolbar</h4>

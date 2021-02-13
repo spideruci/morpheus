@@ -223,7 +223,8 @@ class HistoryMatrixView extends Component {
                             })
                         }}
                         labelToggle={labelToggle}
-                        xlabel={"commits"}/>
+                        xlabel={"commits"}
+                        ylabel={"test cases"}/>
                         
                 }
                 <div id='toolbox'>
