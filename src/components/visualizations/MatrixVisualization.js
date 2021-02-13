@@ -34,6 +34,7 @@ class MatrixVisualization extends Component {
         // Set all methods passed through properties here (we don't use bind because we want to make use of the parent this object.)
         this.onMethodClick = props.onMethodClick;
         this.onTestClick = props.onTestClick;
+        this.onRightClick = props.onRightClick;
     }
 
     createMatrix() {
@@ -52,6 +53,7 @@ class MatrixVisualization extends Component {
         }
 
         let edges = []
+        console.log(current);
 
         current.edges.forEach((edge, index) => {
             if (!(edge.get_y() === null || edge.get_x() === null)){
@@ -103,6 +105,7 @@ class MatrixVisualization extends Component {
             this.onMethodClick = this.props.onMethodClick;
             this.onTestClick = this.props.onTestClick;
             this.update()
+
         }
     }
 
@@ -124,7 +127,7 @@ class MatrixVisualization extends Component {
             .range([0, vis_width])
 
         let xScale = xRange.copy()
-            .domain(data.x_labels.map((label) => parseInt(label.method_id)));
+            .domain(data.x_labels.map((label) => parseInt(label.get_id())));
 
         let xLabel = xRange.copy()
             .domain(data.x_labels.map((label) => label.to_string()));
@@ -136,7 +139,7 @@ class MatrixVisualization extends Component {
             .range([0, vis_height])
 
         let yScale = yRange.copy()
-            .domain(data.y_labels.map((label) => label.test_id));
+            .domain(data.y_labels.map((label) => label.get_id()));
 
         let yLabel = yRange.copy()
             .domain(data.y_labels.map((label) => label.to_string()));
@@ -144,6 +147,10 @@ class MatrixVisualization extends Component {
         if (xLabel.step() !== xScale.step()) {
             // Meaning duplicate class_name.method_name entries
             console.error("xLabel and xScale step are not equal...")
+        }
+        if (yLabel.step() !== yScale.step()) {
+            // Meaning duplicate class_name.method_name entries
+            console.error("yLabel and yScale step are not equal...")
         }
 
         // Create tick format function, returns a function using the passed parameters.
@@ -269,7 +276,8 @@ class MatrixVisualization extends Component {
                     tooltip
                         .style("visibility", "hidden");
                 })
-                .on('click', this.onMethodClick);
+                .on('click', this.onMethodClick)
+                .on('contextmenu', this.onRightClick);
         select("g.y-axis")
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
             .call(yAxis);

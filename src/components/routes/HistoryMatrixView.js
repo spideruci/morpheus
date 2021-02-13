@@ -48,26 +48,8 @@ class HistoryMatrixView extends Component {
         this.backInTime = this.backInTime.bind(this);
         this.reset = this.reset.bind(this);
         this.onProjectChange = this.onProjectChange.bind(this);
-        this.onCommitChange = this.onCommitChange.bind(this);
+        // this.onCommitChange = this.onCommitChange.bind(this);
         this.updateReset = this.updateReset.bind(this);
-    }
-
-    async onCommitChange(event) {
-        let commit_sha = event.target.value;
-
-        this.updateCoverageData(this.state.selectedProject, commit_sha)
-            .then((data) => {
-                this.setState({
-                    selectedCommit: commit_sha,
-                    data: {
-                        x: data.methods,
-                        y: data.tests,
-                        edges: data.edges,
-                    },
-                    history: [new FunctionMap()]
-                })
-            })
-            .catch(e => console.error(e));
     }
 
     async onProjectChange(event) {
@@ -100,24 +82,26 @@ class HistoryMatrixView extends Component {
             })
     }
 
-    async updateCoverageData(project_name, commit_sha) {
-        console.debug(`${API_ROOT}/coverage/${project_name}/${commit_sha}`);
-        return await json(`${API_ROOT}/coverage/${project_name}/${commit_sha}`)
+    async updateCoverageData(project_name) {
+        console.debug(`${API_ROOT}/history/jpacman-framework/2`);
+        return await json(`${API_ROOT}/history/jpacman-framework/2`)
             .then((response) => {
                 console.log("Response: ", response);
                 return {
-                    methods: response.coverage.methods.map(m => {
-                        m.get_id = () => m.method_id;
-                        m.to_string = () => `${m.package_name}.${m.class_name} ${m.method_decl}`;
-                        m.get_cluster = () => m.hasOwnProperty('cluster_id') ? m.cluster_id :  0;
-                        m.get_color = () => m.package_name
-                        return m;
+                    commits: response.coverage.commits.map(c => {
+                        // methods get id here !! but in testMatrixView
+                        c.get_id = () => c.id;
+                        c.to_string = () => `${c.sha}`;
+                        // c.get_cluster = () => c.hasOwnProperty('cluster_id') ? c.cluster_id :  0;
+                        c.get_color = () => c.project_id;
+                        c.get_datetime = () => c.datetime;
+                        return c;
                     }),
                     tests: response.coverage.tests.map(t => {
-                        t.get_id = () => t.test_id;
+                        t.get_id = () => t.id;
                         t.to_string = () => `${t.class_name} ${t.method_name}`;
-                        t.get_cluster = () => t.hasOwnProperty('cluster_id') ? t.cluster_id : 0;
-                        t.get_color = () => t.class_name
+                        // t.get_cluster = () => t.hasOwnProperty('cluster_id') ? t.cluster_id : 0;
+                        t.get_color = () => t.class_name;
                         return t;
                     }),
                     edges: response.coverage.edges.map(e => {
@@ -136,7 +120,7 @@ class HistoryMatrixView extends Component {
                             }
                             return color;
                         }
-                        e.get_x = () => e.method_id;
+                        e.get_x = () => e.commit_id;
                         e.get_y = () => e.test_id;
 
                         return e;
@@ -153,16 +137,23 @@ class HistoryMatrixView extends Component {
         let project_name = projects[0].value;
 
         let commits = await this.updateCommitData(project_name);
-        let commit_sha = commits[0].value;
-        let data = await this.updateCoverageData(project_name, commit_sha);
+        // let commit_sha = commits[0].value;
+        let data = await this.updateCoverageData("jpacman-framework");
+
+        let sorted_data_commits = [];
+        sorted_data_commits.push(Object.values(data.commits));
+        sorted_data_commits[0] = sorted_data_commits[0].sort((a,b) => {
+            // convert to date objects?
+
+            return -1;
+        })
 
         this.setState({
             selectedProject: projects[0].value,
-            selectedCommit: commits[0].value,
             projects: projects,
-            commits: commits,
+            // commits: commits,
             data: {
-                x: data.methods,
+                x: sorted_data_commits[0],
                 y: data.tests,
                 edges: data.edges,
             },
@@ -407,7 +398,7 @@ class HistoryMatrixView extends Component {
                             aria-controls="panel1a-content"
                             id="data-set-selector"
                         >
-                            <span>Method Filters</span>
+                            <span>Commit Filters</span>
                         </AccordionSummary>
                         <AccordionDetails className="accordion-block">
                             <FilterMenu 

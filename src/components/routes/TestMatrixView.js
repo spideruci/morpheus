@@ -1,5 +1,8 @@
 import React, { Component } from 'react'
 
+import { API_ROOT } from '../../config/api-config';
+import { json } from 'd3'
+
 // MorpheusAPI endpoints
 import { fetchProjects, fetchCommits, fetchCoverage } from '../logic/morpheusAPI';
 
@@ -25,13 +28,15 @@ import { filter_method_by_number_of_times_tested, filter_by_coexecuted_methods }
 import { process_data, FunctionMap } from '../filters/data_processor';
 import { sort_by_cluster_X, sort_by_cluster_Y, sort_by_coverage_X, sort_by_coverage_Y, sort_by_suspciousness} from '../filters/sorting';
 
+import MethodPopover from './MethodPopover';
+
 class TestMatrixView extends Component {
     constructor(props) {
-        super();
-
+        super()
         this.state = {
             selectedProject: "",
             selectedCommit: "",
+            selected_method: "",
             data: {
                 x: [],
                 y: [],
@@ -41,7 +46,10 @@ class TestMatrixView extends Component {
             projects: [],
             commits: [],
             expanded: false,
-            reset: false
+            reset: false,
+            isVisible: false,
+            currentMethod: "",
+            anchor: null
         }
 
         this.backInTime = this.backInTime.bind(this);
@@ -49,6 +57,8 @@ class TestMatrixView extends Component {
         this.onProjectChange = this.onProjectChange.bind(this);
         this.onCommitChange = this.onCommitChange.bind(this);
         this.updateReset = this.updateReset.bind(this);
+        this.selectColors = this.selectColors.bind(this);
+        this.setMethodAnchor = this.setMethodAnchor.bind(this);
     }
 
     async onCommitChange(event) {
@@ -76,6 +86,83 @@ class TestMatrixView extends Component {
             selectedProject: project_name,
             commits: await fetchCommits(project_name)
         })
+    }
+
+    selectColors = e => {
+        let color;
+        switch (e["test_result"]) {
+            case "P":
+                color = "#03C03C";
+                break;
+            case "F":
+                color = "#FF1C00";
+                break;
+            default:
+                color = "black";
+                break;
+        }
+        return color;
+    }
+
+    // Update History Data function from HistoryMatrixView
+    async updateHistoryData(project_name, selected_method_id) {
+        return await json(`${API_ROOT}/history/${project_name}/${selected_method_id}`)
+            .then((response) => {
+                console.log("Response: ", response);
+                return {
+                    commits: response.coverage.commits.map(c => {
+                        c.get_id = () => c.id;
+                        c.to_string = () => `${c.sha}`;
+                        c.get_color = () => c.project_id;
+                        c.get_datetime = () => c.datetime;
+                        return c;
+                    }),
+                    tests: response.coverage.tests.map(t => {
+                        t.get_id = () => t.id;
+                        t.to_string = () => `${t.class_name} ${t.method_name}`;
+                        t.get_color = () => t.class_name;
+                        return t;
+                    }),
+                    edges: response.coverage.edges.map(e => {
+                        e.get_color = () => this.selectColors(e)
+                        e.get_x = () => e.commit_id;
+                        e.get_y = () => e.test_id;
+                        return e;
+                    }),
+                }
+            })
+            .catch(e => { console.log(e) });
+    }
+
+    async updateCoverageData(project_name, commit_sha) {
+        return await json(`${API_ROOT}/coverage/${project_name}/${commit_sha}`)
+            .then((response) => {
+                console.log("Response: ", response);
+                return {
+                    methods: response.coverage.methods.map(m => {
+                        m.get_id = () => m.method_id;
+                        m.to_string = () => `${m.package_name}.${m.class_name} ${m.method_decl}`;
+                        m.get_cluster = () => m.hasOwnProperty('cluster_id') ? m.cluster_id :  0;
+                        m.get_color = () => m.package_name
+                        return m;
+                    }),
+                    tests: response.coverage.tests.map(t => {
+                        t.get_id = () => t.test_id;
+                        t.to_string = () => `${t.class_name} ${t.method_name}`;
+                        t.get_cluster = () => t.hasOwnProperty('cluster_id') ? t.cluster_id : 0;
+                        t.get_color = () => t.class_name
+                        return t;
+                    }),
+                    edges: response.coverage.edges.map(e => {
+                        e.get_color = () => this.selectColors(e)
+                        e.get_x = () => e.method_id;
+                        e.get_y = () => e.test_id;
+
+                        return e;
+                    }),
+                }
+            })
+            .catch(e => { console.log(e) });
     }
 
     async componentDidMount() {
@@ -123,6 +210,9 @@ class TestMatrixView extends Component {
         this.setState({reset: false});
     }
 
+    setMethodAnchor(){
+        this.setState({anchor: null});
+    }
 
     render() {
         const history = this.state.history;
@@ -137,10 +227,19 @@ class TestMatrixView extends Component {
                 expanded: expanded,
             });
         }
-
         return (
+            <>
             <div className='test-visualization'>
-                {((current_state.x.length >= 0) || (current_state.y.length >= 0)) &&
+                <MethodPopover anchor={this.state.anchor} setAnchor={this.setMethodAnchor} current_method={this.state.currentMethod} current_project={this.state.selectedProject}
+                onMethodClick={e => {
+                    let new_filter_map = new FunctionMap(current_filter_map);
+                    new_filter_map.add_function("filter_by_coexecuted_methods", filter_by_coexecuted_methods, e.target.value)
+
+                    this.setState({
+                        history: this.state.history.concat(new_filter_map)
+                    })
+                }}/>     
+                    {((current_state.x.length >= 0) || (current_state.y.length >= 0)) &&
                     <MatrixVisualization
                         x={current_state.x}
                         y={current_state.y}
@@ -161,11 +260,22 @@ class TestMatrixView extends Component {
                                 history: this.state.history.concat(new_filter_map)
                             })
                         }}
+                        onRightClick= {(event, label) => {
+                            event.preventDefault(); // to prevent regular context menu from apppearing
+                            
+                            console.log("right clicked");
+                            // console.log(label.to_string().split(" "))
+                            // Alert.success('This is a successful message.');
+                            this.setState({
+                                isVisible: true,
+                                currentMethod: label.to_string(),
+                                anchor: event.target
+                            });
+                        }}
                         labelToggle={labelToggle}
                         xlabel={"methods"}
                         ylabel={"test cases"} />
                 }
-
                 <div id='toolbox'>
                     <h4>Toolbar</h4>
                     <Accordion expanded={this.state.expanded === 'panel1'} onChange={handleChange('panel1')}>
@@ -376,8 +486,10 @@ class TestMatrixView extends Component {
                         <button onClick={this.backInTime}>Back</button>
                         <button onClick={this.reset}>Reset</button>
                     </div>
-                </div>
+                </div> 
+
             </div>
+            </>
         )
     }
 }
