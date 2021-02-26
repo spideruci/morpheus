@@ -1,4 +1,4 @@
-import { cloneDeep} from 'lodash';
+import {cloneDeep} from 'lodash';
 
 export function process_data (data, fmap) {
     let filtered_data = {

@@ -36,7 +36,6 @@ class TestMatrixView extends Component {
         this.state = {
             selectedProject: "",
             selectedCommit: "",
-            selected_method: "",
             data: {
                 x: [],
                 y: [],
@@ -49,7 +48,8 @@ class TestMatrixView extends Component {
             reset: false,
             isVisible: false,
             currentMethod: "",
-            anchor: null
+            anchor: null,
+            current_method_id: ''
         }
 
         this.backInTime = this.backInTime.bind(this);
@@ -108,7 +108,6 @@ class TestMatrixView extends Component {
     async updateHistoryData(project_name, selected_method_id) {
         return await json(`${API_ROOT}/history/${project_name}/${selected_method_id}`)
             .then((response) => {
-                console.log("Response: ", response);
                 return {
                     commits: response.coverage.commits.map(c => {
                         c.get_id = () => c.id;
@@ -137,10 +136,10 @@ class TestMatrixView extends Component {
     async updateCoverageData(project_name, commit_sha) {
         return await json(`${API_ROOT}/coverage/${project_name}/${commit_sha}`)
             .then((response) => {
-                console.log("Response: ", response);
                 return {
                     methods: response.coverage.methods.map(m => {
                         m.get_id = () => m.method_id;
+                        // this.state.current_method_id = m.method_id;
                         m.to_string = () => `${m.package_name}.${m.class_name} ${m.method_decl}`;
                         m.get_cluster = () => m.hasOwnProperty('cluster_id') ? m.cluster_id :  0;
                         m.get_color = () => m.package_name
@@ -216,6 +215,7 @@ class TestMatrixView extends Component {
 
     render() {
         const history = this.state.history;
+        // check length of history here??
         const current_filter_map = history[history.length - 1];
 
         const current_state = process_data(this.state.data, current_filter_map)
@@ -238,7 +238,22 @@ class TestMatrixView extends Component {
                     this.setState({
                         history: this.state.history.concat(new_filter_map)
                     })
-                }}/>     
+                }}
+                onHistoryClick={e => {
+                    this.updateHistoryData(this.state.selectedProject, this.state.current_method_id)
+                        .then((data) => {
+                            this.setState({
+                                data: {
+                                    x: data.commits,
+                                    y: data.tests,
+                                    edges: data.edges,
+                                },
+                                history: [new FunctionMap()],
+                            })
+                        })
+                        .catch(e => console.error(e));
+                }}
+                />     
                     {((current_state.x.length >= 0) || (current_state.y.length >= 0)) &&
                     <MatrixVisualization
                         x={current_state.x}
@@ -262,14 +277,12 @@ class TestMatrixView extends Component {
                         }}
                         onRightClick= {(event, label) => {
                             event.preventDefault(); // to prevent regular context menu from apppearing
-                            
-                            console.log("right clicked");
-                            // console.log(label.to_string().split(" "))
-                            // Alert.success('This is a successful message.');
+
                             this.setState({
                                 isVisible: true,
                                 currentMethod: label.to_string(),
-                                anchor: event.target
+                                anchor: event.target,
+                                current_method_id: label.get_id()
                             });
                         }}
                         labelToggle={labelToggle}
