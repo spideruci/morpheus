@@ -23,7 +23,6 @@ export const fetchCommits = (project_id) => {
 export const fetchCoverage = (project_id, commit_id) => {
     return json(`${API_ROOT}/coverage/projects/${project_id}/commits/${commit_id}`)
         .then((response) => {
-            console.log(response)
             return {
                 methods: response.coverage.methods.map(m => {
                     m.get_id = () => m.id;

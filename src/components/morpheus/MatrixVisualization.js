@@ -38,9 +38,9 @@ class MatrixVisualization extends Component {
 
     createMatrix() {
         const current = {
-            x: this.props.x,
-            y: this.props.y,
-            edges: this.props.edges,
+            x: this.props.coverage.x,
+            y: this.props.coverage.y,
+            edges: this.props.coverage.edges,
         }
 
         if (current.x.length === 0 || current.y.length === 0) {
@@ -73,8 +73,16 @@ class MatrixVisualization extends Component {
     }
 
     componentDidMount() {
+        const width = this.ref.current.parentElement.offsetWidth;
+        const height = this.ref.current.parentElement.offsetHeight;
+        if (this.state.width !== width || this.state.height !== height) {
+            this.setState({
+                width: width,
+                height: height,
+            }, this.update)
+        }
+
         window.addEventListener("resize", () => {
-            setTimeout(500);
             this.setState({
                 width: this.ref.current.parentElement.offsetWidth,
                 height: this.ref.current.parentElement.offsetHeight
@@ -85,20 +93,7 @@ class MatrixVisualization extends Component {
     }
 
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if (this.ref.current !== null) {
-            const width = this.ref.current.parentElement.offsetWidth;
-            const height = this.ref.current.parentElement.offsetHeight;
-            if (this.state.width !== width || this.state.height !== height) {
-                console.log("COMPONENT DID UPDATE ")
-                this.setState({
-                    width: width,
-                    height: height,
-                }, this.update)
-            }
-        }
-        
-
-        if ((!isEqual(prevProps.x, this.props.x)) || (!isEqual(prevProps.y, this.props.y)) ) {
+        if ((!isEqual(prevProps.coverage.x, this.props.coverage.x)) || (!isEqual(prevProps.coverage.y, this.props.coverage.y)) ) {
             this.labelToggle = this.props.labelToggle;
             this.onMethodClick = this.props.onMethodClick;
             this.onTestClick = this.props.onTestClick;
@@ -332,7 +327,7 @@ class MatrixVisualization extends Component {
             .attr("x", this.state.width / 2)
             .attr("y", 11)
             .style("text-anchor", "middle")
-            .text(this.props.xlabel);
+            .text(this.props.xLabel);
 
         // text label for the y axis
         svg.select(".ylabel")
@@ -341,7 +336,7 @@ class MatrixVisualization extends Component {
             .attr("x", -this.state.height / 2)
             .attr("dy", "0.7em")
             .style("text-anchor", "middle")
-            .text(this.props.ylabel);
+            .text(this.props.yLabel);
     }
 
     createTestMatrixView() {

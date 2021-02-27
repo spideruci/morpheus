@@ -2,7 +2,6 @@ import { json } from 'd3';
 import { API_ROOT } from './api-config';
 
 export const fetchProjects = () => {
-    console.debug("Test...")
     return json(`${API_ROOT}/projects`)
         .then((response) => {
             return response.projects.map(project => {

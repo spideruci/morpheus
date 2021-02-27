@@ -14,6 +14,7 @@ import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 import Button from '@material-ui/core/Button';
 
 import Menu from '../../components/common/Menu';
+import { useHistoryReducer } from '../../hooks/useHistoryReducer';
 
 import {
     sort_by_cluster_X,
@@ -35,18 +36,34 @@ const ToolBar = (props) => {
     )
 }
 
-export const CoverageToolbar = ({ updateProject, setSortingMethod, addFilter}) => {
+export const CoverageToolbar = ({onChange}) => {
+
+    const [
+        state,
+        onUndo,
+        onRedo,
+        onReset,
+        onNewState
+    ] = useHistoryReducer({});
+
+    useEffect(() => {
+        onChange({ type: "COVERAGE", state: state.present });
+    }, [onChange, state])
+
     return (
-        <ToolBar>
-            <ProjectSelectors updateProject={updateProject} />
-            <CoverageSorter setSortingMethod={setSortingMethod} />
-            <MethodFilter addFilter={addFilter} />
-            <TestFilter addFilter={addFilter} />
+        <ToolBar
+            onUndo={onUndo}
+            onRedo={onRedo}
+            onReset={onReset}>
+            <ProjectSelectors onChange={onNewState} />
+            <CoverageSorter onChange={onNewState} />
+            {/* <MethodFilter onChange={onNewState} />
+            <TestFilter onChange={onNewState} /> */}
         </ToolBar>
     )
 }
 
-const ProjectSelectors = ({updateProject}) => {
+const ProjectSelectors = ({onChange}) => {
 
     let [project, setProject] = useState('')
 
@@ -66,7 +83,6 @@ const ProjectSelectors = ({updateProject}) => {
 
         setProject(project)
 
-        console.log(project)
         fetchCommits(project.key)
             .then(setCommitList)
             .catch((err) => {
@@ -103,7 +119,7 @@ const ProjectSelectors = ({updateProject}) => {
 
                         const commit = commitList.find((p) => p.value === commitSha);
 
-                        updateProject(project, commit)
+                        onChange({ info: { type: 'COVERAGE', project: project, commit: commit}});
                     }}
                     renderInput={(params) => <TextField {...params} label="Commits..." variant="outlined" />}
                 />
@@ -112,7 +128,21 @@ const ProjectSelectors = ({updateProject}) => {
     )
 }
 
-const CoverageSorter = ({ setSortingMethod }) => {
+const CoverageSorter = ({ onChange }) => {
+
+    const SORT_MAP_X = {
+        ID: (a, b) => a.get_id() > b.get_id(),
+        NAME: (a, b) => a.to_string() > b.to_string(),
+    };
+
+    const SORT_KEYS_X = Object.keys(SORT_MAP_X);
+
+    const SORT_MAP_Y = {
+        ID: (a, b) => a.get_id() > b.get_id(),
+        NAME: (a, b) => a.to_string() > b.to_string(),
+    };
+
+    const SORT_KEYS_Y = Object.keys(SORT_MAP_Y);    
 
     return (
         <Accordion>
@@ -123,53 +153,24 @@ const CoverageSorter = ({ setSortingMethod }) => {
                 <Menu
                     title="Sort X-Axis"
                     onChange={(e) => {
-
-                        let func = (data) => data
-                        switch (e.target.value) {
-                            case "Coverage":
-                                func = sort_by_coverage_X;
-                                break
-                            case "Cluster":
-                                func = sort_by_cluster_X;
-                                break;
-                            case "Suspiciousness":
-                                func = sort_by_suspciousness;
-                                break;
-                            default:
-                                break;
-                        }
-
-                        setSortingMethod("X", func);
-
+                        onChange({ sort_x: SORT_MAP_X[e.target.value]});
                     }}
-                    entries={[
-                        { key: 0, value: "Name" },
-                        { key: 1, value: "Coverage" },
-                        { key: 2, value: "Cluster" },
-                        { key: 3, value: "Suspiciousness" }
-                    ]}
-            />
+                    entries={
+                        SORT_KEYS_X.map((name, index) => {
+                            return { key: index, value: name}
+                        })
+                    }
+                />
                 <Menu
                     title="Sort Y-Axis"
                     onChange={(e) => {
-                        let func = (data) => data
-                        switch (e.target.value) {
-                            case "Coverage":
-                                func = sort_by_coverage_Y;
-                                break
-                            case "Cluster":
-                                func = sort_by_cluster_Y;
-                                break;
-                            default:
-                                break;
-                        }
-                        setSortingMethod("Y", func);
+                        onChange({ sort_y: SORT_KEYS_Y[e.target.value] });
                     }}
-                    entries={[
-                        { key: 0, value: "Name" },
-                        { key: 1, value: "Coverage" },
-                        { key: 2, value: "Cluster" },
-                    ]}
+                    entries={
+                        SORT_KEYS_Y.map((name, index) => {
+                            return { key: index, value: name }
+                        })
+                    }
                 />
             </AccordionDetails>
         </Accordion>
