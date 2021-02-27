@@ -136,7 +136,7 @@ class HistoryMatrixView extends Component {
         let projects = await this.updateProjectData();
         let project_name = projects[0].value;
 
-        let commits = await this.updateCommitData(project_name);
+        // let commits = await this.updateCommitData(project_name);
         // let commit_sha = commits[0].value;
         let data = await this.updateCoverageData("jpacman-framework");
 
