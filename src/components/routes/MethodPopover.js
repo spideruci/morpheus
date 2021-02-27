@@ -4,7 +4,7 @@ import 'rsuite/dist/styles/rsuite-default.css';
 import Popover from '@material-ui/core/Popover';
 import ClearIcon from '@material-ui/icons/Clear';
 
-const MethodPopover = ({anchor, setAnchor, current_method, current_project, onMethodClick}) => {
+const MethodPopover = ({anchor, setAnchor, current_method, current_project, onMethodClick, onHistoryClick}) => {
   return(
     <Popover
         id={Boolean(anchor) ? 'simple-popover' : undefined}
@@ -29,7 +29,7 @@ const MethodPopover = ({anchor, setAnchor, current_method, current_project, onMe
         <p>Project: {current_project} </p>
         <p>Package: {current_method.split(' ')[0]}{   }</p>
         <Button appearance="default" onClick={onMethodClick}>Filter by Method (default)</Button>
-        <Button appearance="primary">View Method History</Button>
+        <Button appearance="primary" onClick={onHistoryClick}>View Method History</Button>
         
     </Popover>
   )
