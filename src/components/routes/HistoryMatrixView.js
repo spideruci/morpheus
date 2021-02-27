@@ -134,7 +134,8 @@ class HistoryMatrixView extends Component {
 
     async componentDidMount() {
         let projects = await this.updateProjectData();
-        let project_name = projects[0].value;
+        // TODO Fix this so other projects will work as well.
+        // let project_name = projects[0].value;
 
         // let commits = await this.updateCommitData(project_name);
         // let commit_sha = commits[0].value;
