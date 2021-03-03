@@ -101,7 +101,7 @@ const ProjectSelectors = ({ onChange, project, commit}) => {
 
             <AccordionDetails className="accordion-block">
                 <Autocomplete
-                    id="project-menu"
+                    className={styles.mediumButton}
                     value={project}
                     disableClearable={true}
                     options={projectList}
@@ -110,7 +110,7 @@ const ProjectSelectors = ({ onChange, project, commit}) => {
                     renderInput={(params) => <TextField {...params} label="Projects..." variant="outlined" />}
                 />
                 <Autocomplete
-                    id="commit-menu"
+                    className={styles.mediumButton}
                     value={commit}
                     disableClearable={true}
                     disabled={commitList.length === 0}
@@ -146,10 +146,9 @@ const CoverageSorter = ({ onChange, isLoading, valueX, valueY }) => {
                 <span>Sorting</span>
             </AccordionSummary>
             <AccordionDetails className="accordion-block">
-                <h3>Sort X-Axis</h3>
-                <br/>
+                <h4>Sort X-Axis</h4>
                 <Select
-                    // title="Sort X-Axis"
+                    className={styles.mediumMenu}
                     defaultValue={valueX !== undefined ? valueX : 'NAME'}
                     onChange={(e) => {
                         onChange({ type: 'SET_SORT', x: { name: e.target.value, func: SORT_MAP_X[e.target.value]}});
@@ -158,10 +157,9 @@ const CoverageSorter = ({ onChange, isLoading, valueX, valueY }) => {
                 >
                 {SORT_KEYS_X.map((name, index) => <MenuItem key={index} value={name}>{name}</MenuItem>)}
                 </Select>
-                <h3>Sort Y-Axis</h3>
-                <br />
+                <h4>Sort Y-Axis</h4>
                 <Select
-                    // title="Sort Y-Axis"
+                    className={styles.mediumMenu}
                     defaultValue={valueY !== undefined ? valueY : 'NAME'}
                     onChange={(e) => {
                         onChange({ type: 'SET_SORT', x: { name: e.target.value, func:SORT_MAP_Y[e.target.value] }});
@@ -184,6 +182,7 @@ const MethodFilter = ({ onChange, methods }) => {
             </AccordionSummary>
             <AccordionDetails className="accordion-block">
                 <Autocomplete
+                    className={styles.bigMenu}
                     id="project-menu"
                     disableClearable={true}
                     disabled={methods.length === 0}
@@ -205,6 +204,7 @@ const TestFilter = ({ onChange, tests }) => {
             </AccordionSummary>
             <AccordionDetails className="accordion-block">
                 <Autocomplete
+                    className={styles.bigMenu}
                     id="project-menu"
                     disableClearable={true}
                     disabled={tests.length === 0}
