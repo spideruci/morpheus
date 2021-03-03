@@ -1,71 +1,138 @@
-import { useReducer } from 'react';
-import { process_data, FunctionMap } from '../logic/filters/data_processor'
-
-
-
-const getLabels  = (type) => {
-    switch(type) {
-        case 'COVERAGE':
-            return {xLabel: 'Methods', yLabel: 'Tests'}
-        case 'TEST_HISTORY':
-            return { xLabel: 'Commits', yLabel: 'Methods' }
-        case 'METHOD_HISTORY':
-            return { xLabel: 'Commits', yLabel: 'Tests' }
-        default:
-            console.error(`Unknown label type: ${type}`)
-            return { xLabel: null, yLabel: null }
-    }
-}
-
-const sortCoverage = (x, y, edges, state) => {
-
-    return {
-        x: [...x].sort(state.sort_x),
-        y: [...y].sort(state.sort_y),
-        edges: edges
-    }
-}
+import { useReducer, useEffect } from 'react';
+import { fetchCoverage } from '../logic/api/morpheusAPIv2';
+// import { fetchCoverage, fetchTestHistory, fetchMethodHistory } from '../logic/api/morpheusAPIv2';
 
 const reducer = (state, action) => {
     switch (action.type) {
         case "LOADING":
             return { ...state };
-        case'COVERAGE':
-            console.log("COVERAGE UPDATE...")
-
-            let newState = {
-                ...state,
-                ...action.state,
-            }
-
-            if ((action.state.coverage === undefined) && state.isLoading) {
-                return newState;
-            }
-            
-
-            let coverage = action.state.hasOwnProperty('coverage') ? action.state.coverage : state.coverage;
-
-            let processedCoverage = sortCoverage(coverage.x, coverage.y, coverage.edges, state);
-
+        
+        case "SET_PROJECT": 
+            console.log("SET_COMMIT", state, action)
             return {
-                ...newState,
-                coverage: {
-                    ...processedCoverage,
-                    ...getLabels(state.info.type)
-                } 
+                ...state,
+                info: {
+                    ...state.info,
+                    project: action.project,
+                }
             };
 
+        case "SET_COMMIT":
+            console.log("SET_COMMIT", state, action)
+            return {
+                ...state,
+                info: {
+                    ...state.info,
+                    type: 'COVERAGE',
+                    commit: action.commit,
+                }
+            };
+
+        case "SET_SORT":
+            console.log("SET_SORT", state, action)
+            return {
+                ...state, 
+                sort: {
+                    ...state.sort,
+                    ...action
+                }
+            }
+
+        case "ADD_FILTER":
+            console.log("ADD_FILTER", state, action)
+            return {
+                ...state,
+                filters: {
+                    ...state.filters,
+                    ...action.filters
+                }
+            }
+
+        case 'SET_COVERAGE':
+            console.log("COVERAGE UPDATE...", action, state)
+
+            return {
+                ...state,
+                ...action.state,
+                coverage: {
+                    ...action.state.coverage,
+                } 
+            };
         default:
             console.error(`Did not expect ${action.type}. Reset to initial state.`)
             return state;
     }
 }
 
-export const useMorpheusController = (state) => {
-    let [morpheusState, morpheusDispatch] = useReducer(reducer, state);
+export const useMorpheusController = (initialState) => {
+    const [state, dispatch] = useReducer(reducer, initialState);
 
-    return [
-        morpheusState,
-        morpheusDispatch,
-    ];
+    useEffect(() => {
+        const { type, project, commit } = state.info;
+
+        switch (type) {
+            case 'COVERAGE':{
+                fetchCoverage(project.key, commit.key)
+                    .then(({ methods, tests, edges }) => {
+                        dispatch({
+                            type: "SET_COVERAGE",
+                            state: {
+                                isLoading: false,
+                                coverage: {
+                                    x: methods,
+                                    y: tests,
+                                    edges: edges
+                                }
+                            }
+                        })
+                    })
+                    .catch(console.error)
+                break;
+            }
+            case 'TEST_HISTORY':{
+                const commits = [];
+                const tests = [];
+                const edges = [];
+                dispatch({
+                    type: "SET_COVERAGE",
+                    state: {
+                        isLoading: false,
+                        coverage: {
+                            x: commits,
+                            y: tests,
+                            edges: edges
+                        }
+                    }
+                })
+                break;
+            }
+            case 'METHOD_HISTORY': {
+                const commits = [];
+                const tests = [];
+                const edges = [];
+                dispatch({
+                    type: "SET_COVERAGE",
+                    state: {
+                        isLoading: false,
+                        coverage: {
+                            x: commits,
+                            y: tests,
+                            edges: edges
+                        }
+                    }
+                })
+                break;
+            }
+            default:
+                if (type === null)
+                    return;
+                console.error(`Unknown type ${type}`);
+        }
+    }, [
+        state.info,
+        state.info.project,
+        state.info.commit
+    ]);
+
+    return [state, dispatch];
 };

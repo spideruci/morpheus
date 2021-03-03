@@ -10,6 +10,7 @@ import Navbar from './components/Navbar';
 
 import About from './pages/About';
 import Morpheus from './pages/Morpheus';
+import { MorpheusProvider } from './pages/MorpheusContext';
 
 import './styles/global.scss';
 
@@ -20,11 +21,13 @@ function App() {
       <Router>
         <Navbar />
         <div className="component">
-          <Switch>
-            <Route exact path="/" component={About} />
-            <Route exact path="/about" component={About} />
-            <Route exact path="/morpheus" component={Morpheus} />
-          </Switch>
+          <MorpheusProvider>
+            <Switch>
+              <Route exact path="/" component={About} />
+              <Route exact path="/about" component={About} />
+              <Route exact path="/morpheus" component={Morpheus} />
+            </Switch>
+          </MorpheusProvider>
         </div>
       </Router>
       <Footer />

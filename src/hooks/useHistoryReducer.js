@@ -1,4 +1,4 @@
-import { useReducer } from 'react';
+import { useReducer, useEffect } from 'react';
 
 export const historyActions = {
     redo: 'REDO',
@@ -74,10 +74,5 @@ const initialState = (state) => {
 export const useHistoryReducer = (presentState) => {
     let [currentState, historyDispatch] = useReducer(historyReducer, initialState(presentState));
 
-    const onUndo = () => historyDispatch({ type: historyActions.undo })
-    const onRedo = () => historyDispatch({ type: historyActions.redo })
-    const onReset = () => historyDispatch({ type: historyActions.reset })
-    const onUpdateState = (state) => historyDispatch({ type: historyActions.updateState, state: state })
-
-    return [currentState, onUndo, onRedo, onReset, onUpdateState]
+    return [currentState, historyDispatch]
 }

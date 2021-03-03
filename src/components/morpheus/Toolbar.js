@@ -1,7 +1,5 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useContext } from 'react';
 import { fetchProjects, fetchCommits } from '../../logic/api/morpheusAPIv2';
-import TextField from '@material-ui/core/TextField';
-import Autocomplete from '@material-ui/lab/Autocomplete';
 
 import styles from './Toolbar.module.scss';
 
@@ -11,61 +9,57 @@ import AccordionSummary from '@material-ui/core/AccordionSummary';
 import AccordionDetails from '@material-ui/core/AccordionDetails';
 import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
-import Button from '@material-ui/core/Button';
+import TextField from '@material-ui/core/TextField';
+import Autocomplete from '@material-ui/lab/Autocomplete';
+import Select from '@material-ui/core/Select';
+import MenuItem from '@material-ui/core/MenuItem';
+// import Button from '@material-ui/core/Button';
 
-import Menu from '../../components/common/Menu';
-import { useHistoryReducer } from '../../hooks/useHistoryReducer';
+import { MorpheusContext } from '../../pages/MorpheusContext';
 
-import {
-    sort_by_cluster_X,
-    sort_by_cluster_Y,
-    sort_by_coverage_X,
-    sort_by_coverage_Y,
-    sort_by_suspciousness
-} from '../../logic/filters/sorting';
 
 const ToolBar = (props) => {
     return (
         <div className={styles.toolbar}>
             <h4>Toolbar</h4>
             { props.children }
-            <Button onClick={props.onUndo}>Undo</Button>
-            <Button onClick={props.onRedo}>Redo</Button>
-            <Button onClick={props.onReset}>Reset</Button>
+            {/* <Button onClick={props.onUndo}>Undo</Button>
+            <Button onClick={props.onRedo}>Redo</Button> 
+            <Button onClick={props.onReset}>Reset</Button> */}
         </div>
     )
 }
 
 export const CoverageToolbar = ({onChange}) => {
-
-    const [
-        state,
-        onUndo,
-        onRedo,
-        onReset,
-        onNewState
-    ] = useHistoryReducer({});
-
-    useEffect(() => {
-        onChange({ type: "COVERAGE", state: state.present });
-    }, [onChange, state])
+    const {state, dispatch} = useContext(MorpheusContext);
 
     return (
-        <ToolBar
-            onUndo={onUndo}
-            onRedo={onRedo}
-            onReset={onReset}>
-            <ProjectSelectors onChange={onNewState} />
-            <CoverageSorter onChange={onNewState} />
-            {/* <MethodFilter onChange={onNewState} />
-            <TestFilter onChange={onNewState} /> */}
+        <ToolBar>
+            <ProjectSelectors
+                onChange={dispatch}
+                project={state.info.project}
+                commit={state.info.commit}
+                />
+            <CoverageSorter
+                isLoading={state.isLoading}
+                onChange={dispatch} />
+            <MethodFilter
+                methods={state.coverage.x}
+                onChange={dispatch}
+                isLoading={state.isLoading}
+                valueX={state.sort.x.name}
+                valueY={state.sort.y.name}
+                />
+            <TestFilter
+                tests={state.coverage.y}
+                onChange={dispatch}
+                isLoading={state.isLoading}
+            />
         </ToolBar>
     )
 }
 
-const ProjectSelectors = ({onChange}) => {
-
-    let [project, setProject] = useState('')
+const ProjectSelectors = ({ onChange, project, commit}) => {
 
     let [projectList, setProjectList] = useState([])
     let [commitList, setCommitList] = useState([])
@@ -81,7 +75,7 @@ const ProjectSelectors = ({onChange}) => {
 
         const project = projectList.find((p) => p.value === projectName);
 
-        setProject(project)
+        onChange({ type: 'SET_PROJECT', project: project });
 
         fetchCommits(project.key)
             .then(setCommitList)
@@ -89,6 +83,14 @@ const ProjectSelectors = ({onChange}) => {
                 console.error(err);
                 setCommitList([])
             })
+    }
+
+    const commitSelect = ({ target }) => {
+        const commitSha = target.innerHTML;
+
+        const commit = commitList.find((c) => c.value === commitSha);
+
+        onChange({ type: 'SET_COMMIT', commit: commit });
     }
 
     return (
@@ -100,27 +102,21 @@ const ProjectSelectors = ({onChange}) => {
             <AccordionDetails className="accordion-block">
                 <Autocomplete
                     id="project-menu"
+                    value={project}
                     disableClearable={true}
                     options={projectList}
-                    getOptionLabel={(option) => option.value}
-                    // style={{ width: 300 }}
+                    getOptionLabel={(option) => option.value === undefined ? '' : option.value.toString()}
                     onChange={projectSelect}
                     renderInput={(params) => <TextField {...params} label="Projects..." variant="outlined" />}
                 />
                 <Autocomplete
                     id="commit-menu"
+                    value={commit}
                     disableClearable={true}
                     disabled={commitList.length === 0}
                     options={commitList}
-                    getOptionLabel={(option) => option.value}
-                    // style={{ width: 300 }}
-                    onChange={({ target }) => {
-                        const commitSha = target.innerHTML;
-
-                        const commit = commitList.find((p) => p.value === commitSha);
-
-                        onChange({ info: { type: 'COVERAGE', project: project, commit: commit}});
-                    }}
+                    getOptionLabel={(option) => option.value === undefined ? '' : option.value.toString()}
+                    onChange={commitSelect}
                     renderInput={(params) => <TextField {...params} label="Commits..." variant="outlined" />}
                 />
             </AccordionDetails>
@@ -128,7 +124,7 @@ const ProjectSelectors = ({onChange}) => {
     )
 }
 
-const CoverageSorter = ({ onChange }) => {
+const CoverageSorter = ({ onChange, isLoading, valueX, valueY }) => {
 
     const SORT_MAP_X = {
         ID: (a, b) => a.get_id() > b.get_id(),
@@ -150,52 +146,74 @@ const CoverageSorter = ({ onChange }) => {
                 <span>Sorting</span>
             </AccordionSummary>
             <AccordionDetails className="accordion-block">
-                <Menu
-                    title="Sort X-Axis"
+                <h3>Sort X-Axis</h3>
+                <br/>
+                <Select
+                    // title="Sort X-Axis"
+                    defaultValue={valueX !== undefined ? valueX : 'NAME'}
                     onChange={(e) => {
-                        onChange({ sort_x: SORT_MAP_X[e.target.value]});
+                        onChange({ type: 'SET_SORT', x: { name: e.target.value, func: SORT_MAP_X[e.target.value]}});
                     }}
-                    entries={
-                        SORT_KEYS_X.map((name, index) => {
-                            return { key: index, value: name}
-                        })
-                    }
-                />
-                <Menu
-                    title="Sort Y-Axis"
+                    disabled={isLoading}
+                >
+                {SORT_KEYS_X.map((name, index) => <MenuItem key={index} value={name}>{name}</MenuItem>)}
+                </Select>
+                <h3>Sort Y-Axis</h3>
+                <br />
+                <Select
+                    // title="Sort Y-Axis"
+                    defaultValue={valueY !== undefined ? valueY : 'NAME'}
                     onChange={(e) => {
-                        onChange({ sort_y: SORT_KEYS_Y[e.target.value] });
+                        onChange({ type: 'SET_SORT', x: { name: e.target.value, func:SORT_MAP_Y[e.target.value] }});
                     }}
-                    entries={
-                        SORT_KEYS_Y.map((name, index) => {
-                            return { key: index, value: name }
-                        })
-                    }
-                />
+                    disabled={isLoading}
+                >
+                    {SORT_KEYS_Y.map((name, index) => <MenuItem key={index} value={name}>{name}</MenuItem>)}
+                </Select>
             </AccordionDetails>
         </Accordion>
     )
 }
 
-const MethodFilter = ({ addFilter }) => {
+const MethodFilter = ({ onChange, methods }) => {
+
     return (
         <Accordion>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <span>Method Filters</span>
             </AccordionSummary>
             <AccordionDetails className="accordion-block">
-
+                <Autocomplete
+                    id="project-menu"
+                    disableClearable={true}
+                    disabled={methods.length === 0}
+                    options={methods}
+                    getOptionLabel={(option) => option.to_string()}
+                    onChange={onChange}
+                    renderInput={(params) => <TextField {...params} label="Method name" variant="outlined" />}
+                />
             </AccordionDetails>
         </Accordion>
     )
 }
 
-const TestFilter = ({ addFilter }) => {
+const TestFilter = ({ onChange, tests }) => {
     return (
         <Accordion>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
                 <span>Test Filters</span>
             </AccordionSummary>
+            <AccordionDetails className="accordion-block">
+                <Autocomplete
+                    id="project-menu"
+                    disableClearable={true}
+                    disabled={tests.length === 0}
+                    options={tests}
+                    getOptionLabel={(option) => option.to_string()}
+                    onChange={onChange}
+                    renderInput={(params) => <TextField {...params} label="Test name" variant="outlined" />}
+                />
+            </AccordionDetails>
         </Accordion>
     )
 }

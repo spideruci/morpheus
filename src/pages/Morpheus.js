@@ -1,11 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useContext } from 'react';
+import { useProcessCoverage } from '../hooks/useProcessCoverage';
 
 import MatrixVisualization from '../components/morpheus/MatrixVisualization';
 import { CoverageToolbar } from '../components/morpheus/Toolbar';
-import { useMorpheusController } from '../hooks/useMorpheusReducer';
-import { fetchCoverage } from '../logic/api/morpheusAPIv2';
 import styles from './Morpheus.module.scss';
-
+import { MorpheusContext } from './MorpheusContext';
 
 const useLoading = (Component, LoadingComponent = <div />) => {
     return (props) => props.isLoading ? LoadingComponent : <Component {...props} />;
@@ -18,75 +17,37 @@ const MatrixVisualizationWithLoading = useLoading(
     </div>
 )
 
-const initialState = () => {
-    return {
-        isLoading: true,
-        info: {
-            type: null,
-            project: null,
-            commit: null,
-            method: null,
-            test: null
-        },
-        filters: {},
-        sort_x: (a, b) => a.to_string() > b.to_string(),
-        sort_y: (a, b) => a.to_string() > b.to_string(),
-        coverage: {
-            x: [],
-            y: [],
-            edges: [],
-            xLabel: null,
-            yLabel: null
-        },
+const getLabels = (type) => {
+    switch (type) {
+        case 'COVERAGE':
+            return { xLabel: 'Methods', yLabel: 'Tests' }
+        case 'TEST_HISTORY':
+            return { xLabel: 'Commits', yLabel: 'Methods' }
+        case 'METHOD_HISTORY':
+            return { xLabel: 'Commits', yLabel: 'Tests' }
+        default:
+            console.error(`Unknown label type: ${type}`)
+            return { xLabel: null, yLabel: null }
     }
 }
 
 const Morpheus = () => {
-    const [state, dispatch] = useMorpheusController(initialState());
+    const { state, dispatch } = useContext(MorpheusContext);
+    const coverage = useProcessCoverage(state);
 
-    useEffect(() => {
-        const {type, project, commit} = state.info;
-
-        switch(type) {
-            case 'COVERAGE':
-                fetchCoverage(project.key, commit.key)
-                    .then(({ methods, tests, edges }) => {
-                        dispatch({
-                            type: "COVERAGE", state: {
-                                isLoading: false,
-                                coverage: {
-                                    x: methods,
-                                    y: tests,
-                                    edges: edges
-                                }
-                            }
-                        })
-                    })
-                    .catch(console.error)
-                break;
-            default:
-                if (type === null)
-                    return;
-                console.error(`Unknown type ${type}`);
-        }
-    }, [
-        state.info,
-        state.info.type,
-        state.info.project,
-        state.info.commit,
-        dispatch
-    ])
+    //  Get label names
+    let {xLabel, yLabel} = state.info.type !== null ? getLabels(state.info.type) : {xLabel: null, yLabel: null}
 
     return (
         <>
             <div className={styles.twoColumn}>
                 <MatrixVisualizationWithLoading
                     isLoading={state.isLoading}
-                    coverage={state.coverage}
+                    coverage={coverage}
                     onMethodClick={ console.log }
                     onTestClick={ console.log }
-                    xLabel={state.coverage.xLabel}
-                    yLabel={state.coverage.yLabel}
+                    xLabel={xLabel}
+                    yLabel={yLabel}
                     />
             </div>
             <CoverageToolbar
