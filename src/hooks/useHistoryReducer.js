@@ -1,6 +1,6 @@
-import { useReducer, useEffect } from 'react';
+import { useReducer } from 'react';
 
-export const historyActions = {
+const HISTORY_ACTIONS = {
     redo: 'REDO',
     undo: 'UNDO',
     reset: 'RESET',
@@ -8,10 +8,9 @@ export const historyActions = {
 }
 
 const historyReducer = (state, action) => {
-
     switch (action.type) {
-        case historyActions.redo: {
-            console.debug(historyActions.redo);
+        case HISTORY_ACTIONS.redo: {
+            console.debug(HISTORY_ACTIONS.redo);
             if (state.future.length === 0) {
                 return state;
             }
@@ -22,8 +21,8 @@ const historyReducer = (state, action) => {
                 future
             }
         }
-        case historyActions.undo: {
-            console.debug(historyActions.undo);
+        case HISTORY_ACTIONS.undo: {
+            console.debug(HISTORY_ACTIONS.undo);
             const [newPresent, ...past] = state.past;
             return {
                 past: past,
@@ -31,8 +30,8 @@ const historyReducer = (state, action) => {
                 future: [state.present, ...state.future]
             }
         }
-        case historyActions.reset: {
-            console.debug(historyActions.reset);
+        case HISTORY_ACTIONS.reset: {
+            console.debug(HISTORY_ACTIONS.reset);
             let newPresent = state.past.length >= 0 ? state.past[0] : state.present;
             return {
                 past: [],
@@ -40,8 +39,8 @@ const historyReducer = (state, action) => {
                 future: []
             }
         }
-        case historyActions.updateState: {
-            console.debug(historyActions.updateState, state, action);
+        case HISTORY_ACTIONS.updateState: {
+            console.debug(HISTORY_ACTIONS.updateState, state, action);
             return {
                 past: [state.present, ...state.past],
                 present: {
@@ -63,7 +62,7 @@ const historyReducer = (state, action) => {
 
 }
 
-const initialState = (state) => {
+const historyState = (state) => {
     return {
         past: [],
         present: state,
@@ -72,7 +71,19 @@ const initialState = (state) => {
 }
 
 export const useHistoryReducer = (presentState) => {
-    let [currentState, historyDispatch] = useReducer(historyReducer, initialState(presentState));
+    let [state, historyDispatch] = useReducer(historyReducer, historyState(presentState));
 
-    return [currentState, historyDispatch]
+    const onUndo = () => historyDispatch({ type: HISTORY_ACTIONS.undo })
+    const onRedo = () => historyDispatch({ type: HISTORY_ACTIONS.redo })
+    const onReset = () => historyDispatch({ type: HISTORY_ACTIONS.reset })
+    const onUpdateState = (state) => historyDispatch({ type: HISTORY_ACTIONS.updateState, state: state })
+
+    return {
+        present: state.present,
+        historyDispatch,
+        // onUndo,
+        // onRedo,
+        // onReset,
+        // onUpdateState
+    };
 }

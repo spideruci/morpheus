@@ -34,6 +34,7 @@ class MatrixVisualization extends Component {
         // Set all methods passed through properties here (we don't use bind because we want to make use of the parent this object.)
         this.onMethodClick = props.onMethodClick;
         this.onTestClick = props.onTestClick;
+        this.onRightClick = props.onRightClick;
     }
 
     createMatrix() {
@@ -144,7 +145,6 @@ class MatrixVisualization extends Component {
         if (yLabel.step() !== yScale.step()) {
             // Meaning duplicate class_name.method_name entries
             console.error("yLabel and yScale step are not equal...")
-            debugger;
         }
 
         // Create tick format function, returns a function using the passed parameters.
@@ -270,7 +270,8 @@ class MatrixVisualization extends Component {
                     tooltip
                         .style("visibility", "hidden");
                 })
-                .on('click', this.onMethodClick);
+                .on('click', this.onMethodClick)
+                .on('contextmenu', this.onRightClick);
         select("g.y-axis")
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
             .call(yAxis);

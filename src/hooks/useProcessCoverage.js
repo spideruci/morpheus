@@ -18,8 +18,8 @@ const filterCoverage = (coverage, state) => {
         edges: [...coverage.edges]
     }
 
-    for (const [, filterFunction] of Object.entries(filters)) {
-        filteredCoverage = filterFunction(filteredCoverage);
+    for (const [, filterEntry] of Object.entries(filters)) {
+        filteredCoverage = filterEntry(filteredCoverage, coverage);
     }
 
     return filteredCoverage;

@@ -13,28 +13,33 @@ import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
-// import Button from '@material-ui/core/Button';
+import Button from '@material-ui/core/Button';
 
+import { MORPHEUS_ACTION } from '../../hooks/useMorpheusReducer';
 import { MorpheusContext } from '../../pages/MorpheusContext';
 
+// Filters
+import { filterByCoOccurence, filterByTestResult } from '../../logic/filters/filters';
 
-const ToolBar = (props) => {
+
+const ToolBar = ({dispatch, children}) => {
     return (
         <div className={styles.toolbar}>
             <h4>Toolbar</h4>
-            { props.children }
+            { children }
             {/* <Button onClick={props.onUndo}>Undo</Button>
-            <Button onClick={props.onRedo}>Redo</Button> 
-            <Button onClick={props.onReset}>Reset</Button> */}
+            <Button onClick={props.onRedo}>Redo</Button>  */}
+            <Button onClick={() => dispatch({type: MORPHEUS_ACTION.RESET})}>Reset</Button>
         </div>
     )
 }
 
-export const CoverageToolbar = ({onChange}) => {
-    const {state, dispatch} = useContext(MorpheusContext);
+export const CoverageToolbar = () => {
+    const { state, dispatch } = useContext(MorpheusContext);
 
     return (
-        <ToolBar>
+        <ToolBar
+            dispatch={dispatch}>
             <ProjectSelectors
                 onChange={dispatch}
                 project={state.info.project}
@@ -75,7 +80,7 @@ const ProjectSelectors = ({ onChange, project, commit}) => {
 
         const project = projectList.find((p) => p.value === projectName);
 
-        onChange({ type: 'SET_PROJECT', project: project });
+        onChange({ type: MORPHEUS_ACTION.SET_PROJECT, project: project });
 
         fetchCommits(project.key)
             .then(setCommitList)
@@ -90,7 +95,7 @@ const ProjectSelectors = ({ onChange, project, commit}) => {
 
         const commit = commitList.find((c) => c.value === commitSha);
 
-        onChange({ type: 'SET_COMMIT', commit: commit });
+        onChange({ type: MORPHEUS_ACTION.SET_COMMIT, commit: commit });
     }
 
     return (
@@ -151,7 +156,7 @@ const CoverageSorter = ({ onChange, isLoading, valueX, valueY }) => {
                     className={styles.mediumMenu}
                     defaultValue={valueX !== undefined ? valueX : 'NAME'}
                     onChange={(e) => {
-                        onChange({ type: 'SET_SORT', x: { name: e.target.value, func: SORT_MAP_X[e.target.value]}});
+                        onChange({ type: MORPHEUS_ACTION.SET_SORT, x: { name: e.target.value, func: SORT_MAP_X[e.target.value]}});
                     }}
                     disabled={isLoading}
                 >
@@ -162,7 +167,7 @@ const CoverageSorter = ({ onChange, isLoading, valueX, valueY }) => {
                     className={styles.mediumMenu}
                     defaultValue={valueY !== undefined ? valueY : 'NAME'}
                     onChange={(e) => {
-                        onChange({ type: 'SET_SORT', x: { name: e.target.value, func:SORT_MAP_Y[e.target.value] }});
+                        onChange({ type: MORPHEUS_ACTION.SET_SORT, y: { name: e.target.value, func:SORT_MAP_Y[e.target.value] }});
                     }}
                     disabled={isLoading}
                 >
@@ -174,6 +179,17 @@ const CoverageSorter = ({ onChange, isLoading, valueX, valueY }) => {
 }
 
 const MethodFilter = ({ onChange, methods }) => {
+
+    const setFilter = ({ target }) => {
+        const methodName = target.innerHTML;
+
+        onChange({
+            type: MORPHEUS_ACTION.ADD_FILTER,
+            filters: {
+                METHOD_FILTER: filterByCoOccurence(methodName)
+            }
+        })
+    }
 
     return (
         <Accordion>
@@ -188,7 +204,7 @@ const MethodFilter = ({ onChange, methods }) => {
                     disabled={methods.length === 0}
                     options={methods}
                     getOptionLabel={(option) => option.to_string()}
-                    onChange={onChange}
+                    onChange={setFilter}
                     renderInput={(params) => <TextField {...params} label="Method name" variant="outlined" />}
                 />
             </AccordionDetails>
@@ -196,7 +212,15 @@ const MethodFilter = ({ onChange, methods }) => {
     )
 }
 
-const TestFilter = ({ onChange, tests }) => {
+const TestFilter = ({ onChange, tests, isLoading }) => {
+    const TEST_RESULTS = {
+        ALL: ``,
+        PASSED: true,
+        FAILED: false,
+    }
+
+    const TEST_RESULT_KEYS = Object.keys(TEST_RESULTS);
+
     return (
         <Accordion>
             <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -213,6 +237,22 @@ const TestFilter = ({ onChange, tests }) => {
                     onChange={onChange}
                     renderInput={(params) => <TextField {...params} label="Test name" variant="outlined" />}
                 />
+                <h4>Test Result: </h4>
+                <Select
+                    className={styles.mediumMenu}
+                    defaultValue={TEST_RESULTS.ALL.toString()}
+                    onChange={(e) => {
+                        onChange({
+                            type: MORPHEUS_ACTION.ADD_FILTER,
+                            filters: {
+                                TEST_RESULT: filterByTestResult(e.target.value)
+                            }
+                        })
+                    }}
+                    disabled={isLoading}
+                >
+                    {TEST_RESULT_KEYS.map((name, index) => <MenuItem key={name} value={TEST_RESULTS[name]}>{name}</MenuItem>)}
+                </Select>
             </AccordionDetails>
         </Accordion>
     )

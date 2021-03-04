@@ -10,6 +10,12 @@ export const initialState = {
         method: null,
         test: null
         },
+    pop_up: {
+        isVisible: false,
+        currentMethod: '',
+        anchor: null,
+        current_method_id: -1,
+    },
     filters: {},
     sort: {
         x: {
