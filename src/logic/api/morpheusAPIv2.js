@@ -53,7 +53,7 @@ export const fetchTestHistory = (project_id, test_id) => {
         .then((response) => {
             return {
                 methods: response.coverage.methods.map(m => {
-                    m.get_id = () => m.method_version_id;
+                    m.get_id = () => m.id;
                     m.to_string = () => `${m.package_name}.${m.class_name} ${m.method_decl}`;
                     m.get_color = () => m.package_name
                     return m;
@@ -67,7 +67,7 @@ export const fetchTestHistory = (project_id, test_id) => {
                 edges: response.coverage.edges.map(e => {
                     e.get_color = () => e.test_result ? "#03C03C" : "#FF1C00";
                     e.get_x = () => e.commit_id;
-                    e.get_y = () => e.method_version_id;
+                    e.get_y = () => e.method_id;
 
                     return e;
                 }),
