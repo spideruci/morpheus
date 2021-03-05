@@ -4,11 +4,16 @@ import 'rsuite/dist/styles/rsuite-default.css';
 import Popover from '@material-ui/core/Popover';
 import ClearIcon from '@material-ui/icons/Clear';
 
-const MethodPopover = ({anchor, setAnchor, currentMethod, currentProject, onMethodClick, onHistoryClick }) => {
+const MethodPopover = ({ anchor, setAnchor, label, project, onMethodClick, onHistoryClick }) => {
+    let labelName  = "";
+    let packageName = "";
 
+    if ((label !== null) && (label !== undefined)) {
+        labelName = label.method_name;
+        packageName = label.className;
+    }
 
-    const methodName = currentMethod === null ? "": currentMethod;
-    const projectName = currentProject === null ? "" : currentProject.value;
+    const projectName = project === null ? "" : project.value;
 
     return (
         <Popover
@@ -26,15 +31,15 @@ const MethodPopover = ({anchor, setAnchor, currentMethod, currentProject, onMeth
             }}
         >
             <h3>
-                {currentMethod.split(' ').slice(2)}
+                {labelName}
                 <Button sz="xs" onClick={setAnchor}>
                     <ClearIcon fontSize="small" />
                 </Button>
             </h3>
             <p>Project: {projectName} </p>
-            <p>Package: {methodName.split(' ')[0]}{ }</p>
-            <Button appearance="default" onClick={onMethodClick}>Filter by Method (default)</Button>
-            <Button appearance="primary" onClick={onHistoryClick}>View Method History</Button>
+            <p>Package: {packageName}{ }</p>
+            <Button appearance="default" onClick={onMethodClick}>Filter by (default)</Button>
+            <Button appearance="primary" onClick={onHistoryClick}>View History</Button>
 
         </Popover>
     )

@@ -9,12 +9,11 @@ export const initialState = {
         commit: null,
         method: null,
         test: null
-        },
+    },
     pop_up: {
         isVisible: false,
-        currentMethod: '',
+        label: null,
         anchor: null,
-        current_method_id: -1,
     },
     filters: {},
     sort: {

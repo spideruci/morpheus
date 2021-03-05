@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { useProcessCoverage } from '../hooks/useProcessCoverage';
 
 import MatrixVisualization from '../components/morpheus/MatrixVisualization';
@@ -57,7 +57,7 @@ const Morpheus = () => {
                             type: MORPHEUS_ACTION.POP_UP,
                             pop_up: {
                                 isVisible: true,
-                                currentMethod: label.to_string(),
+                                label: label,
                                 anchor: event.target,
                                 current_method_id: label.get_id()
                             }
@@ -79,8 +79,8 @@ const Morpheus = () => {
                             }
                         });
                     }}
-                    currentMethod={state.pop_up.currentMethod}
-                    currentProject={state.info.project}
+                    label={state.pop_up.label}
+                    project={state.info.project}
                     onMethodClick={console.log}
                     onHistoryClick={console.log}
                 />

@@ -321,7 +321,8 @@ class MatrixVisualization extends Component {
                     tooltip
                         .style("visibility", "hidden");
                 })
-                .on('click', this.onTestClick);
+                .on('click', this.onTestClick)
+                .on('contextmenu', this.onRightClick);
 
         // text label for the x axis
         svg.select(".xlabel")
