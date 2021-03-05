@@ -47,3 +47,60 @@ export const fetchCoverage = (project_id, commit_id) => {
         })
         .catch(console.error);
 }
+
+export const fetchTestHistory = (project_id, test_id) => {
+    return json(`${API_ROOT}/coverage/projects/${project_id}/tests/${test_id}`)
+        .then((response) => {
+            return {
+                methods: response.coverage.methods.map(m => {
+                    m.get_id = () => m.method_version_id;
+                    m.to_string = () => `${m.package_name}.${m.class_name} ${m.method_decl}`;
+                    m.get_color = () => m.package_name
+                    return m;
+                }),
+                commits: response.coverage.commits.map(c => {
+                    c.get_id = () => parseInt(c.id);
+                    c.to_string = () => `${c.sha}`;
+                    c.get_color = () => c.author
+                    return c;
+                }),
+                edges: response.coverage.edges.map(e => {
+                    e.get_color = () => e.test_result ? "#03C03C" : "#FF1C00";
+                    e.get_x = () => e.commit_id;
+                    e.get_y = () => e.method_version_id;
+
+                    return e;
+                }),
+            }
+        })
+        .catch(console.error);
+}
+
+export const fetchMethodHistory = (project_id, method_id) => {
+    return json(`${API_ROOT}/coverage/projects/${project_id}/methods/${method_id}`)
+        .then((response) => {
+            console.log(response)
+            return {
+                tests: response.coverage.tests.map(t => {
+                    t.get_id = () => t.id;
+                    t.to_string = () => `${t.class_name} ${t.method_name}`;
+                    t.get_color = () => t.class_name
+                    return t;
+                }),
+                commits: response.coverage.commits.map(c => {
+                    c.get_id = () => c.id;
+                    c.to_string = () => `${c.sha}`;
+                    c.get_color = () => c.author
+                    return c;
+                }),
+                edges: response.coverage.edges.map(e => {
+                    e.get_color = () => e.test_result ? "#03C03C" : "#FF1C00";
+                    e.get_x = () => e.commit_id;
+                    e.get_y = () => e.test_id;
+
+                    return e;
+                }),
+            }
+        })
+        .catch(console.error);
+}

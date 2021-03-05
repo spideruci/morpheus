@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Button } from 'rsuite';
 import 'rsuite/dist/styles/rsuite-default.css';
 import Popover from '@material-ui/core/Popover';
 import ClearIcon from '@material-ui/icons/Clear';
 
-const MethodPopover = ({ anchor, setAnchor, label, project, onMethodClick, onHistoryClick }) => {
+const MethodPopover = ({ anchor, setAnchor, label, project, onFilterClick, onHistoryClick }) => {
     let labelName  = "";
     let packageName = "";
 
@@ -38,7 +38,7 @@ const MethodPopover = ({ anchor, setAnchor, label, project, onMethodClick, onHis
             </h3>
             <p>Project: {projectName} </p>
             <p>Package: {packageName}{ }</p>
-            <Button appearance="default" onClick={onMethodClick}>Filter by (default)</Button>
+            <Button appearance="default" onClick={onFilterClick}>Filter by (default)</Button>
             <Button appearance="primary" onClick={onHistoryClick}>View History</Button>
 
         </Popover>

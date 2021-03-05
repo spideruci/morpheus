@@ -4,11 +4,8 @@ import { useMorpheusController } from '../hooks/useMorpheusReducer'
 export const initialState = {
     isLoading: true,
     info: {
-        type: null,
+        type: 'DEFAULT',
         project: null,
-        commit: null,
-        method: null,
-        test: null
     },
     pop_up: {
         isVisible: false,

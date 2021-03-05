@@ -1,15 +1,19 @@
 import { useReducer, useEffect } from 'react';
-import { fetchCoverage } from '../logic/api/morpheusAPIv2';
-// import { fetchCoverage, fetchTestHistory, fetchMethodHistory } from '../logic/api/morpheusAPIv2';
+import { fetchCoverage, fetchTestHistory, fetchMethodHistory } from '../logic/api/morpheusAPIv2';
 
 export const MORPHEUS_ACTION = {
     LOADING: 'LOADING',
+    RESET: 'RESET',
+
     SET_PROJECT: 'SET_PROJECT',
     SET_COMMIT: 'SET_COMMIT',
+    SET_HISTORY: 'SET_HISTORY',
+
     SET_SORT: 'SET_SORT',
     ADD_FILTER: 'ADD_FILTER',
+
     SET_COVERAGE: 'SET_COVERAGE',
-    RESET: 'RESET',
+
     POP_UP: 'POP_UP'
 }
 
@@ -37,6 +41,34 @@ const reducer = (state, action) => {
                     commit: action.commit,
                 }
             };
+
+        case MORPHEUS_ACTION.SET_HISTORY:
+            let info;
+            if (action.state.type ===  'TEST_HISTORY') {
+                info = {
+                    type: action.state.type,
+                    test: action.state.info.label,
+                    project: state.info.project
+                }
+            } else {
+                info = {
+                    type: 'METHOD_HISTORY',
+                    method: action.state.info.label,
+                    project: state.info.project
+                }
+            }
+
+            return {
+                ...state,
+                info: {
+                    ...info
+                },
+                pop_up: {
+                    isVisible: false,
+                    label: null,
+                    anchor: null,
+                }
+            }
 
         case MORPHEUS_ACTION.SET_SORT:
             console.log(MORPHEUS_ACTION.SET_SORT, state, action)
@@ -126,14 +158,33 @@ const parseCoverage = ({methods, tests, edges}) => {
     }
 }
 
+const parseMethodHistory = ({ commits, tests, edges }) => {
+    return {
+        x: commits,
+        y: tests,
+        edges: edges
+    }
+}
+
+const parseTestHistory = ({ methods, commits, edges }) => {
+    console.log("parse test history: ", methods, commits, edges)
+    return {
+        x: commits,
+        y: methods,
+        edges: edges
+    }
+}
+
+
 export const useMorpheusController = (initialState) => {
     const [state, dispatch] = useReducer(reducer, initialState);
 
     useEffect(() => {
-        const { type, project, commit } = state.info;
-
+        const { type, project } = state.info;
         switch (type) {
             case 'COVERAGE':{
+                const { commit } = state.info;
+
                 fetchCoverage(project.key, commit.key)
                     .then(parseCoverage)
                     .then((coverage) => {
@@ -145,47 +196,43 @@ export const useMorpheusController = (initialState) => {
                             }
                         })
                     })
-                    .catch(console.error)
+                    .catch(console.error);
                 break;
             }
             case 'TEST_HISTORY':{
-                const commits = [];
-                const tests = [];
-                const edges = [];
-                dispatch({
-                    type: MORPHEUS_ACTION.SET_COVERAGE,
-                    state: {
-                        isLoading: false,
-                        coverage: {
-                            x: commits,
-                            y: tests,
-                            edges: edges
-                        }
-                    }
-                })
+                const { test } = state.info;
+                fetchTestHistory(project.key, test.get_id())
+                    .then(parseTestHistory)
+                    .then((coverage) => {
+                        dispatch({
+                            type: MORPHEUS_ACTION.SET_COVERAGE,
+                            state: {
+                                isLoading: false,
+                                coverage: coverage
+                            }
+                        })
+                    })
+                    .catch(console.error);
                 break;
             }
             case 'METHOD_HISTORY': {
-                const commits = [];
-                const tests = [];
-                const edges = [];
-                dispatch({
-                    type: "SET_COVERAGE",
-                    state: {
-                        isLoading: false,
-                        coverage: {
-                            x: commits,
-                            y: tests,
-                            edges: edges
-                        }
-                    }
-                })
+                const { method } = state.info;
+                fetchMethodHistory(project.key, method.get_id())
+                    .then(parseMethodHistory)
+                    .then((coverage) => {
+                        dispatch({
+                            type: MORPHEUS_ACTION.SET_COVERAGE,
+                            state: {
+                                isLoading: false,
+                                coverage: coverage
+                            }
+                        })
+                    })
+                    .catch(console.error);
                 break;
             }
             default:
-                if (type === null)
-                    return;
-                console.error(`Unknown type ${type}`);
+                return;
         }
     }, [
         state.info,

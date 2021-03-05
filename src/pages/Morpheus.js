@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { useProcessCoverage } from '../hooks/useProcessCoverage';
 
 import MatrixVisualization from '../components/morpheus/MatrixVisualization';
-import { CoverageToolbar } from '../components/morpheus/Toolbar';
+import { CoverageToolbar, MethodHistoryToolbar, TestHistoryToolbar } from '../components/morpheus/Toolbar';
 import MethodPopover from '../components/morpheus/MethodPopover';
 
 import styles from './Morpheus.module.scss';
@@ -21,6 +21,7 @@ const MatrixVisualizationWithLoading = useLoading(
 )
 
 const getLabels = (type) => {
+    console.log(type);
     switch (type) {
         case 'COVERAGE':
             return { xLabel: 'Methods', yLabel: 'Tests' }
@@ -29,7 +30,6 @@ const getLabels = (type) => {
         case 'METHOD_HISTORY':
             return { xLabel: 'Commits', yLabel: 'Tests' }
         default:
-            console.error(`Unknown label type: ${type}`)
             return { xLabel: null, yLabel: null }
     }
 }
@@ -41,6 +41,30 @@ const Morpheus = () => {
 
     //  Get label names
     let {xLabel, yLabel} = state.info.type !== null ? getLabels(state.info.type) : {xLabel: null, yLabel: null}
+
+    const toolbar = {
+        'DEFAULT': <CoverageToolbar />,
+        'COVERAGE': <CoverageToolbar />,
+        'TEST_HISTORY': <TestHistoryToolbar />,
+        'METHOD_HISTORY': <MethodHistoryToolbar />,
+    }
+
+    const clickHistory = () => {
+        // TODO 'state.type: state.pup_up...' is a hack... after parsing the methods this should be done on the object type or something like that.
+        dispatch({
+            type: MORPHEUS_ACTION.SET_HISTORY,
+            state: {
+                type: state.pop_up.label.hasOwnProperty('method_decl') ? 'METHOD_HISTORY' : 'TEST_HISTORY',
+                info: {
+                    label: state.pop_up.label,
+                }
+            }
+        })
+    }
+
+    const clickMethod = () => {
+
+    }
 
     return (
         <>
@@ -59,7 +83,6 @@ const Morpheus = () => {
                                 isVisible: true,
                                 label: label,
                                 anchor: event.target,
-                                current_method_id: label.get_id()
                             }
                         });
                     }}
@@ -73,19 +96,18 @@ const Morpheus = () => {
                             type: MORPHEUS_ACTION.POP_UP,
                             pop_up: {
                                 isVisible: false,
-                                currentMethod: "",
+                                label: null,
                                 anchor: null,
-                                current_method_id: -1
                             }
                         });
                     }}
                     label={state.pop_up.label}
                     project={state.info.project}
-                    onMethodClick={console.log}
-                    onHistoryClick={console.log}
+                    onFilterClick={console.log}
+                    onHistoryClick={clickHistory}
                 />
             </div>
-            <CoverageToolbar/>
+            {toolbar[state.info.type]}
         </>
     );
 };

@@ -64,6 +64,55 @@ export const CoverageToolbar = () => {
     )
 }
 
+export const MethodHistoryToolbar = () => {
+    const { state, dispatch } = useContext(MorpheusContext);
+
+    return (
+        <ToolBar
+            dispatch={dispatch}>
+            <ProjectSelectors
+                onChange={dispatch}
+                project={state.info.project}
+                commit={state.info.commit}
+            />
+            <CoverageSorter
+                isLoading={state.isLoading}
+                onChange={dispatch} />
+            <TestFilter
+                tests={state.coverage.y}
+                onChange={dispatch}
+                isLoading={state.isLoading}
+            />
+        </ToolBar>
+    )
+}
+
+export const TestHistoryToolbar = () => {
+    const { state, dispatch } = useContext(MorpheusContext);
+
+    return (
+        <ToolBar
+            dispatch={dispatch}>
+            <ProjectSelectors
+                onChange={dispatch}
+                project={state.info.project}
+                commit={state.info.commit}
+            />
+            <CoverageSorter
+                isLoading={state.isLoading}
+                onChange={dispatch} />
+            <MethodFilter
+                methods={state.coverage.x}
+                onChange={dispatch}
+                isLoading={state.isLoading}
+                valueX={state.sort.x.name}
+                valueY={state.sort.y.name}
+            />
+        </ToolBar>
+    )
+}
+
+
 const ProjectSelectors = ({ onChange, project, commit}) => {
 
     let [projectList, setProjectList] = useState([])
