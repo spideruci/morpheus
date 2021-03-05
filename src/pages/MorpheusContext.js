@@ -2,6 +2,7 @@ import React, { createContext, useContext } from 'react';
 import { useMorpheusController } from '../hooks/useMorpheusReducer'
 
 export const initialState = {
+
     isLoading: true,
     info: {
         type: 'DEFAULT',
@@ -38,7 +39,7 @@ export const MorpheusProvider = (props) => {
     return (
         <MorpheusContext.Provider
             value={{
-                state: state,
+                state: state.present,
                 dispatch: dispatch,
             }}>
             {props.children}

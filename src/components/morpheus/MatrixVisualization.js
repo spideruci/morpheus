@@ -84,6 +84,9 @@ class MatrixVisualization extends Component {
         }
 
         window.addEventListener("resize", () => {
+            if (this.ref.current !== null) {
+                return;
+            }
             this.setState({
                 width: this.ref.current.parentElement.offsetWidth,
                 height: this.ref.current.parentElement.offsetHeight

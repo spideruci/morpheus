@@ -1,9 +1,11 @@
 import { useReducer, useEffect } from 'react';
 import { fetchCoverage, fetchTestHistory, fetchMethodHistory } from '../logic/api/morpheusAPIv2';
+import { historyReducer } from './useHistoryReducer';
 
 export const MORPHEUS_ACTION = {
     LOADING: 'LOADING',
     RESET: 'RESET',
+    UNDO: 'UNDO',
 
     SET_PROJECT: 'SET_PROJECT',
     SET_COMMIT: 'SET_COMMIT',
@@ -17,7 +19,8 @@ export const MORPHEUS_ACTION = {
     POP_UP: 'POP_UP'
 }
 
-const reducer = (state, action) => {
+const morpheusReducer = (state, action) => {
+    console.log(state, action);
     switch (action.type) {
         case MORPHEUS_ACTION.LOADING:
             return { ...state };
@@ -102,20 +105,6 @@ const reducer = (state, action) => {
 
         case MORPHEUS_ACTION.RESET:
             console.log(MORPHEUS_ACTION.RESET, action, state)
-            console.log("RESET STATE", {
-                ...state,
-                filters: {},
-                sort: {
-                    x: {
-                        name: 'NAME',
-                        func: (a, b) => a.to_string() > b.to_string()
-                    },
-                    y: {
-                        name: 'NAME',
-                        func: (a, b) => a.to_string() > b.to_string()
-                    },
-                },
-            })
             return {
                 ...state,
                 filters: {},
@@ -130,14 +119,19 @@ const reducer = (state, action) => {
                     },
                 },
             };
+        case MORPHEUS_ACTION.UNDO:
+            console.log(MORPHEUS_ACTION.UNDO, action.state)
+            return {
+                ...action.state,
+                filters: {
+                    ...action.state.filters
+                },
+                sort: {
+                    ...action.state.sort
+                }
+            }
         case MORPHEUS_ACTION.POP_UP:
             console.log(MORPHEUS_ACTION.POP_UP, action, state)
-            console.log("NEW_STATE", {
-                ...state,
-                pop_up: {
-                    ...action.pop_up
-                }
-            })
             return {
                 ...state,
                 pop_up: {
@@ -145,7 +139,7 @@ const reducer = (state, action) => {
                 }
             }
         default:
-            console.error(`Did not expect ${action.type}. Reset to initial state.`)
+            console.log('DEFAULT RETURN state', state);
             return state;
     }
 }
@@ -167,7 +161,6 @@ const parseMethodHistory = ({ commits, tests, edges }) => {
 }
 
 const parseTestHistory = ({ methods, commits, edges }) => {
-    console.log("parse test history: ", methods, commits, edges)
     return {
         x: commits,
         y: methods,
@@ -177,13 +170,17 @@ const parseTestHistory = ({ methods, commits, edges }) => {
 
 
 export const useMorpheusController = (initialState) => {
-    const [state, dispatch] = useReducer(reducer, initialState);
+    // const [state, dispatch] = useReducer(historyReducer(morpheusReducer, initialState), initialState);
+
+    const [intialState, reducer] = historyReducer(morpheusReducer, initialState);
+    const [state, dispatch] = useReducer(reducer, intialState);
+    const { present } = state;
 
     useEffect(() => {
-        const { type, project } = state.info;
+        const { type, project } = present.info;
         switch (type) {
             case 'COVERAGE':{
-                const { commit } = state.info;
+                const { commit } = present.info;
 
                 fetchCoverage(project.key, commit.key)
                     .then(parseCoverage)
@@ -200,7 +197,7 @@ export const useMorpheusController = (initialState) => {
                 break;
             }
             case 'TEST_HISTORY':{
-                const { test } = state.info;
+                const { test } = present.info;
                 fetchTestHistory(project.key, test.get_id())
                     .then(parseTestHistory)
                     .then((coverage) => {
@@ -216,7 +213,7 @@ export const useMorpheusController = (initialState) => {
                 break;
             }
             case 'METHOD_HISTORY': {
-                const { method } = state.info;
+                const { method } = present.info;
                 fetchMethodHistory(project.key, method.get_id())
                     .then(parseMethodHistory)
                     .then((coverage) => {
@@ -235,9 +232,9 @@ export const useMorpheusController = (initialState) => {
                 return;
         }
     }, [
-        state.info,
-        state.info.project,
-        state.info.commit
+            present.info,
+            present.info.project,
+            present.info.commit
     ]);
 
     return [state, dispatch];

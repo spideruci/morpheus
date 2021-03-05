@@ -21,7 +21,6 @@ const MatrixVisualizationWithLoading = useLoading(
 )
 
 const getLabels = (type) => {
-    console.log(type);
     switch (type) {
         case 'COVERAGE':
             return { xLabel: 'Methods', yLabel: 'Tests' }

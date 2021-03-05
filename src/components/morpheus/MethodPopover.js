@@ -10,7 +10,7 @@ const MethodPopover = ({ anchor, setAnchor, label, project, onFilterClick, onHis
 
     if ((label !== null) && (label !== undefined)) {
         labelName = label.method_name;
-        packageName = label.className;
+        packageName = label.class_name;
     }
 
     const projectName = project === null ? "" : project.value;

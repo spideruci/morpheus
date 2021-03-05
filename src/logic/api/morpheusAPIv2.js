@@ -79,7 +79,6 @@ export const fetchTestHistory = (project_id, test_id) => {
 export const fetchMethodHistory = (project_id, method_id) => {
     return json(`${API_ROOT}/coverage/projects/${project_id}/methods/${method_id}`)
         .then((response) => {
-            console.log(response)
             return {
                 tests: response.coverage.tests.map(t => {
                     t.get_id = () => t.id;

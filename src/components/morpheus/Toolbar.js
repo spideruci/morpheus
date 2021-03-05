@@ -22,14 +22,12 @@ import { MorpheusContext } from '../../pages/MorpheusContext';
 import { filterByCoOccurence, filterByTestResult } from '../../logic/filters/filters';
 
 
-const ToolBar = ({dispatch, children}) => {
+const ToolBar = ({ onReset, onUndo, children}) => {
     return (
         <div className={styles.toolbar}>
             <h4>Toolbar</h4>
             { children }
-            {/* <Button onClick={props.onUndo}>Undo</Button>
-            <Button onClick={props.onRedo}>Redo</Button>  */}
-            <Button onClick={() => dispatch({type: MORPHEUS_ACTION.RESET})}>Reset</Button>
+            <Button onClick={onReset}>Reset</Button>
         </div>
     )
 }
@@ -39,7 +37,7 @@ export const CoverageToolbar = () => {
 
     return (
         <ToolBar
-            dispatch={dispatch}>
+            onReset={() => dispatch({ type: MORPHEUS_ACTION.RESET })}>
             <ProjectSelectors
                 onChange={dispatch}
                 project={state.info.project}
