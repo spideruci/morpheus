@@ -37,9 +37,8 @@ const getLabels = (type) => {
 
 const getPopover = (state, dispatch, onFilterClick, onHistoryClick) => {
     let popover = null;
-
-    console.log('getPopover...', state)
     let label = state.pop_up.label
+
     if ((label === undefined) || (label === null)) {
         return;
     }
@@ -101,15 +100,37 @@ const Morpheus = () => {
     }
 
     const clickHistory = () => {
-        dispatch({
-            type: MORPHEUS_ACTION.SET_HISTORY,
-            state: {
-                type: state.pop_up.label.constructor.name === Method.name ? 'METHOD_HISTORY' : 'TEST_HISTORY',
-                info: {
-                    label: state.pop_up.label,
+        const label_type = state.pop_up.label.constructor.name;
+        if (label_type === Method.name) {
+            dispatch({
+                type: MORPHEUS_ACTION.SET_METHOD_HISTORY,
+                state: {
+                    type: 'METHOD_HISTORY',
+                    info: {
+                        label: state.pop_up.label,
+                    }
                 }
-            }
-        })
+            })
+        }
+        else if (label_type === Test.name) {
+            dispatch({
+                type: MORPHEUS_ACTION.SET_TEST_HISTORY,
+                state: {
+                    type: 'TEST_HISTORY',
+                    info: {
+                        label: state.pop_up.label,
+                    }
+                }
+            })
+        }
+        else if (label_type === Commit.name) {
+            dispatch({
+                type: MORPHEUS_ACTION.SET_COMMIT,
+                commit: state.pop_up.label,
+            })
+        }
+
+        
     }
 
     const clickMethod = () => {
@@ -118,10 +139,14 @@ const Morpheus = () => {
 
     if ((state.info.type === 'TEST_HISTORY')) {
         // TODO change this idea to make it work for all options.
-        Edge.prototype.getColor = () => 'blue';
+        Edge.prototype.getColor = function () { return this.getProperty('test_result') ? '#03C03C' : '#FF1C00' };
     } else if (state.info.type === 'METHOD_HISTORY') {
-        Edge.prototype.getColor = () => 'green';
+        Edge.prototype.getColor = function () { return this.getProperty('test_result') ? '#03C03C' : '#FF1C00' };
+    } else if (state.info.type === 'COVERAGE') {
+        Edge.prototype.getColor = function(){ return this.getProperty('test_result') ? '#03C03C' : '#FF1C00'};
     }
+
+
     return (
         <>
             <div className={styles.twoColumn}>

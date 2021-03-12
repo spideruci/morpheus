@@ -10,7 +10,8 @@ export const MORPHEUS_ACTION = {
 
     SET_PROJECT: 'SET_PROJECT',
     SET_COMMIT: 'SET_COMMIT',
-    SET_HISTORY: 'SET_HISTORY',
+    SET_METHOD_HISTORY: 'SET_METHOD_HISTORY',
+    SET_TEST_HISTORY: 'SET_TEST_HISTORY',
 
     SET_SORT: 'SET_SORT',
     ADD_FILTER: 'ADD_FILTER',
@@ -43,23 +44,23 @@ const morpheusReducer = (state, action) => {
                     ...state.info,
                     type: 'COVERAGE',
                     commit: action.commit,
-                }
+                },
+                // sort: {
+                //     x: {
+                //         name: 'NAME',
+                //         func: (a, b) => a.toString() > b.toString()
+                //     },
+                //     y: {
+                //         name: 'NAME',
+                //         func: (a, b) => a.toString() > b.toString()
+                //     },
+                // },
             };
-
-        case MORPHEUS_ACTION.SET_HISTORY:
-            let info;
-            if (action.state.type ===  'TEST_HISTORY') {
-                info = {
-                    type: action.state.type,
-                    test: action.state.info.label,
-                    project: state.info.project
-                }
-            } else {
-                info = {
-                    type: 'METHOD_HISTORY',
-                    method: action.state.info.label,
-                    project: state.info.project
-                }
+        case MORPHEUS_ACTION.SET_METHOD_HISTORY:{
+            let info = {
+                type: 'METHOD_HISTORY',
+                method: action.state.info.label,
+                project: state.info.project
             }
 
             return {
@@ -71,9 +72,28 @@ const morpheusReducer = (state, action) => {
                     isVisible: false,
                     label: null,
                     anchor: null,
-                },
+                }
+            }
+        }
+        case MORPHEUS_ACTION.SET_TEST_HISTORY:{
+            let info = {
+                type: 'TEST_HISTORY',
+                test: action.state.info.label,
+                project: state.info.project
             }
 
+            return {
+                ...state,
+                info: {
+                    ...info
+                },
+                pop_up: {
+                    isVisible: false,
+                    label: null,
+                    anchor: null,
+                }
+            }
+        }
         case MORPHEUS_ACTION.SET_SORT:
             console.log(MORPHEUS_ACTION.SET_SORT, state, action)
             return {
@@ -97,25 +117,38 @@ const morpheusReducer = (state, action) => {
         case MORPHEUS_ACTION.SET_COVERAGE:
             console.log(MORPHEUS_ACTION.SET_COVERAGE, action, state)
 
+            let x_func = {
+                name: 'NAME',
+                func: (a, b) => a.toString() > b.toString()
+            }
+            const y_func = {
+                name: 'NAME',
+                func: (a, b) => a.toString() > b.toString()
+            }
+
+            if ((state.info.type === 'METHOD_HISTORY') || (state.info.type === 'TEST_HISTORY')) {
+                x_func ={
+                    name: 'DATE',
+                    func: (a, b) => a.getDate() > b.getDate()
+                }
+            }
+
             let new_state = {
                 ...state,
                 ...action.state,
                 coverage: {
                     ...action.state.coverage,
                 },
+                sort: {
+                    x: x_func,
+                    y: y_func,
+                },
+                pop_up: {
+                    isVisible: false,
+                    label: null,
+                    anchor: null,
+                }
             };
-            if (state.info.type !== 'COVERAGE') {
-                new_state.sort = {
-                    x: {
-                        name: 'NAME',
-                            func: (a, b) => a.getDate() - b.getDate()
-                    },
-                    y: {
-                        name: 'NAME',
-                            func: (a, b) => a.toString() > b.toString()
-                    },
-                };
-            }
             return new_state
 
         case MORPHEUS_ACTION.RESET:
@@ -193,6 +226,7 @@ export const useMorpheusController = (initialState) => {
 
     useEffect(() => {
         const { type, project } = present.info;
+        console.log('GET NEW COVERAGE', state)
         switch (type) {
             case 'COVERAGE':{
                 const { commit } = present.info;

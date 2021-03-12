@@ -11,7 +11,9 @@ const CustomPopover = (props) => {
         setAnchor,
         title,
         onFilterClick,
-        onHistoryClick } = props;
+        onHistoryClick,
+        secondaryBtn='Filter by (default)',
+        primaryBtn='Filter'} = props;
 
     return (
         <Popover
@@ -35,8 +37,8 @@ const CustomPopover = (props) => {
                 </Button>
             </h3>
             {children}
-            <Button appearance="default" onClick={onFilterClick}>Filter by (default)</Button>
-            <Button appearance="primary" onClick={onHistoryClick}>View History</Button>
+            <Button appearance="default" onClick={onFilterClick}>{secondaryBtn}</Button>
+            <Button appearance="primary" onClick={onHistoryClick}>{primaryBtn}</Button>
         </Popover>
     )
 }
@@ -50,6 +52,7 @@ export const CommitPopover = ({ commit, anchor, setAnchor, onFilterClick, onHist
             title={commit.toString()}
             onFilterClick={onFilterClick}
             onHistoryClick={onHistoryClick}
+            primaryBtn='View Coverage'
             >
             <p>Author: {commit.getAuthor()} </p>
             <p>Date: {commit.getDate().toDateString()} </p>
@@ -71,6 +74,7 @@ export const MethodPopover = ({ anchor, setAnchor, method, project, onFilterClic
             title={methodName}
             onFilterClick={onFilterClick}
             onHistoryClick={onHistoryClick}
+            primaryBtn='View History'
         >
             <p>Project: {projectName} </p>
             <p>Package: {packageName}{ }</p>
