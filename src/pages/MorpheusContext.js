@@ -17,11 +17,11 @@ export const initialState = {
     sort: {
         x: {
             name: 'NAME',
-            func: (a, b) => a.to_string() > b.to_string()
+            func: (a, b) => a.toString() > b.toString()
         },
         y: {
             name: 'NAME',
-            func: (a, b) => a.to_string() > b.to_string()
+            func: (a, b) => a.toString() > b.toString()
         },
     },
     coverage: {

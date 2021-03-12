@@ -3,7 +3,9 @@ import { useProcessCoverage } from '../hooks/useProcessCoverage';
 
 import MatrixVisualization from '../components/morpheus/MatrixVisualization';
 import { CoverageToolbar, MethodHistoryToolbar, TestHistoryToolbar } from '../components/morpheus/Toolbar';
-import MethodPopover from '../components/morpheus/MethodPopover';
+import { MethodPopover, CommitPopover} from '../components/morpheus/MethodPopover';
+import { getEdgeColorTest, getColorFunction } from '../logic/colorFunctions';
+import {Edge, Test, Method, Commit} from '../logic/api/MorpheusTypes';
 
 import styles from './Morpheus.module.scss';
 import { MorpheusContext } from './MorpheusContext';
@@ -33,6 +35,56 @@ const getLabels = (type) => {
     }
 }
 
+const getPopover = (state, dispatch, onFilterClick, onHistoryClick) => {
+    let popover = null;
+
+    console.log('getPopover...', state)
+    let label = state.pop_up.label
+    if ((label === undefined) || (label === null)) {
+        return;
+    }
+
+    if (label.constructor.name === 'Commit') {
+        popover = <CommitPopover
+            anchor={state.pop_up.anchor}
+            setAnchor={() => {
+                dispatch({
+                    type: MORPHEUS_ACTION.POP_UP,
+                    pop_up: {
+                        isVisible: false,
+                        label: null,
+                        anchor: null,
+                    }
+                });
+            }}
+            commit={label}
+            project={state.info.project}
+            onFilterClick={onFilterClick}
+            onHistoryClick={onHistoryClick}
+        />
+    } else {
+        popover = <MethodPopover
+            anchor={state.pop_up.anchor}
+            setAnchor={() => {
+                dispatch({
+                    type: MORPHEUS_ACTION.POP_UP,
+                    pop_up: {
+                        isVisible: false,
+                        label: null,
+                        anchor: null,
+                    }
+                });
+            }}
+            method={label}
+            project={state.info.project}
+            onFilterClick={onFilterClick}
+            onHistoryClick={onHistoryClick}
+        />
+    }
+
+    return popover;
+}
+
 const Morpheus = () => {
     const { state, dispatch } = useContext(MorpheusContext);
 
@@ -49,11 +101,10 @@ const Morpheus = () => {
     }
 
     const clickHistory = () => {
-        // TODO 'state.type: state.pup_up...' is a hack... after parsing the methods this should be done on the object type or something like that.
         dispatch({
             type: MORPHEUS_ACTION.SET_HISTORY,
             state: {
-                type: state.pop_up.label.hasOwnProperty('method_decl') ? 'METHOD_HISTORY' : 'TEST_HISTORY',
+                type: state.pop_up.label.constructor.name === Method.name ? 'METHOD_HISTORY' : 'TEST_HISTORY',
                 info: {
                     label: state.pop_up.label,
                 }
@@ -65,6 +116,12 @@ const Morpheus = () => {
 
     }
 
+    if ((state.info.type === 'TEST_HISTORY')) {
+        // TODO change this idea to make it work for all options.
+        Edge.prototype.getColor = () => 'blue';
+    } else if (state.info.type === 'METHOD_HISTORY') {
+        Edge.prototype.getColor = () => 'green';
+    }
     return (
         <>
             <div className={styles.twoColumn}>
@@ -87,24 +144,11 @@ const Morpheus = () => {
                     }}
                     xLabel={xLabel}
                     yLabel={yLabel}
+                    // getColorEdge={getColorEdge}
+                    // getColorX={getColorX}
+                    // getColorY={getColorY}
                     />
-                <MethodPopover 
-                    anchor={state.pop_up.anchor}
-                    setAnchor={() => {
-                        dispatch({
-                            type: MORPHEUS_ACTION.POP_UP,
-                            pop_up: {
-                                isVisible: false,
-                                label: null,
-                                anchor: null,
-                            }
-                        });
-                    }}
-                    label={state.pop_up.label}
-                    project={state.info.project}
-                    onFilterClick={console.log}
-                    onHistoryClick={clickHistory}
-                />
+                {getPopover(state, dispatch, console.log, clickHistory)}
             </div>
             {toolbar[state.info.type]}
         </>

@@ -1,6 +1,7 @@
 import { useReducer, useEffect } from 'react';
 import { fetchCoverage, fetchTestHistory, fetchMethodHistory } from '../logic/api/morpheusAPIv2';
 import { historyReducer } from './useHistoryReducer';
+import { Edge, Method, Test, Commit } from '../logic/api/MorpheusTypes';
 
 export const MORPHEUS_ACTION = {
     LOADING: 'LOADING',
@@ -70,7 +71,7 @@ const morpheusReducer = (state, action) => {
                     isVisible: false,
                     label: null,
                     anchor: null,
-                }
+                },
             }
 
         case MORPHEUS_ACTION.SET_SORT:
@@ -95,13 +96,27 @@ const morpheusReducer = (state, action) => {
 
         case MORPHEUS_ACTION.SET_COVERAGE:
             console.log(MORPHEUS_ACTION.SET_COVERAGE, action, state)
-            return {
+
+            let new_state = {
                 ...state,
                 ...action.state,
                 coverage: {
                     ...action.state.coverage,
-                } 
+                },
             };
+            if (state.info.type !== 'COVERAGE') {
+                new_state.sort = {
+                    x: {
+                        name: 'NAME',
+                            func: (a, b) => a.getDate() - b.getDate()
+                    },
+                    y: {
+                        name: 'NAME',
+                            func: (a, b) => a.toString() > b.toString()
+                    },
+                };
+            }
+            return new_state
 
         case MORPHEUS_ACTION.RESET:
             console.log(MORPHEUS_ACTION.RESET, action, state)
@@ -111,11 +126,11 @@ const morpheusReducer = (state, action) => {
                 sort: {
                     x: {
                         name: 'NAME',
-                        func: (a, b) => a.to_string() > b.to_string()
+                        func: (a, b) => a.toString() > b.toString()
                     },
                     y: {
                         name: 'NAME',
-                        func: (a, b) => a.to_string() > b.to_string()
+                        func: (a, b) => a.toString() > b.toString()
                     },
                 },
             };
@@ -145,32 +160,32 @@ const morpheusReducer = (state, action) => {
 }
 
 const parseCoverage = ({methods, tests, edges}) => {
+    console.log(methods, tests, edges)
     return {
-        x: methods,
-        y: tests,
-        edges: edges
+        x: methods.map((m) => new Method(m.id, m.package_name, m.class_name, m.method_name, m.method_decl)),
+        y: tests.map((t) => new Test(t.id, t.package_name, t.class_name, t.method_name)),
+        edges: edges.map((e) => new Edge(e.method_id, e.test_id, { test_result: e.test_result})),
     }
 }
 
 const parseMethodHistory = ({ commits, tests, edges }) => {
     return {
-        x: commits,
-        y: tests,
-        edges: edges
+        x: commits.map((c) => new Commit(c.id, c.sha, c.datetime, c.author)),
+        y: tests.map((t) => new Test(t.id, t.package_name, t.class_name, t.method_name)),
+        edges: edges.map((e) => new Edge(e.commit_id, e.test_id, { test_result: e.test_result })),
     }
 }
 
 const parseTestHistory = ({ methods, commits, edges }) => {
     return {
-        x: commits,
-        y: methods,
-        edges: edges
+        x: commits.map((c) => new Commit(c.id, c.sha, c.datetime, c.author)),
+        y: methods.map((m) => new Method(m.id, m.package_name, m.class_name, m.method_name, m.method_decl)),
+        edges: edges.map((e) => new Edge(e.commit_id, e.method_id, { test_result: e.test_result })),
     }
 }
 
 
 export const useMorpheusController = (initialState) => {
-    // const [state, dispatch] = useReducer(historyReducer(morpheusReducer, initialState), initialState);
 
     const [intialState, reducer] = historyReducer(morpheusReducer, initialState);
     const [state, dispatch] = useReducer(reducer, intialState);
@@ -182,7 +197,7 @@ export const useMorpheusController = (initialState) => {
             case 'COVERAGE':{
                 const { commit } = present.info;
 
-                fetchCoverage(project.key, commit.key)
+                fetchCoverage(project.getID(), commit.getID())
                     .then(parseCoverage)
                     .then((coverage) => {
                         dispatch({
@@ -198,7 +213,7 @@ export const useMorpheusController = (initialState) => {
             }
             case 'TEST_HISTORY':{
                 const { test } = present.info;
-                fetchTestHistory(project.key, test.get_id())
+                fetchTestHistory(project.getID(), test.getID())
                     .then(parseTestHistory)
                     .then((coverage) => {
                         dispatch({
@@ -214,7 +229,7 @@ export const useMorpheusController = (initialState) => {
             }
             case 'METHOD_HISTORY': {
                 const { method } = present.info;
-                fetchMethodHistory(project.key, method.get_id())
+                fetchMethodHistory(project.getID(), method.getID())
                     .then(parseMethodHistory)
                     .then((coverage) => {
                         dispatch({

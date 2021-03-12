@@ -5,7 +5,7 @@ const ResultTextBox = (props) => {
     return (
         <div className="result-text-box">
             <span>{props.title}:</span>
-            <textarea value={props.entries.map((entry, idx) => `${idx + 1}. ${entry.to_string()}`).join('\n')} readOnly />
+            <textarea value={props.entries.map((entry, idx) => `${idx + 1}. ${entry.toString()}`).join('\n')} readOnly />
         </div>
     )
 }

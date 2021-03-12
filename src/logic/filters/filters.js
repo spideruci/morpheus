@@ -2,23 +2,23 @@ export const filterByCoOccurence = (methodName) => {
     return (coverage, globalCoverage) => {
         const {x, y, edges} = coverage;
 
-        let filterX = x.find(m => m.to_string() === methodName);
+        let filterX = x.find(m => m.toString() === methodName);
 
         if (filterX === undefined) {
             return coverage;
         }
         
-        const yIDs = edges.filter((edge) => edge.get_x() === parseInt(filterX.get_id()))
-            .map((edge) => edge.get_y());
+        const yIDs = edges.filter((edge) => edge.getX() === parseInt(filterX.getID()))
+            .map((edge) => edge.getY());
 
-        const filteredY = y.filter(yElem => yIDs.includes(parseInt(yElem.get_id())));
-        const filteredYIds = filteredY.map(elem => parseInt(elem.get_id()));
+        const filteredY = y.filter(yElem => yIDs.includes(parseInt(yElem.getID())));
+        const filteredYIds = filteredY.map(elem => parseInt(elem.getID()));
 
-        const filteredEdges = edges.filter(edge => filteredYIds.includes(edge.get_y()));
+        const filteredEdges = edges.filter(edge => filteredYIds.includes(edge.getY()));
 
-        const filteredXIds = filteredEdges.map(edge => edge.get_x());
+        const filteredXIds = filteredEdges.map(edge => edge.getX());
 
-        const filteredX = x.filter(xElem => filteredXIds.includes(parseInt(xElem.get_id())));
+        const filteredX = x.filter(xElem => filteredXIds.includes(parseInt(xElem.getID())));
 
         return {
             x: filteredX,
@@ -43,9 +43,9 @@ export const filterByTestResult = (testResult) => {
         }
 
         const new_edges = edges.filter((edge) => edge.test_result === testResult);
-        const test_ids = new_edges.map(edge => parseInt(edge.get_y()))
+        const test_ids = new_edges.map(edge => parseInt(edge.getY()))
 
-        const newY = y.filter((test) => test_ids.includes(parseInt(test.get_id())))
+        const newY = y.filter((test) => test_ids.includes(parseInt(test.getID())))
 
         return {
             x: x,

@@ -6,12 +6,12 @@ export function sort_by_coverage_X(current_state, all_data) {
     let x = current_state.x;
     let y = current_state.y;
 
-    let x_map = create_coverage_map(edges, (e) => e.get_x(), (e) => e.get_y())
+    let x_map = create_coverage_map(edges, (e) => e.getX(), (e) => e.getY())
 
     function sort_array(list, map){
         return list.sort((e1, e2) => {
-            const id1 = e1.get_id();
-            const id2 = e2.get_id();
+            const id1 = e1.getID();
+            const id2 = e2.getID();
 
             const size1 = map.has(id1) ? map.get(id1).size : 0;
             const size2 = map.has(id2) ? map.get(id2).size : 0;
@@ -40,12 +40,12 @@ export function sort_by_coverage_Y(current_state, all_data) {
     let x = current_state.x;
     let y = current_state.y;
 
-    let y_map = create_coverage_map(edges, (e) => e.get_y(), (e) => e.get_x())
+    let y_map = create_coverage_map(edges, (e) => e.getY(), (e) => e.getX())
 
     function sort_array(list, map) {
         return list.sort((e1, e2) => {
-            const id1 = e1.get_id();
-            const id2 = e2.get_id();
+            const id1 = e1.getID();
+            const id2 = e2.getID();
 
             const size1 = map.has(id1) ? map.get(id1).size : 0;
             const size2 = map.has(id2) ? map.get(id2).size : 0;
@@ -146,11 +146,11 @@ export function sort_by_suspciousness(current_state, all_data) {
         let passed = 0;
         let failed = 0;
 
-        if (!x_map.has(method.get_id())) {
+        if (!x_map.has(method.getID())) {
             return -1;
         }
 
-        let tests = x_map.get(method.get_id())
+        let tests = x_map.get(method.getID())
 
         // Compute passed/failed testcases
         tests.forEach((test_id) => {
@@ -167,8 +167,8 @@ export function sort_by_suspciousness(current_state, all_data) {
     // Sort based on suspiciosness of each test
     function sort_array(list) {
         return list.sort((e1, e2) => {
-            const s1 = suspciousness_map.get(e1.get_id())
-            const s2 = suspciousness_map.get(e2.get_id())
+            const s1 = suspciousness_map.get(e1.getID())
+            const s2 = suspciousness_map.get(e2.getID())
 
                 if (s1 < s2) {
                     return 1;
@@ -184,7 +184,7 @@ export function sort_by_suspciousness(current_state, all_data) {
     // If all tests fail or all tests pass don't compute suspciousness score, because it will fail.
     if (total_tests_failed !== 0 && total_tests_passed !== 0) {
         all_data.x.forEach((elem) => {
-            suspciousness_map.set(elem.get_id(), suspiciousness(elem));
+            suspciousness_map.set(elem.getID(), suspiciousness(elem));
         });
         x = sort_array(x);
     }

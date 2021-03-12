@@ -4,16 +4,14 @@ import 'rsuite/dist/styles/rsuite-default.css';
 import Popover from '@material-ui/core/Popover';
 import ClearIcon from '@material-ui/icons/Clear';
 
-const MethodPopover = ({ anchor, setAnchor, label, project, onFilterClick, onHistoryClick }) => {
-    let labelName  = "";
-    let packageName = "";
-
-    if ((label !== null) && (label !== undefined)) {
-        labelName = label.method_name;
-        packageName = label.class_name;
-    }
-
-    const projectName = project === null ? "" : project.value;
+const CustomPopover = (props) => {
+    const { 
+        children,
+        anchor,
+        setAnchor,
+        title,
+        onFilterClick,
+        onHistoryClick } = props;
 
     return (
         <Popover
@@ -31,18 +29,51 @@ const MethodPopover = ({ anchor, setAnchor, label, project, onFilterClick, onHis
             }}
         >
             <h3>
-                {labelName}
+                {title}
                 <Button sz="xs" onClick={setAnchor}>
                     <ClearIcon fontSize="small" />
                 </Button>
             </h3>
-            <p>Project: {projectName} </p>
-            <p>Package: {packageName}{ }</p>
+            {children}
             <Button appearance="default" onClick={onFilterClick}>Filter by (default)</Button>
             <Button appearance="primary" onClick={onHistoryClick}>View History</Button>
-
         </Popover>
     )
 }
 
-export default MethodPopover;
+export const CommitPopover = ({ commit, anchor, setAnchor, onFilterClick, onHistoryClick }) => {
+    
+    return (
+        <CustomPopover
+            anchor={anchor}
+            setAnchor={setAnchor}
+            title={commit.toString()}
+            onFilterClick={onFilterClick}
+            onHistoryClick={onHistoryClick}
+            >
+            <p>Author: {commit.getAuthor()} </p>
+            <p>Date: {commit.getDate().toDateString()} </p>
+            <p>SHA: {commit.getSHA()} </p>
+        </CustomPopover>
+    )
+}
+
+export const MethodPopover = ({ anchor, setAnchor, method, project, onFilterClick, onHistoryClick }) => {
+
+    const methodName = method.getMethodName();
+    const packageName = method.getPackageName();
+    const projectName = project.getProjectName();
+
+    return (
+        <CustomPopover
+            anchor={anchor}
+            setAnchor={setAnchor}
+            title={methodName}
+            onFilterClick={onFilterClick}
+            onHistoryClick={onHistoryClick}
+        >
+            <p>Project: {projectName} </p>
+            <p>Package: {packageName}{ }</p>
+        </CustomPopover>
+    )
+}

@@ -1,6 +1,6 @@
 import React, {useEffect, useState, useContext } from 'react';
 import { fetchProjects, fetchCommits } from '../../logic/api/morpheusAPIv2';
-
+import { Project, Commit } from '../../logic/api/MorpheusTypes';
 import styles from './Toolbar.module.scss';
 
 // Accordion
@@ -118,6 +118,7 @@ const ProjectSelectors = ({ onChange, project, commit}) => {
 
     useEffect(() => {
         fetchProjects()
+            .then((projects) => projects.map(p => new Project(p.project_name, p.id)))
             .then(setProjectList)
             .catch(console.error)
     }, [])
@@ -125,11 +126,24 @@ const ProjectSelectors = ({ onChange, project, commit}) => {
     const projectSelect = ({ target }) => {
         const projectName = target.innerHTML;
 
-        const project = projectList.find((p) => p.value === projectName);
+        const project = projectList.find((p) => p.getProjectName() === projectName);
+
+        if ((project === undefined) || (project === null)) {
+            console.log(project, projectList, projectName)
+        }
 
         onChange({ type: MORPHEUS_ACTION.SET_PROJECT, project: project });
 
-        fetchCommits(project.key)
+        fetchCommits(project.getID())
+            .then((commits) => {
+                return commits.map(c => new Commit(
+                    c.id,
+                    c.sha,
+                    c.datetime,
+                    c.author
+                )).sort((a, b) => a.getDate() - b.getDate())
+                
+            })
             .then(setCommitList)
             .catch((err) => {
                 console.error(err);
@@ -140,7 +154,7 @@ const ProjectSelectors = ({ onChange, project, commit}) => {
     const commitSelect = ({ target }) => {
         const commitSha = target.innerHTML;
 
-        const commit = commitList.find((c) => c.value === commitSha);
+        const commit = commitList.find((c) => c.toString() === commitSha);
 
         onChange({ type: MORPHEUS_ACTION.SET_COMMIT, commit: commit });
     }
@@ -157,7 +171,7 @@ const ProjectSelectors = ({ onChange, project, commit}) => {
                     value={project}
                     disableClearable={true}
                     options={projectList}
-                    getOptionLabel={(option) => option.value === undefined ? '' : option.value.toString()}
+                    getOptionLabel={(option) => option === undefined ? '' : option.toString()}
                     onChange={projectSelect}
                     renderInput={(params) => <TextField {...params} label="Projects..." variant="outlined" />}
                 />
@@ -167,7 +181,7 @@ const ProjectSelectors = ({ onChange, project, commit}) => {
                     disableClearable={true}
                     disabled={commitList.length === 0}
                     options={commitList}
-                    getOptionLabel={(option) => option.value === undefined ? '' : option.value.toString()}
+                    getOptionLabel={(option) => option === undefined ? '' : option.toString()}
                     onChange={commitSelect}
                     renderInput={(params) => <TextField {...params} label="Commits..." variant="outlined" />}
                 />
@@ -179,15 +193,15 @@ const ProjectSelectors = ({ onChange, project, commit}) => {
 const CoverageSorter = ({ onChange, isLoading, valueX, valueY }) => {
 
     const SORT_MAP_X = {
-        ID: (a, b) => a.get_id() > b.get_id(),
-        NAME: (a, b) => a.to_string() > b.to_string(),
+        ID: (a, b) => a.getID() > b.getID(),
+        NAME: (a, b) => a.toString() > b.toString(),
     };
 
     const SORT_KEYS_X = Object.keys(SORT_MAP_X);
 
     const SORT_MAP_Y = {
-        ID: (a, b) => a.get_id() > b.get_id(),
-        NAME: (a, b) => a.to_string() > b.to_string(),
+        ID: (a, b) => a.getID() > b.getID(),
+        NAME: (a, b) => a.toString() > b.toString(),
     };
 
     const SORT_KEYS_Y = Object.keys(SORT_MAP_Y);    
@@ -250,7 +264,7 @@ const MethodFilter = ({ onChange, methods }) => {
                     disableClearable={true}
                     disabled={methods.length === 0}
                     options={methods}
-                    getOptionLabel={(option) => option.to_string()}
+                    getOptionLabel={(option) => option.toString()}
                     onChange={setFilter}
                     renderInput={(params) => <TextField {...params} label="Method name" variant="outlined" />}
                 />
@@ -280,7 +294,7 @@ const TestFilter = ({ onChange, tests, isLoading }) => {
                     disableClearable={true}
                     disabled={tests.length === 0}
                     options={tests}
-                    getOptionLabel={(option) => option.to_string()}
+                    getOptionLabel={(option) => option.toString()}
                     onChange={onChange}
                     renderInput={(params) => <TextField {...params} label="Test name" variant="outlined" />}
                 />

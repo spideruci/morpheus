@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import { axisTop, axisLeft } from 'd3-axis';
-import { scalePoint, scaleOrdinal } from 'd3-scale';
+import { scalePoint } from 'd3-scale';
 import { select } from 'd3-selection';
 import { transition } from 'd3-transition';
 import { easeLinear } from 'd3-ease';
-import { schemeSet3 } from 'd3-scale-chromatic';
 import { isEqual } from 'lodash';
 
 class MatrixVisualization extends Component {
@@ -35,6 +34,9 @@ class MatrixVisualization extends Component {
         this.onMethodClick = props.onMethodClick;
         this.onTestClick = props.onTestClick;
         this.onRightClick = props.onRightClick;
+        // this.getColorX = props.getColorX !== undefined ? props.getColorX : () => 'black';
+        // this.getColorY = props.getColorY !== undefined ? props.getColorY : () => 'black';
+        // this.getColorEdge = props.getColorEdge !== undefined ? props.getColorEdge : () => 'black';
     }
 
     createMatrix() {
@@ -55,13 +57,13 @@ class MatrixVisualization extends Component {
         let edges = []
 
         current.edges.forEach((edge, index) => {
-            if (!(edge.get_y() === null || edge.get_x() === null)){
+            if (!(edge.getY() === null || edge.getX() === null)){
                 const highlight = edge.hasOwnProperty('highlight') ? edge.highlight : false;
 
                 edges.push({ 
-                    x: parseInt(edge.get_x()),
-                    y: parseInt(edge.get_y()),
-                    z: edge.get_color(),
+                    x: parseInt(edge.getX()),
+                    y: parseInt(edge.getY()),
+                    z: edge.getColor(),
                     highlight: highlight});
             }
         });
@@ -84,7 +86,7 @@ class MatrixVisualization extends Component {
         }
 
         window.addEventListener("resize", () => {
-            if (this.ref.current !== null) {
+            if (this.ref.current === null) {
                 return;
             }
             this.setState({
@@ -123,10 +125,10 @@ class MatrixVisualization extends Component {
             .range([0, vis_width])
 
         let xScale = xRange.copy()
-            .domain(data.x_labels.map((label) => parseInt(label.get_id())));
+            .domain(data.x_labels.map((label) => parseInt(label.getID())));
 
         let xLabel = xRange.copy()
-            .domain(data.x_labels.map((label) => label.to_string()));
+            .domain(data.x_labels.map((label) => label.toString()));
 
         if (xLabel.step() !== xScale.step()) {
             // Meaning duplicate class_name.method_name entries
@@ -140,10 +142,10 @@ class MatrixVisualization extends Component {
             .range([0, vis_height])
 
         let yScale = yRange.copy()
-            .domain(data.y_labels.map((label) => label.get_id()));
+            .domain(data.y_labels.map((label) => label.getID()));
 
         let yLabel = yRange.copy()
-            .domain(data.y_labels.map((label) => label.to_string()));
+            .domain(data.y_labels.map((label) => label.toString()));
 
         if (yLabel.step() !== yScale.step()) {
             // Meaning duplicate class_name.method_name entries
@@ -226,21 +228,16 @@ class MatrixVisualization extends Component {
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
             .call(xAxis);
 
-        const colorX = (d) => {
-            const scale = scaleOrdinal(schemeSet3).domain(Array.from(new Set(data.x_labels.map((d) => d.get_color()))));
-            return scale(d);
-        }
-
         // Add circler around ticks
         select("g.x-axis")
             .selectAll('.axis-dots-x')
             .data(data.x_labels)
             .join(
                 enter => enter.append('circle').call(enter => enter
-                    .attr('cx', (d) => xLabel(d.to_string()) + "px")
+                    .attr('cx', (d) => xLabel(d.toString()) + "px")
                 ),
                 update => update.call(update => update
-                    .attr('cx', (d) => xLabel(d.to_string()) + "px")
+                    .attr('cx', (d) => xLabel(d.toString()) + "px")
                 ),
                 exit => exit.remove()
             )
@@ -249,14 +246,14 @@ class MatrixVisualization extends Component {
                 .attr('r', 5)
                 .style('stroke', 'black')
                 .style('stroke-width', '1')
-                .style('fill', (d) => colorX(d.get_color()))
+                .style('fill', (d) => d.getColor())
                 .on('mouseover', (event, d) => {
                     let text_width = 0; 
                     tooltip
                         .style("visibility", "visible")
                         .select("#tooltip-text")
-                        .text(d.to_string())
-                            .attr("y", event.layerY - (this.margin.top / 4) + "px")
+                        .text(d.toString())
+                            .attr("y", event.layerY - 90 + "px")
                             .each((d, i) => {
                                 text_width = select("#tooltip-text").node().getComputedTextLength();
                             })
@@ -279,20 +276,15 @@ class MatrixVisualization extends Component {
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
             .call(yAxis);
 
-        const colorY = (d) => {
-            const scale = scaleOrdinal(schemeSet3).domain(Array.from(new Set(data.y_labels.map((d) => d.get_color()))));
-            return scale(d);
-        }
-
         select("g.y-axis")
             .selectAll('.axis-dots-y')
             .data(data.y_labels)
             .join(
                     enter => enter.append('circle').call(enter => enter
-                        .attr('cy', (d) =>  yLabel(d.to_string()) +  "px")
+                        .attr('cy', (d) =>  yLabel(d.toString()) +  "px")
                     ),
                     update => update.call(update => update
-                        .attr('cy', (d) => yLabel(d.to_string()) + "px")
+                        .attr('cy', (d) => yLabel(d.toString()) + "px")
                     ),
                     exit => exit.remove()
                 )
@@ -301,9 +293,9 @@ class MatrixVisualization extends Component {
                 .attr('r', 5)
                 .style('stroke', 'black')
                 .style('stroke-width', '1')
-                .style('fill', (d) => colorY(d.get_color()))
+                .style('fill', (d) => d.getColor())
                 .on('mouseover', (event, d) => {
-                    let translateY = yLabel(d.to_string());
+                    let translateY = yLabel(d.toString());
                     let translateX = this.margin.left/2
                     let text_width = 0;
                     tooltip
@@ -312,7 +304,7 @@ class MatrixVisualization extends Component {
                             .each((d, i) => {
                                 text_width = select("#tooltip-text").node().getComputedTextLength();
                             })
-                            .text(d.to_string())
+                            .text(d.toString())
                             .attr("x", 0)
                             .attr("y", 0)
                         .attr("transform", (d) => {

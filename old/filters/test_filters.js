@@ -7,7 +7,7 @@ export function filter_by_num_method_covered(current_state, _, value) {
     let test_id_map = create_coverage_map(edges, (e) => e.test_id, e => e.method_id);
 
     const tests = current_state.y.filter((test) => {
-        const test_id = test.get_id();
+        const test_id = test.getID();
         return (value === 0) || (test_id_map.has(test_id) && (test_id_map.get(test_id).size >= value));
     })
 
@@ -68,10 +68,10 @@ export function filter_by_coexecuted_tests(current_state, _, identifier) {
     let test_cases = current.y;
     let edges = current.edges;
 
-    let filter_test = test_cases.find(test => test.to_string().includes(identifier));
+    let filter_test = test_cases.find(test => test.toString().includes(identifier));
 
     if (filter_test === undefined) {
-        filter_test = test_cases.find(test => test.get_id() === parseInt(identifier));
+        filter_test = test_cases.find(test => test.getID() === parseInt(identifier));
     }
 
     if (filter_test === undefined) {
@@ -79,7 +79,7 @@ export function filter_by_coexecuted_tests(current_state, _, identifier) {
         return current;
     }
 
-    const filtered_test_id = filter_test.get_id();
+    const filtered_test_id = filter_test.getID();
 
     const method_ids = edges.filter(edge => filtered_test_id === edge.test_id)
         .map(edge => edge.method_id);

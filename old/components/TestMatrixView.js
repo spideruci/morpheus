@@ -147,7 +147,7 @@ class TestMatrixView extends Component {
                         edges={current_state.edges}
                         onMethodClick={(event, label) => {
                             let new_filter_map = new FunctionMap(current_filter_map);
-                            new_filter_map.add_function("filter_by_coexecuted_methods", filter_by_coexecuted_methods, label.to_string())
+                            new_filter_map.add_function("filter_by_coexecuted_methods", filter_by_coexecuted_methods, label.toString())
 
                             this.setState({
                                 history: this.state.history.concat(new_filter_map)
@@ -155,7 +155,7 @@ class TestMatrixView extends Component {
                         }}
                         onTestClick={(event, label) => {
                             let new_filter_map = new FunctionMap(current_filter_map);
-                            new_filter_map.add_function("filter_by_coexecuted_tests", filter_by_coexecuted_tests, label.to_string())
+                            new_filter_map.add_function("filter_by_coexecuted_tests", filter_by_coexecuted_tests, label.toString())
 
                             this.setState({
                                 history: this.state.history.concat(new_filter_map)

@@ -36,7 +36,7 @@ class FilterMenu extends Component {
 
         // Filter entry list based on what hsa been typed
         const display = entries.filter(item => {
-            const method_str = item.to_string().toLowerCase();
+            const method_str = item.toString().toLowerCase();
             return method_str.includes(user_input.toLowerCase());
         })
 
@@ -56,7 +56,7 @@ class FilterMenu extends Component {
                         <select onChange={this.props.onClick}>
                             <option> -- select an option -- </option>
                             {this.state.display.map((entry) => (
-                                <option key={entry.get_id()} value={entry.get_id()}>{entry.to_string()}</option>
+                                <option key={entry.getID()} value={entry.getID()}>{entry.toString()}</option>
                             ))}
                         </select>
                     </div>

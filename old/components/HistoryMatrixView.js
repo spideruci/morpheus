@@ -107,21 +107,21 @@ class HistoryMatrixView extends Component {
                 console.log("Response: ", response);
                 return {
                     methods: response.coverage.methods.map(m => {
-                        m.get_id = () => m.method_id;
-                        m.to_string = () => `${m.package_name}.${m.class_name} ${m.method_decl}`;
+                        m.getID = () => m.method_id;
+                        m.toString = () => `${m.package_name}.${m.class_name} ${m.method_decl}`;
                         m.get_cluster = () => m.hasOwnProperty('cluster_id') ? m.cluster_id :  0;
                         m.get_color = () => m.package_name
                         return m;
                     }),
                     tests: response.coverage.tests.map(t => {
-                        t.get_id = () => t.test_id;
-                        t.to_string = () => `${t.class_name} ${t.method_name}`;
+                        t.getID = () => t.test_id;
+                        t.toString = () => `${t.class_name} ${t.method_name}`;
                         t.get_cluster = () => t.hasOwnProperty('cluster_id') ? t.cluster_id : 0;
                         t.get_color = () => t.class_name
                         return t;
                     }),
                     edges: response.coverage.edges.map(e => {
-                        e.get_color = () => {
+                        e.getColor = () => {
                             let color;
                             switch (e["test_result"]) {
                                 case "P":
@@ -136,8 +136,8 @@ class HistoryMatrixView extends Component {
                             }
                             return color;
                         }
-                        e.get_x = () => e.method_id;
-                        e.get_y = () => e.test_id;
+                        e.getX = () => e.method_id;
+                        e.getY = () => e.test_id;
 
                         return e;
                     }),
@@ -217,7 +217,7 @@ class HistoryMatrixView extends Component {
                         edges={current_state.edges}
                         onMethodClick={(event, label) => {
                             let new_filter_map = new FunctionMap(current_filter_map);
-                            new_filter_map.add_function("filter_by_coexecuted_methods", filter_by_coexecuted_methods, label.to_string())
+                            new_filter_map.add_function("filter_by_coexecuted_methods", filter_by_coexecuted_methods, label.toString())
 
                             this.setState({
                                 history: this.state.history.concat(new_filter_map)
@@ -225,7 +225,7 @@ class HistoryMatrixView extends Component {
                         }}
                         onTestClick={(event, label) => {
                             let new_filter_map = new FunctionMap(current_filter_map);
-                            new_filter_map.add_function("filter_by_coexecuted_tests", filter_by_coexecuted_tests, label.to_string())
+                            new_filter_map.add_function("filter_by_coexecuted_tests", filter_by_coexecuted_tests, label.toString())
 
                             this.setState({
                                 history: this.state.history.concat(new_filter_map)
