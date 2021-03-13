@@ -44,17 +44,7 @@ const morpheusReducer = (state, action) => {
                     ...state.info,
                     type: 'COVERAGE',
                     commit: action.commit,
-                },
-                // sort: {
-                //     x: {
-                //         name: 'NAME',
-                //         func: (a, b) => a.toString() > b.toString()
-                //     },
-                //     y: {
-                //         name: 'NAME',
-                //         func: (a, b) => a.toString() > b.toString()
-                //     },
-                // },
+                }
             };
         case MORPHEUS_ACTION.SET_METHOD_HISTORY:{
             let info = {
@@ -194,7 +184,7 @@ const morpheusReducer = (state, action) => {
 
 const parseCoverage = ({methods, tests, edges}) => {
     return {
-        x: methods.map((m) => new Method(m.id, m.package_name, m.class_name, m.method_name, m.method_decl)),
+        x: methods.map((m) => new Method(m.id, m.package_name, m.class_name, m.method_name, m.method_decl, m.file_path)),
         y: tests.map((t) => new Test(t.id, t.package_name, t.class_name, t.method_name)),
         edges: edges.map((e) => new Edge(e.method_id, e.test_id, { test_result: e.test_result})),
     }
@@ -211,7 +201,7 @@ const parseMethodHistory = ({ commits, tests, edges }) => {
 const parseTestHistory = ({ methods, commits, edges }) => {
     return {
         x: commits.map((c) => new Commit(c.id, c.sha, c.datetime, c.author)),
-        y: methods.map((m) => new Method(m.id, m.package_name, m.class_name, m.method_name, m.method_decl)),
+        y: methods.map((m) => new Method(m.id, m.package_name, m.class_name, m.method_name, m.method_decl, m.file_path)),
         edges: edges.map((e) => new Edge(e.commit_id, e.method_id, { test_result: e.test_result })),
     }
 }

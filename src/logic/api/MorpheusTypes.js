@@ -26,12 +26,13 @@ export class Edge {
 }
 
 export class Method {
-    constructor(id, packageName, className, methodName, methodDecl) {
+    constructor(id, packageName, className, methodName, methodDecl, filePath) {
         this.id = id;
         this.packageName = packageName;
         this.className = className;
         this.methodName = methodName;
         this.methodDecl = methodDecl;
+        this.filePath = filePath;
     }
 
     getID = () => this.id;
@@ -39,7 +40,7 @@ export class Method {
     getPackageName = () => this.packageName;
     getClassName = () => this.className;
     getMethodName = () => this.methodDecl;
-    toString = () => `${this.packageName} ${this.className} ${this.methodDecl}`;
+    toString = () => `[${this.filePath}]${this.packageName} ${this.className} ${this.methodDecl}`;
 }
 
 export class Test {

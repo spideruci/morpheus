@@ -34,9 +34,6 @@ class MatrixVisualization extends Component {
         this.onMethodClick = props.onMethodClick;
         this.onTestClick = props.onTestClick;
         this.onRightClick = props.onRightClick;
-        // this.getColorX = props.getColorX !== undefined ? props.getColorX : () => 'black';
-        // this.getColorY = props.getColorY !== undefined ? props.getColorY : () => 'black';
-        // this.getColorEdge = props.getColorEdge !== undefined ? props.getColorEdge : () => 'black';
     }
 
     createMatrix() {
@@ -125,14 +122,14 @@ class MatrixVisualization extends Component {
             .range([0, vis_width])
 
         let xScale = xRange.copy()
-            .domain(data.x_labels.map((label) => parseInt(label.getID())));
+            .domain(data.x_labels.map((label) => label.getID()));
 
         let xLabel = xRange.copy()
             .domain(data.x_labels.map((label) => label.toString()));
 
         if (xLabel.step() !== xScale.step()) {
             // Meaning duplicate class_name.method_name entries
-            console.error("xLabel and xScale step are not equal...")
+            console.error("xLabel and xScale step are not equal...", data.x_labels)
         }
 
         // Scales for Y-axis
@@ -149,7 +146,7 @@ class MatrixVisualization extends Component {
 
         if (yLabel.step() !== yScale.step()) {
             // Meaning duplicate class_name.method_name entries
-            console.error("yLabel and yScale step are not equal...")
+            console.error("yLabel and yScale step are not equal...", data.y_labels)
         }
 
         // Create tick format function, returns a function using the passed parameters.
