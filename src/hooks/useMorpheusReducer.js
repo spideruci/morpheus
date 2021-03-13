@@ -193,7 +193,6 @@ const morpheusReducer = (state, action) => {
 }
 
 const parseCoverage = ({methods, tests, edges}) => {
-    console.log(methods, tests, edges)
     return {
         x: methods.map((m) => new Method(m.id, m.package_name, m.class_name, m.method_name, m.method_decl)),
         y: tests.map((t) => new Test(t.id, t.package_name, t.class_name, t.method_name)),

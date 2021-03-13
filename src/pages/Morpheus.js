@@ -129,8 +129,6 @@ const Morpheus = () => {
                 commit: state.pop_up.label,
             })
         }
-
-        
     }
 
     const clickMethod = () => {
@@ -145,7 +143,6 @@ const Morpheus = () => {
     } else if (state.info.type === 'COVERAGE') {
         Edge.prototype.getColor = function(){ return this.getProperty('test_result') ? '#03C03C' : '#FF1C00'};
     }
-
 
     return (
         <>

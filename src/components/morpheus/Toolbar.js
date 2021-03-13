@@ -22,7 +22,7 @@ import { MorpheusContext } from '../../pages/MorpheusContext';
 import { filterByCoOccurence, filterByTestResult } from '../../logic/filters/filters';
 
 
-const ToolBar = ({ onReset, onUndo, children}) => {
+const ToolBar = ({ onReset, children}) => {
     return (
         <div className={styles.toolbar}>
             <h4>Toolbar</h4>
@@ -58,6 +58,10 @@ export const CoverageToolbar = () => {
                 onChange={dispatch}
                 isLoading={state.isLoading}
             />
+            <CoverageInfoBox
+                project={state.info.project}
+                commit={state.info.commit}
+            />
         </ToolBar>
     )
 }
@@ -80,6 +84,10 @@ export const MethodHistoryToolbar = () => {
                 tests={state.coverage.y}
                 onChange={dispatch}
                 isLoading={state.isLoading}
+            />
+            <MethodInfoBox
+                project={state.info.project}
+                method={state.info.method}
             />
         </ToolBar>
     )
@@ -106,6 +114,10 @@ export const TestHistoryToolbar = () => {
                 valueX={state.sort.x.name}
                 valueY={state.sort.y.name}
             />
+            <TestInfoBox
+                project={state.info.project}
+                test={state.info.test}
+            />
         </ToolBar>
     )
 }
@@ -127,10 +139,6 @@ const ProjectSelectors = ({ onChange, project, commit}) => {
         const projectName = target.innerHTML;
 
         const project = projectList.find((p) => p.getProjectName() === projectName);
-
-        if ((project === undefined) || (project === null)) {
-            console.log(project, projectList, projectName)
-        }
 
         onChange({ type: MORPHEUS_ACTION.SET_PROJECT, project: project });
 
@@ -316,5 +324,60 @@ const TestFilter = ({ onChange, tests, isLoading }) => {
                 </Select>
             </AccordionDetails>
         </Accordion>
+    )
+}
+
+const InfoBox = ({project, children}) => {
+    if (project === null) {
+        return null;
+    }
+
+    return (
+        <div>
+            <h3>Project: {project.toString()}</h3>
+            {children}
+        </div>
+    )
+}
+
+const CoverageInfoBox = ({project, commit}) => {
+    if (commit === undefined) {
+        return null;
+    }
+
+    return (
+        <InfoBox project={project}>
+            <p>SHA: {commit.getSHA()}</p>
+            <p>Author: {commit.getAuthor()}</p>
+            <p>Date: {commit.getDate().toISOString()}</p>
+        </InfoBox>
+    )
+}
+
+const MethodInfoBox = ({ project, method }) => {
+    if (method === undefined) {
+        return null;
+    }
+
+    return (
+        <InfoBox project={project}>
+            <p><b>Method Decl:{method.getMethodName()}</b></p>
+            <p>Package: {method.getPackageName()}</p>
+            <p>Class: {method.getClassName()}</p>
+        </InfoBox>
+    )
+}
+
+const TestInfoBox = ({ project, test }) => {
+    if (test === undefined) {
+        return null;
+    }
+
+    return (
+        <InfoBox project={project}>
+            <p><b>Testcase: {test.getMethodName()}</b></p>
+            <p>Package: {test.getPackageName()}</p>
+            <p>Class: {test.getClassName()}</p>
+        </InfoBox>
     )
 }
