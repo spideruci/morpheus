@@ -215,7 +215,6 @@ export const useMorpheusController = (initialState) => {
 
     useEffect(() => {
         const { type, project } = present.info;
-        console.log('GET NEW COVERAGE', state)
         switch (type) {
             case 'COVERAGE':{
                 const { commit } = present.info;

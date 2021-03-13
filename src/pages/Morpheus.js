@@ -4,7 +4,6 @@ import { useProcessCoverage } from '../hooks/useProcessCoverage';
 import MatrixVisualization from '../components/morpheus/MatrixVisualization';
 import { CoverageToolbar, MethodHistoryToolbar, TestHistoryToolbar } from '../components/morpheus/Toolbar';
 import { MethodPopover, CommitPopover} from '../components/morpheus/MethodPopover';
-import { getEdgeColorTest, getColorFunction } from '../logic/colorFunctions';
 import {Edge, Test, Method, Commit} from '../logic/api/MorpheusTypes';
 
 import styles from './Morpheus.module.scss';
@@ -129,10 +128,6 @@ const Morpheus = () => {
                 commit: state.pop_up.label,
             })
         }
-    }
-
-    const clickMethod = () => {
-
     }
 
     if ((state.info.type === 'TEST_HISTORY')) {
