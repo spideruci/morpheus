@@ -12,7 +12,7 @@ export const fetchProjects = () => {
 }
 
 export const fetchCoverage = (project_name) => {
-    return json(`/resources/${project_name}.json`)
+    return json(`/morpheus/resources/${project_name}.json`)
         .then((response) => {
             return {
                 methods: response.coverage.methods.map(m => {
