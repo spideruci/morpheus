@@ -1,29 +1,18 @@
 import { json } from 'd3';
-import { API_ROOT } from '../../config/api-config';
 
 export const fetchProjects = () => {
-    console.debug("Test...")
-    return json(`${API_ROOT}/projects`)
-        .then((response) => {
-            return response.projects.map(project => {
-                return { key: project.id, value: project.project_name };
-            });
-        })
-        .catch(console.error);
+    let projects = [
+        { key: 0, value: 'commons-cli-experiment-9722ec17bf9dbd1deab299bdd6dfe038fedae3bd' },
+        { key: 1, value: 'jpacman-framework-2434427914fa957f65617a9e794510f0c6ada9f9' },
+        { key: 2, value: 'commons-io-29b70e156f9241b0c3e25896c931d1ef8725ad66' },
+        { key: 3, value: 'jsoup-89580cc3d25d0d89ac1f46b349e5cd315883dc79' },
+        { key: 4, value: 'maven-7a4b77b582913aad0ee941df8e86a5b83bc3eec8' } 
+    ]
+    return projects;
 }
 
-export const fetchCommits = (project_name) => {
-    return json(`${API_ROOT}/commits/${project_name}`)
-        .then((response) => {
-            return response.commits.map(commit => {
-                return { key: commit.id, value: commit.sha, display: commit.sha }
-            });
-        })
-        .catch(console.error);
-}
-
-export const fetchCoverage = (project_name, commit_sha) => {
-    return json(`${API_ROOT}/coverage/${project_name}/${commit_sha}`)
+export const fetchCoverage = (project_name) => {
+    return json(`/resources/${project_name}.json`)
         .then((response) => {
             return {
                 methods: response.coverage.methods.map(m => {
@@ -42,19 +31,14 @@ export const fetchCoverage = (project_name, commit_sha) => {
                 }),
                 edges: response.coverage.edges.map(e => {
                     e.get_color = () => {
-                        let color;
                         switch (e["test_result"]) {
                             case "P":
-                                color = "#03C03C";
-                                break;
+                                return "#03C03C";
                             case "F":
-                                color = "#FF1C00";
-                                break;
+                                return "#FF1C00";
                             default:
-                                color = "black";
-                                break;
+                                return "black";
                         }
-                        return color;
                     }
                     e.get_x = () => e.method_id;
                     e.get_y = () => e.test_id;

@@ -1,10 +1,7 @@
 import React, { Component } from 'react'
 
-import { API_ROOT } from '../../config/api-config';
-import { json } from 'd3'
-
 // MorpheusAPI endpoints
-import { fetchProjects, fetchCommits, fetchCoverage } from '../logic/morpheusAPI';
+import { fetchProjects, fetchCoverage } from '../logic/morpheusAPI';
 
 // Material UI components
 import Accordion from '@material-ui/core/Accordion';
@@ -27,14 +24,11 @@ import { filter_method_by_number_of_times_tested, filter_by_coexecuted_methods }
 import { process_data, FunctionMap } from '../filters/data_processor';
 import { sort_by_cluster_X, sort_by_cluster_Y, sort_by_coverage_X, sort_by_coverage_Y, sort_by_suspciousness} from '../filters/sorting';
 
-import MethodPopover from './MethodPopover';
-
 class TestMatrixView extends Component {
     constructor(props) {
         super()
         this.state = {
             selectedProject: "",
-            selectedCommit: "",
             data: {
                 x: [],
                 y: [],
@@ -48,25 +42,23 @@ class TestMatrixView extends Component {
             isVisible: false,
             currentMethod: "",
             anchor: null,
-            current_method_id: ''
+            current_method_id: '',
+            coloring: ""
         }
 
         this.backInTime = this.backInTime.bind(this);
         this.reset = this.reset.bind(this);
         this.onProjectChange = this.onProjectChange.bind(this);
-        this.onCommitChange = this.onCommitChange.bind(this);
         this.updateReset = this.updateReset.bind(this);
-        this.selectColors = this.selectColors.bind(this);
         this.setMethodAnchor = this.setMethodAnchor.bind(this);
     }
 
-    async onCommitChange(event) {
-        let commit_sha = event.target.value;
+    async onProjectChange(event) {
+        let project_name = event.target.value;
 
-        fetchCoverage(this.state.selectedProject, commit_sha)
+        fetchCoverage(project_name)
             .then((data) => {
                 this.setState({
-                    selectedCommit: commit_sha,
                     data: {
                         x: data.methods,
                         y: data.tests,
@@ -78,104 +70,15 @@ class TestMatrixView extends Component {
             .catch(e => console.error(e));
     }
 
-    async onProjectChange(event) {
-        let project_name = event.target.value;
-
-        this.setState({
-            selectedProject: project_name,
-            commits: await fetchCommits(project_name)
-        })
-    }
-
-    selectColors = e => {
-        let color;
-        switch (e["test_result"]) {
-            case "P":
-                color = "#03C03C";
-                break;
-            case "F":
-                color = "#FF1C00";
-                break;
-            default:
-                color = "black";
-                break;
-        }
-        return color;
-    }
-
-    // Update History Data function from HistoryMatrixView
-    async updateHistoryData(project_name, selected_method_id) {
-        return await json(`${API_ROOT}/history/${project_name}/${selected_method_id}`)
-            .then((response) => {
-                return {
-                    commits: response.coverage.commits.map(c => {
-                        c.get_id = () => c.id;
-                        c.to_string = () => `${c.sha}`;
-                        c.get_color = () => c.project_id;
-                        c.get_datetime = () => c.datetime;
-                        return c;
-                    }),
-                    tests: response.coverage.tests.map(t => {
-                        t.get_id = () => t.id;
-                        t.to_string = () => `${t.class_name} ${t.method_name}`;
-                        t.get_color = () => t.class_name;
-                        return t;
-                    }),
-                    edges: response.coverage.edges.map(e => {
-                        e.get_color = () => this.selectColors(e)
-                        e.get_x = () => e.commit_id;
-                        e.get_y = () => e.test_id;
-                        return e;
-                    }),
-                }
-            })
-            .catch(e => { console.log(e) });
-    }
-
-    async updateCoverageData(project_name, commit_sha) {
-        return await json(`${API_ROOT}/coverage/${project_name}/${commit_sha}`)
-            .then((response) => {
-                return {
-                    methods: response.coverage.methods.map(m => {
-                        m.get_id = () => m.method_id;
-                        // this.state.current_method_id = m.method_id;
-                        m.to_string = () => `${m.package_name}.${m.class_name} ${m.method_decl}`;
-                        m.get_cluster = () => m.hasOwnProperty('cluster_id') ? m.cluster_id :  0;
-                        m.get_color = () => m.package_name
-                        return m;
-                    }),
-                    tests: response.coverage.tests.map(t => {
-                        t.get_id = () => t.test_id;
-                        t.to_string = () => `${t.class_name} ${t.method_name}`;
-                        t.get_cluster = () => t.hasOwnProperty('cluster_id') ? t.cluster_id : 0;
-                        t.get_color = () => t.class_name
-                        return t;
-                    }),
-                    edges: response.coverage.edges.map(e => {
-                        e.get_color = () => this.selectColors(e)
-                        e.get_x = () => e.method_id;
-                        e.get_y = () => e.test_id;
-
-                        return e;
-                    }),
-                }
-            })
-            .catch(e => { console.log(e) });
-    }
-
     async componentDidMount() {
         let projects = await fetchProjects();
         let project_name = projects[0].value;
 
-        let commits = await fetchCommits(project_name);
-        let commit_sha = commits[0].value;
-        let data = await fetchCoverage(project_name, commit_sha);
+        let data = await fetchCoverage(project_name);
 
         this.setState({
             selectedProject: projects[0].value,
-            selectedCommit: commits[0].value,
             projects: projects,
-            commits: commits,
             data: {
                 x: data.methods,
                 y: data.tests,
@@ -228,31 +131,7 @@ class TestMatrixView extends Component {
         }
         return (
             <>
-            <div className='test-visualization'>
-                <MethodPopover anchor={this.state.anchor} setAnchor={this.setMethodAnchor} current_method={this.state.currentMethod} current_project={this.state.selectedProject}
-                onMethodClick={e => {
-                    let new_filter_map = new FunctionMap(current_filter_map);
-                    new_filter_map.add_function("filter_by_coexecuted_methods", filter_by_coexecuted_methods, e.target.value)
-
-                    this.setState({
-                        history: this.state.history.concat(new_filter_map)
-                    })
-                }}
-                onHistoryClick={e => {
-                    this.updateHistoryData(this.state.selectedProject, this.state.current_method_id)
-                        .then((data) => {
-                            this.setState({
-                                data: {
-                                    x: data.commits,
-                                    y: data.tests,
-                                    edges: data.edges,
-                                },
-                                history: [new FunctionMap()],
-                            })
-                        })
-                        .catch(e => console.error(e));
-                }}
-                />     
+            <div className='test-visualization'>    
                     {((current_state.x.length >= 0) || (current_state.y.length >= 0)) &&
                     <MatrixVisualization
                         x={current_state.x}
@@ -286,11 +165,29 @@ class TestMatrixView extends Component {
                         }}
                         labelToggle={labelToggle}
                         xlabel={"methods"}
-                        ylabel={"test cases"} />
+                        ylabel={"test cases"} 
+                        />
                 }
                 <div id='toolbox'>
                     <h4>Toolbar</h4>
-                    <Accordion expanded={this.state.expanded === 'panel2'} onChange={handleChange('panel2')}>
+                        <Accordion expanded={this.state.expanded === 'panel1'} onChange={handleChange('panel1')}>
+                            <AccordionSummary
+                                expandIcon={<ExpandMoreIcon />}
+                                aria-controls="panel1a-content"
+                                id="data-set-selector"
+                            >
+                                <span>Project Selection</span>
+                            </AccordionSummary>
+                            <AccordionDetails className="accordion-block">
+                                <Menu title="Projects"
+                                    onChange={this.onProjectChange}
+                                    entries={this.state.projects}
+                                    reset={this.state.reset}
+                                    updateReset={this.updateReset}
+                                    />
+                            </AccordionDetails>
+                        </Accordion>
+                        <Accordion expanded={this.state.expanded === 'panel2'} onChange={handleChange('panel2')}>
                         <AccordionSummary
                             expandIcon={<ExpandMoreIcon />}
                             aria-controls="panel1a-content"
