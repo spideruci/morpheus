@@ -69,6 +69,113 @@ export function sort_by_coverage_Y(current_state, all_data) {
     }
 }
 
+export function color_by_test_type(current_state, all_data) {
+    const edges = current_state.edges;
+
+    let x = current_state.x;
+    let y = current_state.y;
+
+    let newX = [];
+
+    for (const element of x) {
+        element.boo = Math.random();
+        newX.push(element)
+    }
+
+    const test_to_meth_map = create_coverage_map(all_data.edges, e => e.test_id, e => e.method_id)
+
+    let test_id_to_type_map = new Map();
+
+    let map_method_id = new Map();
+    x.forEach((m) => {
+        map_method_id.set(m.method_id, m)
+    })
+
+    y.forEach(function(t, index, array) {
+        const test_id = t.test_id;
+        const method_ids = test_to_meth_map.get(test_id)
+        let package_set = new Set();
+        let class_set = new Set();
+
+        method_ids.forEach((id) => {
+            const method = map_method_id.get(id);
+            if (method === undefined) {
+                return;
+            }
+            package_set.add(`${method.package_name}`)
+            class_set.add(`${method.package_name}.${method.class_name}`)
+        });
+
+        if (package_set.size > 1) {
+            test_id_to_type_map.set(t.test_id, "S");
+        }
+        else if (package_set.size === 1 && class_set.size > 1) {
+            test_id_to_type_map.set(t.test_id, "I");
+        }
+        else if (class_set.size == 1) {
+            test_id_to_type_map.set(t.test_id, "U");
+        }
+    });
+
+    for (const edge of edges) {
+
+        const test_type = test_id_to_type_map.get(edge.test_id);
+        edge.test_type = test_type
+
+        edge.get_color = () => {
+            switch (edge.test_type) {
+                case "S":
+                    return "#0575eb";
+                case "I":
+                    return "#eb8c06";
+                case "U":
+                    return "#02ae5e";
+                default:
+                    return "black";
+            }
+        }
+    }
+
+    return {
+        "edges": edges,
+        "x": newX,
+        "y": y,
+    }
+}
+
+export function color_by_test_result(current_state, all_data) {
+    const edges = current_state.edges;
+
+    let x = current_state.x;
+    let y = current_state.y;
+
+    let newX = [];
+
+    for (const element of x) {
+        element.boo = Math.random();
+        newX.push(element)
+    }
+
+    for (const edge of edges) {
+        edge.get_color = () => {
+            switch (edge["test_result"]) {
+                case "P":
+                    return "#03C03C";
+                case "F":
+                    return "#FF1C00";
+                default:
+                    return "black";
+            }
+        }
+    }
+
+    return {
+        "edges": edges,
+        "x": newX,
+        "y": y,
+    }
+}
+
 
 export function sort_by_cluster_X(current_state, all_data) {
     let x = current_state.x;
