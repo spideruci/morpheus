@@ -75,11 +75,8 @@ export function color_by_test_type(current_state, all_data) {
     let x = current_state.x;
     let y = current_state.y;
 
-    let newX = [];
-
-    for (const element of x) {
-        element.boo = Math.random();
-        newX.push(element)
+    if (x.length > 0) {
+        x[0].boo = Math.random(); // causes a state change; and hence a render
     }
 
     const test_to_meth_map = create_coverage_map(all_data.edges, e => e.test_id, e => e.method_id)
@@ -112,8 +109,11 @@ export function color_by_test_type(current_state, all_data) {
         else if (package_set.size === 1 && class_set.size > 1) {
             test_id_to_type_map.set(t.test_id, "I");
         }
-        else if (class_set.size == 1) {
+        else if (class_set.size === 1) {
             test_id_to_type_map.set(t.test_id, "U");
+        }
+        else {
+            test_id_to_type_map.set(t.test_id, "");
         }
     });
 
@@ -125,7 +125,7 @@ export function color_by_test_type(current_state, all_data) {
         edge.get_color = () => {
             switch (edge.test_type) {
                 case "S":
-                    return "#0575eb";
+                    return "#9033ff";
                 case "I":
                     return "#eb8c06";
                 case "U":
@@ -138,7 +138,7 @@ export function color_by_test_type(current_state, all_data) {
 
     return {
         "edges": edges,
-        "x": newX,
+        "x": x,
         "y": y,
     }
 }
@@ -149,11 +149,8 @@ export function color_by_test_result(current_state, all_data) {
     let x = current_state.x;
     let y = current_state.y;
 
-    let newX = [];
-
-    for (const element of x) {
-        element.boo = Math.random();
-        newX.push(element)
+    if (x.length > 0) {
+        x[0].boo = Math.random(); // causes a state change; and hence a render
     }
 
     for (const edge of edges) {
@@ -171,7 +168,7 @@ export function color_by_test_result(current_state, all_data) {
 
     return {
         "edges": edges,
-        "x": newX,
+        "x": x,
         "y": y,
     }
 }
