@@ -22,7 +22,7 @@ import './TestMatrixView.scss';
 import { filter_by_test_passed, filter_by_coexecuted_tests, filter_by_test_type, TEST_TYPES, TEST_RESULT} from '../filters/test_filters';
 import { filter_method_by_number_of_times_tested, filter_by_coexecuted_methods } from '../filters/method_filters';
 import { process_data, FunctionMap } from '../filters/data_processor';
-import { sort_by_cluster_X, sort_by_cluster_Y, sort_by_coverage_X, sort_by_coverage_Y, sort_by_suspciousness} from '../filters/sorting';
+import { sort_by_cluster_X, sort_by_cluster_Y, sort_by_coverage_X, sort_by_coverage_Y, sort_by_suspciousness, color_by_test_result, color_by_test_type} from '../filters/sorting';
 
 class TestMatrixView extends Component {
     constructor(props) {
@@ -355,6 +355,48 @@ class TestMatrixView extends Component {
                                         history: this.state.history.concat(new_filter_map)
                                     })
                                 }} />
+                        </AccordionDetails>
+                    </Accordion>
+
+                    <Accordion expanded={this.state.expanded === 'panel5'} onChange={handleChange('panel5')}>
+                        <AccordionSummary
+                            expandIcon={<ExpandMoreIcon />}
+                            aria-controls="panel1a-content"
+                            id="data-set-selector"
+                        >
+                            <span>Color Schemes</span>
+                        </AccordionSummary>
+                        <AccordionDetails className="accordion-block">
+                            <Menu title="Pick a Color Scheme:" 
+                                entries={[
+                                    { key: 0, value: "Pass/Fail" },
+                                    { key: 1, value: "Unit/Integration/System" },
+                                ]}
+                                onChange={(e, index) => {
+                                    
+                                    let new_filter_map = new FunctionMap(current_filter_map);
+                                    let func = (data) => data
+                                    switch (e.target.value) {
+                                        case "Unit/Integration/System":
+                                            func = color_by_test_type;
+                                            break
+                                        case "Pass/Fail":
+                                            func = color_by_test_result;
+                                            break;
+                                        default:
+                                            console.log(`${e.target.value} not yet supported`)
+                                            break;
+                                    }
+                                    new_filter_map.add_function("color-nodes", func);
+
+                                    this.setState({
+                                        history: this.state.history.concat(new_filter_map)
+                                    })
+                                }}
+
+                                reset={this.state.reset}
+                                updateReset={this.updateReset}
+                               />
                         </AccordionDetails>
                     </Accordion>
 
