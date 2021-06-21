@@ -18,7 +18,7 @@ function App() {
         <Navbar />
         <div className="component">
           <Switch>
-            <Route exact path="/" component={About} />
+            <Route exact path="/" component={TestMatrixView} />
             <Route path="/about" component={About} />
             <Route path="/visualization" component={TestMatrixView} />
           </Switch>
