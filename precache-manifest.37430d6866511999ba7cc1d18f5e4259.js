@@ -1,10 +1,10 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "4b387ddc161b9cf68be0eac25bad47cb",
+    "revision": "525bec095eb1f94f08351e38f95670e6",
     "url": "/morpheus/index.html"
   },
   {
-    "revision": "9eab51dff90c5b6e1ad7",
+    "revision": "347e36fb56e52b48f28e",
     "url": "/morpheus/static/css/main.85044848.chunk.css"
   },
   {
@@ -16,8 +16,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/morpheus/static/js/2.091fe91c.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "9eab51dff90c5b6e1ad7",
-    "url": "/morpheus/static/js/main.e81c02bb.chunk.js"
+    "revision": "347e36fb56e52b48f28e",
+    "url": "/morpheus/static/js/main.0273ebac.chunk.js"
   },
   {
     "revision": "7cf853228d99654729ca",
