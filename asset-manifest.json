@@ -1,22 +1,22 @@
 {
   "files": {
-    "main.css": "/morpheus/static/css/main.85044848.chunk.css",
-    "main.js": "/morpheus/static/js/main.0273ebac.chunk.js",
-    "main.js.map": "/morpheus/static/js/main.0273ebac.chunk.js.map",
+    "main.css": "/morpheus/static/css/main.44f9a9f0.chunk.css",
+    "main.js": "/morpheus/static/js/main.e0b9b1a0.chunk.js",
+    "main.js.map": "/morpheus/static/js/main.e0b9b1a0.chunk.js.map",
     "runtime-main.js": "/morpheus/static/js/runtime-main.1d27a267.js",
     "runtime-main.js.map": "/morpheus/static/js/runtime-main.1d27a267.js.map",
-    "static/js/2.091fe91c.chunk.js": "/morpheus/static/js/2.091fe91c.chunk.js",
-    "static/js/2.091fe91c.chunk.js.map": "/morpheus/static/js/2.091fe91c.chunk.js.map",
+    "static/js/2.3cbd07cc.chunk.js": "/morpheus/static/js/2.3cbd07cc.chunk.js",
+    "static/js/2.3cbd07cc.chunk.js.map": "/morpheus/static/js/2.3cbd07cc.chunk.js.map",
     "index.html": "/morpheus/index.html",
-    "precache-manifest.37430d6866511999ba7cc1d18f5e4259.js": "/morpheus/precache-manifest.37430d6866511999ba7cc1d18f5e4259.js",
+    "precache-manifest.1f0afd38ae8a4f16fa85781a15ffd68c.js": "/morpheus/precache-manifest.1f0afd38ae8a4f16fa85781a15ffd68c.js",
     "service-worker.js": "/morpheus/service-worker.js",
-    "static/css/main.85044848.chunk.css.map": "/morpheus/static/css/main.85044848.chunk.css.map",
-    "static/js/2.091fe91c.chunk.js.LICENSE.txt": "/morpheus/static/js/2.091fe91c.chunk.js.LICENSE.txt"
+    "static/css/main.44f9a9f0.chunk.css.map": "/morpheus/static/css/main.44f9a9f0.chunk.css.map",
+    "static/js/2.3cbd07cc.chunk.js.LICENSE.txt": "/morpheus/static/js/2.3cbd07cc.chunk.js.LICENSE.txt"
   },
   "entrypoints": [
     "static/js/runtime-main.1d27a267.js",
-    "static/js/2.091fe91c.chunk.js",
-    "static/css/main.85044848.chunk.css",
-    "static/js/main.0273ebac.chunk.js"
+    "static/js/2.3cbd07cc.chunk.js",
+    "static/css/main.44f9a9f0.chunk.css",
+    "static/js/main.e0b9b1a0.chunk.js"
   ]
 }
