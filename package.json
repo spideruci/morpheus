@@ -27,7 +27,7 @@
     "release": "REACT_APP_API_ENDPOINT=api.kajdreef.com react-scripts build",
     "eject": "react-scripts eject",
     "predeploy": "yarn build",
-    "deploy": "gh-pages -d build"
+    "deploy": "gh-pages -d build -b ghpages"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -48,6 +48,7 @@
     "@babel/core": "^7.7.2",
     "@babel/preset-env": "^7.7.1",
     "@babel/preset-react": "^7.7.0",
+    "gh-pages": "^3.2.2",
     "webpack-cli": "^3.3.11"
   }
 }
