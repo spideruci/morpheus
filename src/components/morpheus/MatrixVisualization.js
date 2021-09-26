@@ -210,7 +210,16 @@ class MatrixVisualization extends Component {
                 .attr("rx", Math.max(1, xScale.step()/2))
                 .attr("stroke", (d) => d.highlight ? 'black' : null)
                 .attr("stoke-width", (d) => d.highlight ? '1px' : '0px')
-                // TODO add tooltip when hovering over a edge
+                .append("title")
+                .text(d => {
+                    let xLabelObject = data.x_labels[d.x];
+
+                    let methodLabel = xLabelObject?.method_name ?? "unknownMethod";
+                    let classLabel = xLabelObject?.class_name ?? "UnknownClass"
+                    let testLabel = data.y_labels[d.y]?.method_name ?? "unknown test";
+                    
+                    return `${classLabel}.${methodLabel} tested by ${testLabel}`;
+                });
 
         // Tooltip
         let tooltip = svg.select(".tooltip")
