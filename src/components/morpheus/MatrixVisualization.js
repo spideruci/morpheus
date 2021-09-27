@@ -232,7 +232,16 @@ class MatrixVisualization extends Component {
         // Add X and Y axis to the visualization
         select("g.x-axis")
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
-            .call(xAxis);
+            .call(xAxis)
+            .selectAll("line")
+            .style("stroke", "grey")
+            .style("stroke-width", "0.5");
+        
+        select("g.x-axis")
+            .select("path")
+            .style("stroke", "grey")
+            .style("stroke-width", "0.5");
+
 
         // Add circler around ticks
         select("g.x-axis")
@@ -278,9 +287,18 @@ class MatrixVisualization extends Component {
                 })
                 .on('click', this.onMethodClick)
                 .on('contextmenu', this.onRightClick);
+        
         select("g.y-axis")
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
-            .call(yAxis);
+            .call(yAxis)
+            .selectAll("line")
+            .style("stroke", "grey")
+            .style("stroke-width", "0.5");
+
+        select("g.y-axis")
+            .select("path")
+            .style("stroke", "grey")
+            .style("stroke-width", "0.5");
 
         select("g.y-axis")
             .selectAll('.axis-dots-y')
