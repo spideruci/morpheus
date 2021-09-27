@@ -236,7 +236,16 @@ class MatrixVisualization extends Component {
         // Add X and Y axis to the visualization
         select("g.x-axis")
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
-            .call(xAxis);
+            .call(xAxis)
+            .selectAll("line")
+            .style("stroke", "grey")
+            .style("stroke-width", "0.5");
+        
+        select("g.x-axis")
+            .select("path")
+            .style("stroke", "grey")
+            .style("stroke-width", "0.5");
+
 
         const colorX = (d) => {
             const scale = scaleOrdinal(schemeSet3).domain(Array.from(new Set(data.x_labels.map((d) => d.get_color()))));
@@ -260,7 +269,7 @@ class MatrixVisualization extends Component {
                 .attr('cy', -10)
                 .attr('r', 5)
                 .style('stroke', 'black')
-                .style('stroke-width', '1')
+                .style('stroke-width', '0.1')
                 .style('fill', (d) => colorX(d.get_color()))
                 .on('mouseover', (event, d) => {
                     let text_width = 0; 
@@ -287,9 +296,18 @@ class MatrixVisualization extends Component {
                 })
                 .on('click', this.onMethodClick)
                 .on('contextmenu', this.onRightClick);
+        
         select("g.y-axis")
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
-            .call(yAxis);
+            .call(yAxis)
+            .selectAll("line")
+            .style("stroke", "grey")
+            .style("stroke-width", "0.5");
+
+        select("g.y-axis")
+            .select("path")
+            .style("stroke", "grey")
+            .style("stroke-width", "0.5");
 
         const colorY = (d) => {
             const scale = scaleOrdinal(schemeSet3).domain(Array.from(new Set(data.y_labels.map((d) => d.get_color()))));
@@ -312,7 +330,7 @@ class MatrixVisualization extends Component {
                 .attr('cx', -10)
                 .attr('r', 5)
                 .style('stroke', 'black')
-                .style('stroke-width', '1')
+                .style('stroke-width', '0.1')
                 .style('fill', (d) => colorY(d.get_color()))
                 .on('mouseover', (event, d) => {
                     let translateY = yLabel(d.to_string());
