@@ -6,6 +6,7 @@ import { transition } from 'd3-transition';
 import { easeLinear } from 'd3-ease';
 import { schemeSet3 } from 'd3-scale-chromatic';
 import { isEqual } from 'lodash';
+import { zoom } from 'd3-zoom';
 
 class MatrixVisualization extends Component {
     constructor(props) {
@@ -113,12 +114,24 @@ class MatrixVisualization extends Component {
         // Update viewBox to the state width and height
         const node = this.ref.current;
         let svg = select(node);
-        svg.attr("viewBox", [0, 0, this.state.width, this.state.height]);
 
         let data = this.createMatrix();
 
-        let vis_width = this.state.width - this.margin.left - this.margin.right -10;
-        let vis_height = this.state.height - this.margin.top - this.margin.bottom -10;
+        let w = data.x_labels.length * 3;
+        let h = data.y_labels.length * 3;
+
+        svg.attr("viewBox", [0, 0, this.state.width, this.state.height]);
+
+        let zoom1 = zoom().on('zoom', e => {
+            select('svg g').attr('transform', e.transform);
+        });
+
+        svg.call(zoom1);
+
+        select('svg g').attr('transform', 'translate(0,0) scale(1.0)');
+
+        let vis_width = w - this.margin.left - this.margin.right -10;
+        let vis_height = h - this.margin.top - this.margin.bottom -10;
 
         // Scales for X-axis
         // TODO how to refactor the following so we can make use of a single scale instead of xScale and xLabel? 
@@ -188,24 +201,24 @@ class MatrixVisualization extends Component {
         let rectWidth = xLabel.step()
         let rectHeight = yLabel.step()
 
-        select("g.testmatrix")
-            .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
-            .selectAll('.cell')
-            .data(data.nodes)
-            .join(
-                enter => enter.append("rect").call(enter => enter
-                    .transition(t)
-                        .attr("x", (d) => xScale(d.x) - rectWidth/2)
-                    .transition(t)
-                        .attr("y", (d) => yScale(d.y) - rectHeight/2)
-                ),
-                update => update.call(update => update
-                    .transition(t)
-                        .attr("x", (d) => xScale(d.x) - rectWidth / 2)
-                    .transition(t)
-                        .attr("y", (d) => yScale(d.y) - rectHeight / 2)
-                ),
-                exit => exit.remove()
+        let matrixNodes = select("g.testmatrix")
+                .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
+                .selectAll('.cell')
+                .data(data.nodes)
+                .join(
+                    enter => enter.append("rect").call(enter => enter
+                        .transition(t)
+                            .attr("x", (d) => xScale(d.x) - rectWidth/2)
+                        .transition(t)
+                            .attr("y", (d) => yScale(d.y) - rectHeight/2)
+                    ),
+                    update => update.call(update => update
+                        .transition(t)
+                            .attr("x", (d) => xScale(d.x) - rectWidth / 2)
+                        .transition(t)
+                            .attr("y", (d) => yScale(d.y) - rectHeight / 2)
+                    ),
+                    exit => exit.remove()
                 )
                 .attr("class", "cell")
                 .attr("fill", (d) => d.z)
@@ -213,17 +226,21 @@ class MatrixVisualization extends Component {
                 .attr("height", rectHeight)
                 .attr("rx", Math.max(1, xScale.step()/2))
                 .attr("stroke", (d) => d.highlight ? 'black' : null)
-                .attr("stoke-width", (d) => d.highlight ? '1px' : '0px')
-                .append("title")
-                .text(d => {
-                    let xLabelObject = data.x_labels[d.x];
+                .attr("stoke-width", (d) => d.highlight ? '1px' : '0px');
+        
+        matrixNodes.selectAll("*").remove();
+        matrixNodes.append("title")
+                    .text(d => {
+                        let xLabelObject = data.x_labels.find(e => e.method_id === d.x);
 
-                    let methodLabel = xLabelObject?.method_name ?? "unknownMethod";
-                    let classLabel = xLabelObject?.class_name ?? "UnknownClass"
-                    let testLabel = data.y_labels[d.y]?.method_name ?? "unknown test";
-                    
-                    return `${classLabel}.${methodLabel} tested by ${testLabel}`;
-                });
+                        let methodLabel = xLabelObject?.method_name ?? "unknownMethod";
+                        let classLabel = xLabelObject?.class_name ?? "UnknownClass";
+
+                        let yLabelObject = data.y_labels.find(e => e.test_id === d.y);
+                        let testLabel = yLabelObject?.method_name ?? "unknown test";
+                        
+                        return `${classLabel}.${methodLabel} tested by ${testLabel}`;
+                    });
 
         // Tooltip
         let tooltip = svg.select(".tooltip")
@@ -238,8 +255,8 @@ class MatrixVisualization extends Component {
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
             .call(xAxis)
             .selectAll("line")
-            .style("stroke", "grey")
-            .style("stroke-width", "0.5");
+            .style("stroke", "white")
+            .style("stroke-width", "0.0");
         
         select("g.x-axis")
             .select("path")
@@ -252,57 +269,42 @@ class MatrixVisualization extends Component {
             return scale(d);
         }
 
+        let tickWdith = rectWidth - (0.1 * rectWidth);
+
         // Add circler around ticks
-        select("g.x-axis")
+        let xTicks = select("g.x-axis")
             .selectAll('.axis-dots-x')
             .data(data.x_labels)
             .join(
-                enter => enter.append('circle').call(enter => enter
-                    .attr('cx', (d) => xLabel(d.to_string()) + "px")
+                enter => enter.append('rect').call(enter => enter
+                    .attr('x', d => {
+                        return `${xLabel(d.to_string()) - (tickWdith/2)}px`
+                    })
                 ),
                 update => update.call(update => update
-                    .attr('cx', (d) => xLabel(d.to_string()) + "px")
+                    .attr('x', (d) => `${xLabel(d.to_string()) - (tickWdith/2)}px`)
                 ),
                 exit => exit.remove()
             )
-                .attr("class", "axis-dots-x")
-                .attr('cy', -10)
-                .attr('r', 5)
-                .style('stroke', 'black')
-                .style('stroke-width', '0.1')
-                .style('fill', (d) => colorX(d.get_color()))
-                .on('mouseover', (event, d) => {
-                    let text_width = 0; 
-                    tooltip
-                        .style("visibility", "visible")
-                        .select("#tooltip-text")
-                        .text(d.to_string())
-                            .attr("y", event.layerY - (this.margin.top / 4) + "px")
-                            .each((d, i) => {
-                                text_width = select("#tooltip-text").node().getComputedTextLength();
-                            })
-                            .attr("transform", "")
-                            .attr("x", () => {
-                                let x_location = event.layerX - (text_width / 2) + 10;
-                                if (x_location < 10){
-                                    x_location = 10;
-                                }
-                                return x_location + "px";
-                            })
-                })
-                .on('mouseout', (event, d) => {
-                    tooltip
-                        .style("visibility", "hidden");
-                })
-                .on('click', this.onMethodClick)
-                .on('contextmenu', this.onRightClick);
+            .attr("class", "axis-dots-x")
+            .attr('y', -10)
+            .attr('height', 10)
+            .attr('width', tickWdith)
+            .style('stroke', 'black')
+            .style('stroke-width', '0.0')
+            .style('fill', (d) => colorX(d.get_color()))
+            .on('click', this.onMethodClick)
+            .on('contextmenu', this.onRightClick);
+        
+        xTicks.selectAll("*").remove();
+        xTicks.append("title").text(d => `${d.class_name}.${d.method_name}`);
         
         select("g.y-axis")
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
             .call(yAxis)
             .selectAll("line")
-            .style("stroke", "grey")
-            .style("stroke-width", "0.5");
+            .style("stroke", "white")
+            .style("stroke-width", "0.0");
 
         select("g.y-axis")
             .select("path")
@@ -314,47 +316,37 @@ class MatrixVisualization extends Component {
             return scale(d);
         }
 
-        select("g.y-axis")
+        let tickHeight = rectHeight - (0.1 * rectHeight);
+
+        let yTicks = select("g.y-axis")
             .selectAll('.axis-dots-y')
             .data(data.y_labels)
             .join(
-                    enter => enter.append('circle').call(enter => enter
-                        .attr('cy', (d) =>  yLabel(d.to_string()) +  "px")
-                    ),
-                    update => update.call(update => update
-                        .attr('cy', (d) => yLabel(d.to_string()) + "px")
-                    ),
-                    exit => exit.remove()
-                )
-                .attr("class", "axis-dots-y")
-                .attr('cx', -10)
-                .attr('r', 5)
-                .style('stroke', 'black')
-                .style('stroke-width', '0.1')
-                .style('fill', (d) => colorY(d.get_color()))
-                .on('mouseover', (event, d) => {
-                    let translateY = yLabel(d.to_string());
-                    let translateX = this.margin.left/2
-                    let text_width = 0;
-                    tooltip
-                        .style("visibility", "visible")
-                        .select("#tooltip-text")
-                            .each((d, i) => {
-                                text_width = select("#tooltip-text").node().getComputedTextLength();
-                            })
-                            .text(d.to_string())
-                            .attr("x", 0)
-                            .attr("y", 0)
-                        .attr("transform", (d) => {
-                            translateY = translateY + this.margin.top + text_width / 2;
-                            return `translate(${translateX}, ${translateY})rotate(-90)`;
-                        });
-                })
-                .on('mouseout', (event, d) => {
-                    tooltip
-                        .style("visibility", "hidden");
-                })
-                .on('click', this.onTestClick);
+                enter => enter.append('rect').call(enter => enter
+                    .attr('y', d => {
+                        return `${yLabel(d.to_string()) - (tickHeight/2)}px`
+                    })
+                ),
+                update => update.call(update => update
+                    .attr('y', (d) => `${yLabel(d.to_string()) - (tickHeight/2)}px`)
+                ),
+                exit => exit.remove()
+            )
+            .attr("class", "axis-dots-y")
+            .attr('x', -10)
+            .attr('width', 10)
+            .attr('height', tickHeight)
+            .style('stroke', 'black')
+            .style('stroke-width', '0')
+            .style('fill', (d) => colorY(d.get_color()))
+            .on('click', this.onTestClick);
+        
+        yTicks.selectAll("*").remove();
+        yTicks.append("title")
+            .text(d => {
+                
+                return d.to_string();
+            });
 
         // text label for the x axis
         svg.select(".xlabel")
@@ -379,10 +371,12 @@ class MatrixVisualization extends Component {
         let svg = select(node);
         svg.attr("viewBox", [0, 0, this.state.width, this.state.height]);
 
-        svg.append("g").attr("class", "x-axis");
-        svg.append("g").attr("class", "y-axis");
-        svg.append("g").attr("class", "testmatrix");
-        svg.append("g").attr("class", "tooltip");
+        let g = svg.append("g");
+
+        g.append("g").attr("class", "x-axis");
+        g.append("g").attr("class", "y-axis");
+        g.append("g").attr("class", "testmatrix");
+        g.append("g").attr("class", "tooltip");
 
         // Create empty labels, they are updated within the update function.
         svg.append("text").attr("class", "xlabel");
