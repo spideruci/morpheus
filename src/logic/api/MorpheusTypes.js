@@ -40,7 +40,7 @@ export class Method {
     getPackageName = () => this.packageName;
     getClassName = () => this.className;
     getMethodName = () => this.methodDecl;
-    toString = () => `[${this.filePath}]${this.packageName} ${this.className} ${this.methodDecl}`;
+    toString = () => `${this.packageName} ${this.className} ${this.methodDecl}`;
 }
 
 export class Test {
