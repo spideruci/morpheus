@@ -12,7 +12,9 @@ export const getColorFunction = (labels, funcName) => {
                 new Set(labels.map((d) => d[funcName]()))
             )
         );
-    return (node) => scale(node[funcName]());
+    return function (node) {
+        return scale(node[funcName]());
+    };
 }
 
 export const getEdgeColorTest = (edge) => {
