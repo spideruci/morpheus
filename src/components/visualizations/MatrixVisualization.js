@@ -128,8 +128,6 @@ class MatrixVisualization extends Component {
 
         svg.call(zoom1);
 
-        select('svg g').attr('transform', 'translate(0,0) scale(1.0)');
-
         let vis_width = w - this.margin.left - this.margin.right -10;
         let vis_height = h - this.margin.top - this.margin.bottom -10;
 
