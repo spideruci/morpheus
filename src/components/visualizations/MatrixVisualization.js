@@ -178,6 +178,61 @@ class MatrixVisualization extends Component {
             }
         }
 
+        // Tooltip
+        let tooltip = svg.select(".tooltip").style("visibility", 'visible');
+
+        tooltip.append("text")
+            .attr("id", "tooltip-text")
+            .attr("dominant-baseline", "auto")
+            .attr("text-anchor", "start")
+            .attr("stroke", "grey")
+            .attr("stroke-opacity", "0.3")
+            .attr("stroke-width", "5")
+            .attr("fill", "black")
+            .style("font-size", "12px")
+            .style("opacity", 0)
+            .html("");
+    
+        function mouseover(d) {
+            tooltip.select("text").style("opacity", 1)
+            select(this).style("stroke", "black")
+        }
+
+        function mousemove() {
+            let self = select(this);
+            let datum = self.datum();
+
+            let label = "";
+            if (datum.x === undefined) {
+                label = `${datum.class_name}.${datum.method_name}`;
+            }
+            else {
+                label = edgeLabel(datum);
+            }
+
+            tooltip.select("text")
+                .attr("x", parseFloat(select(this).attr("x")) + 60)
+                .attr("y", parseFloat(select(this).attr("y")) + 60)
+                .html(label)
+        }
+
+        function mouseleave(d) {
+            tooltip.select("text").style("opacity", 0);
+            select(this).style("stroke", "none");
+        }
+
+        function edgeLabel(d) {
+            let xLabelObject = data.x_labels.find(e => e.method_id === d.x);
+
+            let methodLabel = xLabelObject?.method_name ?? "unknownMethod";
+            let classLabel = xLabelObject?.class_name ?? "UnknownClass";
+
+            let yLabelObject = data.y_labels.find(e => e.test_id === d.y);
+            let testLabel = yLabelObject?.method_name ?? "unknown test";
+            
+            return `${classLabel}.${methodLabel} tested by ${testLabel}`;
+        }
+
         // Create both axis
         const max_labels = 20;
         const x_tick_interval = data.x_labels.length <= max_labels ? 1 : data.x_labels.length / max_labels;
@@ -226,29 +281,16 @@ class MatrixVisualization extends Component {
                 .attr("height", rectHeight)
                 .attr("rx", Math.max(1, xScale.step()/2))
                 .attr("stroke", (d) => d.highlight ? 'black' : null)
-                .attr("stoke-width", (d) => d.highlight ? '1px' : '0px');
+                .attr("stoke-width", (d) => d.highlight ? '1px' : '0px')
+                .on("mouseover", mouseover)
+                .on("mousemove", mousemove)
+                .on("mouseleave", mouseleave);
         
         matrixNodes.selectAll("*").remove();
         matrixNodes.append("title")
-                    .text(d => {
-                        let xLabelObject = data.x_labels.find(e => e.method_id === d.x);
+                    .text(edgeLabel);
 
-                        let methodLabel = xLabelObject?.method_name ?? "unknownMethod";
-                        let classLabel = xLabelObject?.class_name ?? "UnknownClass";
 
-                        let yLabelObject = data.y_labels.find(e => e.test_id === d.y);
-                        let testLabel = yLabelObject?.method_name ?? "unknown test";
-                        
-                        return `${classLabel}.${methodLabel} tested by ${testLabel}`;
-                    });
-
-        // Tooltip
-        let tooltip = svg.select(".tooltip")
-            .style("visibility", 'hidden')
-
-        tooltip.append("text")
-            .attr("id", "tooltip-text")
-            .style("font-size", "12px")
 
         // Add X and Y axis to the visualization
         select("g.x-axis")
@@ -294,7 +336,10 @@ class MatrixVisualization extends Component {
             .style('stroke-width', '0.0')
             .style('fill', (d) => colorX(d.get_color()))
             .on('click', this.onMethodClick)
-            .on('contextmenu', this.onRightClick);
+            .on('contextmenu', this.onRightClick)
+            .on("mouseover", mouseover)
+            .on("mousemove", mousemove)
+            .on("mouseleave", mouseleave);
         
         xTicks.selectAll("*").remove();
         xTicks.append("title").text(d => `${d.class_name}.${d.method_name}`);
@@ -339,13 +384,15 @@ class MatrixVisualization extends Component {
             .style('stroke', 'black')
             .style('stroke-width', '0')
             .style('fill', (d) => colorY(d.get_color()))
-            .on('click', this.onTestClick);
+            .on('click', this.onTestClick)
+            .on("mouseover", mouseover)
+            .on("mousemove", mousemove)
+            .on("mouseleave", mouseleave);
         
         yTicks.selectAll("*").remove();
         yTicks.append("title")
             .text(d => {
-                
-                return d.to_string();
+                return `${d.class_name}.${d.method_name}`;
             });
 
         // text label for the x axis
