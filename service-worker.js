@@ -14,7 +14,7 @@
 importScripts("https://storage.googleapis.com/workbox-cdn/releases/4.3.1/workbox-sw.js");
 
 importScripts(
-  "/morpheus/precache-manifest.7f9bdd030b0490f57426c9b7a246cb56.js"
+  "/morpheus/precache-manifest.9ef1538077ff73570db5a6d9d12147a4.js"
 );
 
 self.addEventListener('message', (event) => {
