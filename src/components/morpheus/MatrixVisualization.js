@@ -141,10 +141,10 @@ class MatrixVisualization extends Component {
             .range([0, vis_width])
 
         let xScale = xRange.copy()
-            .domain(data.x_labels.map((label) => label.getID()));
+            .domain(data.x_labels.map(label => label.getID()));
 
         let xLabel = xRange.copy()
-            .domain(data.x_labels.map((label) => label.toString()));
+            .domain(data.x_labels.map(label => label.toString()));
 
         if (xLabel.step() !== xScale.step()) {
             // Meaning duplicate class_name.method_name entries
@@ -158,15 +158,29 @@ class MatrixVisualization extends Component {
             .range([0, vis_height])
 
         let yScale = yRange.copy()
-            .domain(data.y_labels.map((label) => label.getID()));
+            .domain(data.y_labels.map(label => label.getID()));
 
         let yLabel = yRange.copy()
-            .domain(data.y_labels.map((label) => label.toString()));
+            .domain(data.y_labels.map(label => label.toString()));
 
         if (yLabel.step() !== yScale.step()) {
             // Meaning duplicate class_name.method_name entries
             console.error("yLabel and yScale step are not equal...", data.y_labels)
         }
+
+        for (const x of data.x_labels) {
+            if (xScale(x.getID()) !== xLabel(x.toString())) {
+                console.error("we got a problem...", x);
+            }
+        }
+
+        for (const y of data.y_labels) {
+            if (xScale(y.getID()) !== xLabel(y.toString())) {
+                console.error("we got a problem...", y);
+            }
+        }
+
+        console.debug("We are all good...")
 
         // Create tick format function, returns a function using the passed parameters.
         function createTickFormatter(labelToggle, labelInterval) {

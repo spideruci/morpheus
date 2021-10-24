@@ -11,8 +11,8 @@ export class Project {
 
 export class Edge {
     constructor(x, y, properties = {}) {
-        this.x = x;
-        this.y = y;
+        this.x = parseInt(x);
+        this.y = parseInt(y);
         this.properties = properties;
     }
 
@@ -27,7 +27,7 @@ export class Edge {
 
 export class Method {
     constructor(id, packageName, className, methodName, methodDecl, filePath) {
-        this.id = id;
+        this.id = parseInt(id);
         this.packageName = packageName;
         this.className = className;
         this.methodName = methodName;
@@ -45,7 +45,7 @@ export class Method {
 
 export class Test {
     constructor(id, packageName, className, testName) {
-        this.id = id;
+        this.id = parseInt(id);
         this.packageName = packageName;
         this.className = className;
         this.testName = testName;
