@@ -16,18 +16,21 @@ import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
 
 import { MORPHEUS_ACTION } from '../../hooks/useMorpheusReducer';
+import { HISTORY_ACTION } from '../../hooks/useHistoryReducer';
 import { MorpheusContext } from '../../pages/MorpheusContext';
 
 // Filters
 import { filterByCoOccurence, filterByTestResult } from '../../logic/filters/filters';
 
 
-const ToolBar = ({ onReset, children}) => {
+const ToolBar = ({ onReset, onUndo, onRedo, children}) => {
     return (
         <div className={styles.toolbar}>
             <h4>Toolbar</h4>
             { children }
             <Button onClick={onReset}>Reset</Button>
+            <Button onClick={onUndo}>Undo</Button>
+            <Button onClick={onRedo}>Redo</Button>
         </div>
     )
 }
@@ -37,7 +40,9 @@ export const CoverageToolbar = () => {
 
     return (
         <ToolBar
-            onReset={() => dispatch({ type: MORPHEUS_ACTION.RESET })}>
+            onReset={() => dispatch({ type: HISTORY_ACTION.RESET })}
+            onUndo={() => dispatch({ type: HISTORY_ACTION.UNDO })}
+            onRedo={() => dispatch({ type: HISTORY_ACTION.REDO })}>
             <ProjectSelectors
                 onChange={dispatch}
                 project={state.info.project}
@@ -71,7 +76,9 @@ export const MethodHistoryToolbar = () => {
 
     return (
         <ToolBar
-            dispatch={dispatch}>
+            onReset={() => dispatch({ type: HISTORY_ACTION.RESET })}
+            onUndo={() => dispatch({ type: HISTORY_ACTION.UNDO })}
+            onRedo={() => dispatch({ type: HISTORY_ACTION.REDO })}>
             <ProjectSelectors
                 onChange={dispatch}
                 project={state.info.project}
@@ -98,7 +105,9 @@ export const TestHistoryToolbar = () => {
 
     return (
         <ToolBar
-            dispatch={dispatch}>
+            onReset={() => dispatch({ type: HISTORY_ACTION.RESET })}
+            onUndo={() => dispatch({ type: HISTORY_ACTION.UNDO })}
+            onRedo={() => dispatch({ type: HISTORY_ACTION.REDO })}>
             <ProjectSelectors
                 onChange={dispatch}
                 project={state.info.project}

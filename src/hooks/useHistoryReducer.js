@@ -1,7 +1,7 @@
-const HISTORY_ACTIONS = {
-    redo: 'REDO',
-    undo: 'UNDO',
-    reset: 'RESET'
+export const HISTORY_ACTION = {
+    REDO: 'REDO',
+    UNDO: 'UNDO',
+    RESET: 'RESET'
 }
 
 export const historyReducer = (reducer, initialState) => {
@@ -15,8 +15,15 @@ export const historyReducer = (reducer, initialState) => {
         const { past, present, future } = state;
 
         switch (action.type) {
-            case HISTORY_ACTIONS.undo: {
+            case HISTORY_ACTION.UNDO: {
                 const [newPresent, ...newPast] = past;
+
+                // First, is project selection, Second, commit selection, and 3 is setting coverage.
+                // TODO: Should be wrapped into one.
+                if (past.length === 3) {
+                    console.warn("No more history state")
+                    return state;
+                }
                 return {
                     past: newPast,
                     present: newPresent,
@@ -24,19 +31,31 @@ export const historyReducer = (reducer, initialState) => {
                 }
             }
 
-            case HISTORY_ACTIONS.redo: {
+            case HISTORY_ACTION.REDO: {
+                if (future.length < 1) {
+                    console.warn("No more future states to apply.")
+                    return state;
+                }
                 const [newPresent, ...newFuture] = future;
                 return {
                     past: [present, ...past],
                     present: newPresent,
-                    newFuture
+                    future: newFuture
                 }
             }
 
-            case HISTORY_ACTIONS.reset: {
-                let newPresent = past.length >= 0 ? past[0] : present;
+            case HISTORY_ACTION.RESET: {
+                console.log("RESET", state);
+                if (past.length <= 3) {
+                    console.warn("No state to return yet.", state);
+                    return state
+                }
+
+                const newPast = past.slice(past.length-3 -1, past.length-1)
+                const newPresent = past[past.length - 3 -1];
+
                 return {
-                    past: [],
+                    past: newPast,
                     present: newPresent,
                     future: []
                 }

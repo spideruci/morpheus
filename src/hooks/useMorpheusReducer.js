@@ -6,7 +6,6 @@ import { Edge, Method, Test, Commit } from '../logic/api/MorpheusTypes';
 export const MORPHEUS_ACTION = {
     LOADING: 'LOADING',
     RESET: 'RESET',
-    UNDO: 'UNDO',
 
     SET_PROJECT: 'SET_PROJECT',
     SET_COMMIT: 'SET_COMMIT',
@@ -22,7 +21,7 @@ export const MORPHEUS_ACTION = {
 }
 
 const morpheusReducer = (state, action) => {
-    console.log(state, action);
+    console.log("MORPHEUS REDUCER", state, action);
     switch (action.type) {
         case MORPHEUS_ACTION.LOADING:
             return { ...state };
@@ -157,17 +156,6 @@ const morpheusReducer = (state, action) => {
                     },
                 },
             };
-        case MORPHEUS_ACTION.UNDO:
-            console.log(MORPHEUS_ACTION.UNDO, action.state)
-            return {
-                ...action.state,
-                filters: {
-                    ...action.state.filters
-                },
-                sort: {
-                    ...action.state.sort
-                }
-            }
         case MORPHEUS_ACTION.POP_UP:
             console.log(MORPHEUS_ACTION.POP_UP, action, state)
             return {
