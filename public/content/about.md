@@ -9,7 +9,7 @@
 
 The infrastructure consists of two components:
 - **Morpheus**: A test matrix visualization allowing developers to explore the relationships between the executed tests and what they cover.
-- **Neb-tools**: Converts the coverage data from *tacoco* into method coverage and creates a mapping between test and production code including historical data.
+- **spidertools**: Converts the coverage data from *tacoco* into method coverage and creates a mapping between test and production code including historical data.
 
 ## the authors:
 

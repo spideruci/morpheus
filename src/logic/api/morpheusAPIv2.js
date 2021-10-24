@@ -19,23 +19,38 @@ export const fetchCommits = (project_id) => {
 export const fetchCoverage = (project_id, commit_id) => {
     return json(`${API_ROOT}/coverage/projects/${project_id}/commits/${commit_id}`)
         .then((response) => {
+            let methods = response.coverage.methods;
+            let tests = response.coverage.tests;
+            let edges = response.coverage.edges;
+
+            if (methods.length === 0 || tests.length === 0 || edges.length === 0 ) {
+                console.error(`Nothing to visualize, methods: ${methods.length}, tests: ${tests.length}, edges: ${edges.length}`)
+            }
+
             return {
-                methods: response.coverage.methods,
-                tests: response.coverage.tests,
-                edges: response.coverage.edges
+                methods: methods,
+                tests: tests,
+                edges: edges
             }
         })
         .catch(console.error);
 }
 
 export const fetchTestHistory = (project_id, test_id) => {
-    console.debug(`${API_ROOT}/coverage/projects/${project_id}/tests/${test_id}`)
     return json(`${API_ROOT}/coverage/projects/${project_id}/tests/${test_id}`)
         .then((response) => {
+            let methods = response.coverage.methods;
+            let commits = response.coverage.commits;
+            let edges = response.coverage.edge;
+
+            if (methods.length === 0 || commits.length === 0 || edges.length === 0) {
+                console.error(`Nothing to visualize, methods: ${methods.length}, commits: ${commits.length}, edges: ${edges.length}`)
+            }
+
             return {
-                methods: response.coverage.methods,
-                commits: response.coverage.commits,
-                edges: response.coverage.edges
+                methods: methods,
+                commits: commits,
+                edges: edges
             }
         })
         .catch(console.error);
@@ -44,10 +59,18 @@ export const fetchTestHistory = (project_id, test_id) => {
 export const fetchMethodHistory = (project_id, method_id) => {
     return json(`${API_ROOT}/coverage/projects/${project_id}/methods/${method_id}`)
         .then((response) => {
+            let tests = response.coverage.tests;
+            let commits = response.coverage.commits;
+            let edges = response.coverage.edge;
+
+            if (tests.length === 0 || commits.length === 0 || edges.length === 0) {
+                console.error(`Nothing to visualize, methods: ${tests.length}, commits: ${commits.length}, edges: ${edges.length}`)
+            }
+
             return {
-                tests: response.coverage.tests,
-                commits: response.coverage.commits,
-                edges: response.coverage.edges
+                tests: tests,
+                commits: commits,
+                edges: edges
             }
         })
         .catch(console.error);
