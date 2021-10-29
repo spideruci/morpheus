@@ -33,8 +33,8 @@ class MatrixVisualization extends Component {
         this.update = this.update.bind(this);
 
         // Set all methods passed through properties here (we don't use bind because we want to make use of the parent this object.)
-        this.onMethodClick = props.onMethodClick;
-        this.onTestClick = props.onTestClick;
+        this.onXClick = props.onXClick;
+        this.onYClick = props.onYClick;
         this.onRightClick = props.onRightClick;
     }
 
@@ -100,8 +100,8 @@ class MatrixVisualization extends Component {
     componentDidUpdate(prevProps, prevState, snapshot) {
         if ((!isEqual(prevProps.coverage.x, this.props.coverage.x)) || (!isEqual(prevProps.coverage.y, this.props.coverage.y)) ) {
             this.labelToggle = this.props.labelToggle;
-            this.onMethodClick = this.props.onMethodClick;
-            this.onTestClick = this.props.onTestClick;
+            this.onXClick = this.props.onXClick;
+            this.onYClick = this.props.onYClick;
             this.update()
         }
     }
@@ -350,7 +350,7 @@ class MatrixVisualization extends Component {
             .style('stroke', 'black')
             .style('stroke-width', '0.0')
             .style('fill', (d) => colorX(d.getColor()))
-            .on('click', this.onMethodClick)
+            .on('click', this.onXClick)
             .on('contextmenu', this.onRightClick)
             .on("mouseover", mouseover)
             .on("mousemove", mousemove)
@@ -399,7 +399,7 @@ class MatrixVisualization extends Component {
             .style('stroke', 'black')
             .style('stroke-width', '0')
             .style('fill', (d) => colorY(d.getColor()))
-            .on('click', this.onTestClick)
+            .on('click', this.onYClick)
             .on("mouseover", mouseover)
             .on("mousemove", mousemove)
             .on("mouseleave", mouseleave);

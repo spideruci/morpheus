@@ -145,10 +145,10 @@ const Morpheus = () => {
                 <MatrixVisualizationWithLoading
                     isLoading={state.isLoading}
                     coverage={coverage}
-                    onMethodClick={ console.log }
-                    onTestClick={ console.log }
+                    onXClick={ console.log }
+                    onYClick={ console.log }
                     onRightClick={(event, label) => {
-                        event.preventDefault(); // to prevent regular context menu from apppearing
+                        event.preventDefault(); // to prevent regular context menu from appearing
 
                         dispatch({
                             type: MORPHEUS_ACTION.POP_UP,
