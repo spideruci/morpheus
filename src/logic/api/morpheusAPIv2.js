@@ -17,10 +17,16 @@ const DYNAMIC_API = {
     fetchMethodHistory: (project_id, method_id) => `${API_ROOT}/coverage/projects/${project_id}/methods/${method_id}.json`
 }
 
+
+const debug_api = (api_endpoint) => {
+    console.debug(`[API_CALL]: ${api_endpoint}`);
+    return api_endpoint;
+}
+
 const API = process.env.hasOwnProperty('REACT_APP_DYNAMIC') ? DYNAMIC_API : STATIC_API;
 
 export const fetchProjects = () => {
-    return json(API.fetchProjects())
+    return json(debug_api(API.fetchProjects()))
         .then((response) => {
             return response.projects;
         })
@@ -28,14 +34,14 @@ export const fetchProjects = () => {
 }
 
 export const fetchCommits = (project_id) => {
-    return json(API.fetchCommits(project_id))
+    return json(debug_api(API.fetchCommits(project_id)))
         .then((response) => {
             return response.commits;
         })
 }
 
 export const fetchCoverage = (project_id, commit_id) => {
-    return json(API.fetchCoverage(project_id, commit_id))
+    return json(debug_api(API.fetchCoverage(project_id, commit_id)))
         .then((response) => {
             let methods = response.coverage.methods;
             let tests = response.coverage.tests;
@@ -55,8 +61,7 @@ export const fetchCoverage = (project_id, commit_id) => {
 }
 
 export const fetchTestHistory = (project_id, test_id) => {
-    console.debug(`fetchTestHistory: ${API_ROOT}/coverage/projects/${project_id}/tests/${test_id}`);
-    return json(API.fetchTestHistory(project_id, test_id))
+    return json(debug_api(API.fetchTestHistory(project_id, test_id)))
         .then((response) => {
             let methods = response.coverage.methods;
             let commits = response.coverage.commits;
@@ -76,8 +81,7 @@ export const fetchTestHistory = (project_id, test_id) => {
 }
 
 export const fetchMethodHistory = (project_id, method_id) => {
-    console.debug(`${process.env.PUBLIC_URL}/data/coverage/projects/${project_id}/methods/${method_id}.json`)
-    return json(API.fetchMethodHistory(project_id, method_id))
+    return json(debug_api(API.fetchMethodHistory(project_id, method_id)))
         .then((response) => {
             console.debug(response)
             let tests = response.coverage.tests;
