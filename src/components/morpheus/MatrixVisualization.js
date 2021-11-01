@@ -220,8 +220,6 @@ class MatrixVisualization extends Component {
 
             let label = "";
             if (datum.x === undefined) {
-                // label = `${datum.class_name}.${datum.method_name}`;
-                console.log(datum);
                 label = datum.toString();
             }
             else {
@@ -230,7 +228,7 @@ class MatrixVisualization extends Component {
 
             tooltip.select("text")
                 .attr("x", parseFloat(select(this).attr("x")) + 60)
-                .attr("y", parseFloat(select(this).attr("y")) + 60)
+                .attr("y", parseFloat(select(this).attr("y")) + 45)
                 .html(label)
         }
 
@@ -307,8 +305,6 @@ class MatrixVisualization extends Component {
         matrixNodes.append("title")
                     .text(edgeLabel);
 
-
-
         // Add X and Y axis to the visualization
         select("g.x-axis")
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
@@ -356,9 +352,6 @@ class MatrixVisualization extends Component {
             .on("mousemove", mousemove)
             .on("mouseleave", mouseleave);
         
-        // xTicks.selectAll("*").remove();
-        // xTicks.append("title").text(d => `${d.class_name}.${d.method_name}`);
-        
         select("g.y-axis")
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
             .call(yAxis)
@@ -403,10 +396,6 @@ class MatrixVisualization extends Component {
             .on("mouseover", mouseover)
             .on("mousemove", mousemove)
             .on("mouseleave", mouseleave);
-        
-        // yTicks.selectAll("*").remove();
-        // yTicks.append("title")
-        //     .text(d => d.toString());
 
         // text label for the x axis
         svg.select(".xlabel")

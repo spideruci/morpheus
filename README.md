@@ -12,11 +12,12 @@ Before the visualization can be run, we need to setup the [backend](https://gith
 
 ## Environment Variables:
 
+By default it will request files that are placed in `public/data/`.
+
 | Variable Name              | Goal           | Example        |
 |----------------------------|----------------|----------------|
+| REACT_APP_REST_API         | Configure to use the REST api instead of static files  | true |
 | REACT_APP_API_ENDPOINT     | Configure the endpoint during compile time. | http://api.kajdreef.com |
 
-
 For example, to change the endpoint for the visualization when running in development mode, run the following command:
-
-`$ REACT_APP_API_ENDPOINT=http://api.kajdreef.com yarn start`
+`$ REACT_APP_REST_API=true yarn start`

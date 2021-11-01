@@ -10,11 +10,11 @@ const STATIC_API = {
 }
 
 const DYNAMIC_API = {
-    fetchProjects: () => `${API_ROOT}/projects.json`,
-    fetchCommits: (project_id) => `${API_ROOT}/projects/${project_id}/commits.json`,
-    fetchCoverage: (project_id, commit_id) => `${API_ROOT}/coverage/projects/${project_id}/commits/${commit_id}.json`,
-    fetchTestHistory: (project_id, test_id) => `${API_ROOT}/data/coverage/projects/${project_id}/tests/${test_id}.json`,
-    fetchMethodHistory: (project_id, method_id) => `${API_ROOT}/coverage/projects/${project_id}/methods/${method_id}.json`
+    fetchProjects: () => `${API_ROOT}/projects`,
+    fetchCommits: (project_id) => `${API_ROOT}/projects/${project_id}/commits`,
+    fetchCoverage: (project_id, commit_id) => `${API_ROOT}/coverage/projects/${project_id}/commits/${commit_id}`,
+    fetchTestHistory: (project_id, test_id) => `${API_ROOT}/data/coverage/projects/${project_id}/tests/${test_id}`,
+    fetchMethodHistory: (project_id, method_id) => `${API_ROOT}/coverage/projects/${project_id}/methods/${method_id}`
 }
 
 
@@ -23,7 +23,7 @@ const debug_api = (api_endpoint) => {
     return api_endpoint;
 }
 
-const API = process.env.hasOwnProperty('REACT_APP_DYNAMIC') ? DYNAMIC_API : STATIC_API;
+const API = process.env.hasOwnProperty('REACT_APP_REST_API') ? DYNAMIC_API : STATIC_API;
 
 export const fetchProjects = () => {
     return json(debug_api(API.fetchProjects()))
