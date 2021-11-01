@@ -331,7 +331,7 @@ class MatrixVisualization extends Component {
         let tickWidth = rectWidth - (0.1 * rectWidth);
 
         // Add circler around ticks
-        let xTicks = select("g.x-axis")
+        select("g.x-axis")
             .selectAll('.axis-dots-x')
             .data(data.x_labels)
             .join(
@@ -378,7 +378,7 @@ class MatrixVisualization extends Component {
 
         let tickHeight = rectHeight - (0.1 * rectHeight);
 
-        let yTicks = select("g.y-axis")
+        select("g.y-axis")
             .selectAll('.axis-dots-y')
             .data(data.y_labels)
             .join(
