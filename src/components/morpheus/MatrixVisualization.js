@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { axisTop, axisLeft } from 'd3-axis';
-import { scalePoint, scaleOrdinal } from 'd3-scale';
-import { schemeSet3 } from 'd3-scale-chromatic';
+import { scalePoint } from 'd3-scale';
 import { select } from 'd3-selection';
 import { transition } from 'd3-transition';
 import { easeLinear } from 'd3-ease';
@@ -317,12 +316,6 @@ class MatrixVisualization extends Component {
             .style("stroke", "grey")
             .style("stroke-width", "0.5");
 
-
-        const colorX = (d) => {
-            const scale = scaleOrdinal(schemeSet3).domain(Array.from(new Set(data.x_labels.map((d) => d.getColor()))));
-            return scale(d);
-        }
-
         let tickWidth = rectWidth - (0.1 * rectWidth);
 
         // Add circler around ticks
@@ -362,11 +355,6 @@ class MatrixVisualization extends Component {
             .select("path")
             .style("stroke", "grey")
             .style("stroke-width", "0.5");
-
-        const colorY = (d) => {
-            const scale = scaleOrdinal(schemeSet3).domain(Array.from(new Set(data.y_labels.map((d) => d.getColor()))));
-            return scale(d);
-        }
 
         let tickHeight = rectHeight - (0.1 * rectHeight);
 

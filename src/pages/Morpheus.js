@@ -10,7 +10,7 @@ import styles from './Morpheus.module.scss';
 import { MorpheusContext } from './MorpheusContext';
 import { MORPHEUS_ACTION } from '../hooks/useMorpheusReducer';
 
-import { scalePoint, scaleOrdinal } from 'd3-scale';
+import { scaleOrdinal } from 'd3-scale';
 import { schemeSet3 } from 'd3-scale-chromatic';
 
 
