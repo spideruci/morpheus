@@ -63,7 +63,8 @@ class MatrixVisualization extends Component {
                     x: parseInt(edge.getX()),
                     y: parseInt(edge.getY()),
                     z: edge.getColor(),
-                    highlight: highlight});
+                    highlight: highlight
+                });
             }
         });
 
@@ -175,12 +176,10 @@ class MatrixVisualization extends Component {
         }
 
         for (const y of data.y_labels) {
-            if (xScale(y.getID()) !== xLabel(y.toString())) {
+            if (yScale(y.getID()) !== yLabel(y.toString())) {
                 console.error("we got a problem...", y);
             }
         }
-
-        console.debug("We are all good...")
 
         // Create tick format function, returns a function using the passed parameters.
         function createTickFormatter(labelToggle, labelInterval) {
@@ -345,7 +344,7 @@ class MatrixVisualization extends Component {
             .attr('width', tickWidth)
             .style('stroke', 'black')
             .style('stroke-width', '0.0')
-            .style('fill', (d) => colorX(d.getColor()))
+            .style('fill', (d) => d.getColor())
             .on('click', this.onXClick)
             .on('contextmenu', this.onRightClick)
             .on("mouseover", mouseover)
@@ -391,8 +390,9 @@ class MatrixVisualization extends Component {
             .attr('height', tickHeight)
             .style('stroke', 'black')
             .style('stroke-width', '0')
-            .style('fill', (d) => colorY(d.getColor()))
+            .style('fill', (d) => d.getColor())
             .on('click', this.onYClick)
+            .on('contextmenu', this.onRightClick)
             .on("mouseover", mouseover)
             .on("mousemove", mousemove)
             .on("mouseleave", mouseleave);

@@ -10,6 +10,10 @@ import styles from './Morpheus.module.scss';
 import { MorpheusContext } from './MorpheusContext';
 import { MORPHEUS_ACTION } from '../hooks/useMorpheusReducer';
 
+import { scalePoint, scaleOrdinal } from 'd3-scale';
+import { schemeSet3 } from 'd3-scale-chromatic';
+
+
 const useLoading = (Component, LoadingComponent = <div />) => {
     return (props) => props.isLoading ? LoadingComponent : <Component {...props} />;
 }
@@ -136,7 +140,33 @@ const Morpheus = () => {
     } else if (state.info.type === 'METHOD_HISTORY') {
         Edge.prototype.getColor = function () { return this.getProperty('test_result') ? '#03C03C' : '#FF1C00' };
     } else if (state.info.type === 'COVERAGE') {
-        Edge.prototype.getColor = function(){ return this.getProperty('test_result') ? '#03C03C' : '#FF1C00'};
+        let {x, y, edges} = coverage;
+
+        if ((x.length >= 0 && y.length >= 0 && edges.length > 0) && (x[0].constructor.name === Method.name && y[0].constructor.name === Test.name && edges[0].constructor.name === Edge.name)) {
+
+            let unique_method_packages = new Set(coverage.x.map((method) => method.getPackageName()));
+            let unique_tests_packages = new Set(coverage.y.map((test) => test.getPackageName()));
+
+            const colorX = (d) => {
+                const scale = scaleOrdinal(schemeSet3).domain(Array.from(unique_method_packages));
+                return scale(d);
+            }
+
+            const colorY = (d) => {
+                const scale = scaleOrdinal(schemeSet3).domain(Array.from(unique_tests_packages));
+                return scale(d);
+            }
+
+            Edge.prototype.getColor = function () {
+                return this.getProperty('test_result') ? '#03C03C' : '#FF1C00'
+            };
+            Method.prototype.getColor = function () {
+                return colorX(this.getPackageName());
+            };
+            Test.prototype.getColor = function () {
+                return colorY(this.getPackageName());
+            };
+        }
     }
 
     return (

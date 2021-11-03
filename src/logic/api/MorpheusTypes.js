@@ -35,12 +35,12 @@ export class Method {
         this.filePath = filePath;
     }
 
-    getID = () => this.id;
-    getColor = () => 'black';
-    getPackageName = () => this.packageName;
-    getClassName = () => this.className;
-    getMethodName = () => this.methodDecl;
-    toString = () => `${this.packageName} ${this.className} ${this.methodDecl}`;
+    getID() { return this.id };
+    getColor() { return 'black'};
+    getPackageName() { return this.packageName};
+    getClassName() { return this.className};
+    getMethodName() { return this.methodDecl};
+    toString() { return `${this.packageName} ${this.className} ${this.methodDecl}`};
 }
 
 export class Test {
@@ -51,12 +51,12 @@ export class Test {
         this.testName = testName;
     }
 
-    getID = () => this.id;
-    getColor = () => 'black';
-    getPackageName = () => this.packageName;
-    getClassName = () => this.className;
-    getMethodName = () => this.testName;
-    toString = () => `${this.packageName} ${this.className} ${this.testName}`;
+    getID() { return this.id };
+    getColor() { return 'black' };
+    getPackageName() { return this.packageName };
+    getClassName() { return this.className };
+    getMethodName() { return this.testName };
+    toString() { return `${this.packageName} ${this.className} ${this.testName}` };
 }
 
 export class Commit {
@@ -67,12 +67,12 @@ export class Commit {
         this.author = author;
     }
 
-    getID = () => this.id;
-    getColor = () => 'black';
-    getAuthor = () => this.author;
-    getDate = () => this.date;
-    getSHA = () => this.sha;
-    toString = () => {
+    getID() { return this.id };
+    getColor() { return 'black' };
+    getAuthor() { return this.author };
+    getDate() { return this.date };
+    getSHA() { return this.sha};
+    toString() {
         const short_sha = this.sha.slice(this.sha.length - 7, this.sha.length);
         const date = this.date.toDateString();
         return `${short_sha}, ${date}`;

@@ -5,7 +5,7 @@ const STATIC_API = {
     fetchProjects: () => `${process.env.PUBLIC_URL}/data/projects.json`,
     fetchCommits: (project_id) => `${process.env.PUBLIC_URL}/data/projects/${project_id}/commits.json`,
     fetchCoverage: (project_id, commit_id) => `${process.env.PUBLIC_URL}/data/coverage/projects/${project_id}/commits/${commit_id}.json`,
-    fetchTestHistory: (project_id, test_id) => `${process.env.PUBLIC_URL}/data/data/coverage/projects/${project_id}/tests/${test_id}.json`,
+    fetchTestHistory: (project_id, test_id) => `${process.env.PUBLIC_URL}/data/coverage/projects/${project_id}/tests/${test_id}.json`,
     fetchMethodHistory: (project_id, method_id) => `${process.env.PUBLIC_URL}/data/coverage/projects/${project_id}/methods/${method_id}.json`
 }
 
@@ -13,7 +13,7 @@ const DYNAMIC_API = {
     fetchProjects: () => `${API_ROOT}/projects`,
     fetchCommits: (project_id) => `${API_ROOT}/projects/${project_id}/commits`,
     fetchCoverage: (project_id, commit_id) => `${API_ROOT}/coverage/projects/${project_id}/commits/${commit_id}`,
-    fetchTestHistory: (project_id, test_id) => `${API_ROOT}/data/coverage/projects/${project_id}/tests/${test_id}`,
+    fetchTestHistory: (project_id, test_id) => `${API_ROOT}/coverage/projects/${project_id}/tests/${test_id}`,
     fetchMethodHistory: (project_id, method_id) => `${API_ROOT}/coverage/projects/${project_id}/methods/${method_id}`
 }
 
@@ -83,7 +83,6 @@ export const fetchTestHistory = (project_id, test_id) => {
 export const fetchMethodHistory = (project_id, method_id) => {
     return json(debug_api(API.fetchMethodHistory(project_id, method_id)))
         .then((response) => {
-            console.debug(response)
             let tests = response.coverage.tests;
             let commits = response.coverage.commits;
             let edges = response.coverage.edges;
