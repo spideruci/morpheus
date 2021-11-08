@@ -20,7 +20,7 @@ import { HISTORY_ACTION } from '../../hooks/useHistoryReducer';
 import { MorpheusContext } from '../../pages/MorpheusContext';
 
 // Filters
-import { filterByCoOccurence, filterByTestResult } from '../../logic/filters/filters';
+import { filterByTestType, filterByCoOccurence, filterByTestResult, TEST_TYPES } from '../../logic/filters/filters';
 
 
 const ToolBar = ({ onReset, onUndo, onRedo, children}) => {
@@ -298,6 +298,7 @@ const TestFilter = ({ onChange, tests, isLoading }) => {
     }
 
     const TEST_RESULT_KEYS = Object.keys(TEST_RESULTS);
+    const TEST_TYPES_KEYS = Object.keys(TEST_TYPES);
 
     return (
         <Accordion>
@@ -330,6 +331,22 @@ const TestFilter = ({ onChange, tests, isLoading }) => {
                     disabled={isLoading}
                 >
                     {TEST_RESULT_KEYS.map((name, index) => <MenuItem key={name} value={TEST_RESULTS[name]}>{name}</MenuItem>)}
+                </Select>
+                <h4>Test Type: </h4>
+                <Select
+                    className={styles.mediumMenu}
+                    defaultValue={TEST_TYPES.ALL.toString()}
+                    onChange={(e) => {
+                        onChange({
+                            type: MORPHEUS_ACTION.ADD_FILTER,
+                            filters: {
+                                TEST_TYPE: filterByTestType(e.target.value)
+                            }
+                        })
+                    }}
+                    disabled={isLoading}
+                >
+                    {TEST_TYPES_KEYS.map((name, index) => <MenuItem key={name} value={TEST_TYPES[name]}>{name}</MenuItem>)}
                 </Select>
             </AccordionDetails>
         </Accordion>
