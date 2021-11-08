@@ -12,7 +12,8 @@ import { MORPHEUS_ACTION } from '../hooks/useMorpheusReducer';
 
 import { scaleOrdinal } from 'd3-scale';
 import { schemeSet3 } from 'd3-scale-chromatic';
-
+import { filterByCoOccurence } from '../logic/filters/methods';
+import { filterByCoexecutedTests } from '../logic/filters/tests';
 
 const useLoading = (Component, LoadingComponent = <div />) => {
     return (props) => props.isLoading ? LoadingComponent : <Component {...props} />;
@@ -176,8 +177,22 @@ const Morpheus = () => {
                 <MatrixVisualizationWithLoading
                     isLoading={state.isLoading}
                     coverage={coverage}
-                    onXClick={ console.log }
-                    onYClick={ console.log }
+                    onXClick={(e) => {
+                        dispatch({
+                            type: MORPHEUS_ACTION.ADD_FILTER,
+                            filters: {
+                                METHOD_COOCCURENCE: filterByCoOccurence(e.target.__data__)
+                            }
+                        });
+                    }}
+                    onYClick={(e) => {
+                        dispatch({
+                            type: MORPHEUS_ACTION.ADD_FILTER,
+                            filters: {
+                                TEST_COEXECUTED: filterByCoexecutedTests(e.target.__data__)
+                            }
+                        });
+                    }}
                     onRightClick={(event, label) => {
                         event.preventDefault(); // to prevent regular context menu from appearing
 
@@ -192,9 +207,6 @@ const Morpheus = () => {
                     }}
                     xLabel={xLabel}
                     yLabel={yLabel}
-                    // getColorEdge={getColorEdge}
-                    // getColorX={getColorX}
-                    // getColorY={getColorY}
                     />
                 {getPopover(state, dispatch, console.log, clickHistory)}
             </div>

@@ -1,8 +1,10 @@
-export const filterByCoOccurence = (methodName) => {
+import { create_coverage_map } from '../util/coverage_map';
+
+export const filterByCoOccurence = (method) => {
     return (coverage, globalCoverage) => {
         const {x, y, edges} = coverage;
 
-        let filterX = x.find(m => m.toString() === methodName);
+        let filterX = x.find(m => m.getMethodName() === method.getMethodName());
 
         if (filterX === undefined) {
             return coverage;
@@ -127,26 +129,47 @@ function test_type_filter(current_state, all_data, is_of_test_type) {
     }
 }
 
-function create_coverage_map(edges, get_key, get_value) {
-    let test_id_map = new Map()
+export function filterByCoexecutedMethods(current_state, _, identifier) {
+    const current = current_state;
 
-    edges.forEach(edge => {
-        const key = get_key(edge)
-        const value = get_value(edge)
+    let methods = current.x;
+    let test_cases = current.y;
+    let edges = current.edges;
 
-        if (test_id_map.has(key)) {
-            //  Get current Set of methods test covers
-            let method_ids = test_id_map.get(key)
+    let filter_method = methods.find(m => m.toString().includes(identifier));
 
-            // Add new method id to set and update map
-            method_ids.add(value)
-            test_id_map.set(key, method_ids)
+    if (filter_method === undefined) {
+        filter_method = methods.find(m => m.getID() === parseInt(identifier));
+    }
 
-        } else {
-            let method_ids = new Set();
-            method_ids.add(value);
-            test_id_map.set(key, method_ids)
+    if (filter_method === undefined) {
+        console.error("Filter Method was not found...");
+        return current;
+    }
+
+    const filtered_method_id = filter_method.getID();
+
+    const test_ids = edges.filter(edge => filtered_method_id === edge.method_id)
+        .map(edge => edge.test_id);
+
+    const filtered_tests = test_cases.filter(test => test_ids.includes(test.test_id))
+
+    const filtered_edges = edges.filter(
+        edge => test_ids.includes(edge.test_id) || edge.method_id === filter_method.method_id)
+
+    filtered_edges.forEach((edge) => {
+        if (edge.method_id === filtered_method_id) {
+            edge.highlight = true;
         }
-    });
-    return test_id_map;
+    })
+
+    const method_ids = filtered_edges.map(edge => edge.method_id)
+
+    const filtered_methods = methods.filter(method => method_ids.includes(method.method_id));
+
+    return {
+        x: filtered_methods,
+        y: filtered_tests,
+        edges: filtered_edges
+    }
 }

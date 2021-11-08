@@ -2,6 +2,9 @@ import { useReducer, useEffect } from 'react';
 import { fetchCoverage, fetchTestHistory, fetchMethodHistory } from '../logic/api/morpheusAPIv2';
 import { historyReducer } from './useHistoryReducer';
 import { Edge, Method, Test, Commit } from '../logic/api/MorpheusTypes';
+import { sortMethodsByName } from '../logic/sorting/methods';
+import { sortTestsByName } from '../logic/sorting/tests';
+import { sortCommitsByDate } from '../logic/sorting/commits';
 
 export const MORPHEUS_ACTION = {
     LOADING: 'LOADING',
@@ -108,17 +111,17 @@ const morpheusReducer = (state, action) => {
 
             let x_func = {
                 name: 'NAME',
-                func: (a, b) => a.toString() > b.toString()
+                func: sortMethodsByName
             }
             const y_func = {
                 name: 'NAME',
-                func: (a, b) => a.toString() > b.toString()
+                func: sortTestsByName
             }
 
             if ((state.info.type === 'METHOD_HISTORY') || (state.info.type === 'TEST_HISTORY')) {
                 x_func ={
                     name: 'DATE',
-                    func: (a, b) => a.getDate() > b.getDate()
+                    func: sortCommitsByDate
                 }
             }
 

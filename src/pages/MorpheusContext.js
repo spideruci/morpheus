@@ -1,5 +1,7 @@
 import React, { createContext, useContext } from 'react';
 import { useMorpheusController } from '../hooks/useMorpheusReducer'
+import { sortMethodsByName } from '../logic/sorting/methods';
+import { sortTestsByName } from '../logic/sorting/tests';
 
 export const initialState = {
 
@@ -17,11 +19,11 @@ export const initialState = {
     sort: {
         x: {
             name: 'NAME',
-            func: (a, b) => a.toString() > b.toString()
+            func: sortMethodsByName
         },
         y: {
             name: 'NAME',
-            func: (a, b) => a.toString() > b.toString()
+            func: sortTestsByName
         },
     },
     coverage: {

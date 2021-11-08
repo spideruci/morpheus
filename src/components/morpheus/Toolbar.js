@@ -20,7 +20,10 @@ import { HISTORY_ACTION } from '../../hooks/useHistoryReducer';
 import { MorpheusContext } from '../../pages/MorpheusContext';
 
 // Filters
-import { filterByTestType, filterByCoOccurence, filterByTestResult, TEST_TYPES } from '../../logic/filters/filters';
+import { filterByTestType, filterByCoOccurence, filterByTestResult, TEST_TYPES } from '../../logic/filters/methods';
+import { sortMethodsByCoverage, sortMethodsByName, sortMethodsBySuspiciousness } from '../../logic/sorting/methods';
+import { sortTestsByCoverage, sortTestsByName } from '../../logic/sorting/tests';
+
 
 
 const ToolBar = ({ onReset, onUndo, onRedo, children}) => {
@@ -84,14 +87,9 @@ export const MethodHistoryToolbar = () => {
                 project={state.info.project}
                 commit={state.info.commit}
             />
-            <CoverageSorter
+            <MethodHistorySorter
                 isLoading={state.isLoading}
                 onChange={dispatch} />
-            <TestFilter
-                tests={state.coverage.y}
-                onChange={dispatch}
-                isLoading={state.isLoading}
-            />
             <MethodInfoBox
                 project={state.info.project}
                 method={state.info.method}
@@ -113,16 +111,9 @@ export const TestHistoryToolbar = () => {
                 project={state.info.project}
                 commit={state.info.commit}
             />
-            <CoverageSorter
+            <TestHistorySorter
                 isLoading={state.isLoading}
                 onChange={dispatch} />
-            <MethodFilter
-                methods={state.coverage.x}
-                onChange={dispatch}
-                isLoading={state.isLoading}
-                valueX={state.sort.x.name}
-                valueY={state.sort.y.name}
-            />
             <TestInfoBox
                 project={state.info.project}
                 test={state.info.test}
@@ -210,15 +201,17 @@ const ProjectSelectors = ({ onChange, project, commit}) => {
 const CoverageSorter = ({ onChange, isLoading, valueX, valueY }) => {
 
     const SORT_MAP_X = {
-        ID: (a, b) => a.getID() > b.getID(),
-        NAME: (a, b) => a.toString() > b.toString(),
+        // Id: (a, b) => a.getID() > b.getID(),
+        Name: sortMethodsByName,
+        Coverage: sortMethodsByCoverage,
+        Suspiciousness: sortMethodsBySuspiciousness
     };
 
     const SORT_KEYS_X = Object.keys(SORT_MAP_X);
 
     const SORT_MAP_Y = {
-        ID: (a, b) => a.getID() > b.getID(),
-        NAME: (a, b) => a.toString() > b.toString(),
+        Name: sortTestsByName,
+        Coverage: sortTestsByCoverage,
     };
 
     const SORT_KEYS_Y = Object.keys(SORT_MAP_Y);    
@@ -229,10 +222,11 @@ const CoverageSorter = ({ onChange, isLoading, valueX, valueY }) => {
                 <span>Sorting</span>
             </AccordionSummary>
             <AccordionDetails className="accordion-block">
-                <h4>Sort X-Axis</h4>
+            <div className="block">
+                <h4>Sort Methods</h4>
                 <Select
                     className={styles.mediumMenu}
-                    defaultValue={valueX !== undefined ? valueX : 'NAME'}
+                    defaultValue={valueX !== undefined ? valueX : 'Name'}
                     onChange={(e) => {
                         onChange({ type: MORPHEUS_ACTION.SET_SORT, x: { name: e.target.value, func: SORT_MAP_X[e.target.value]}});
                     }}
@@ -240,16 +234,77 @@ const CoverageSorter = ({ onChange, isLoading, valueX, valueY }) => {
                 >
                 {SORT_KEYS_X.map((name, index) => <MenuItem key={index} value={name}>{name}</MenuItem>)}
                 </Select>
-                <h4>Sort Y-Axis</h4>
+                </div>
+                <div>
+                <h4>Sort Tests</h4>
                 <Select
                     className={styles.mediumMenu}
-                    defaultValue={valueY !== undefined ? valueY : 'NAME'}
+                    defaultValue={valueY !== undefined ? valueY : 'Name'}
                     onChange={(e) => {
                         onChange({ type: MORPHEUS_ACTION.SET_SORT, y: { name: e.target.value, func:SORT_MAP_Y[e.target.value] }});
                     }}
                     disabled={isLoading}
                 >
                     {SORT_KEYS_Y.map((name, index) => <MenuItem key={index} value={name}>{name}</MenuItem>)}
+                </Select>
+                </div>
+            </AccordionDetails>
+        </Accordion>
+    )
+}
+
+const MethodHistorySorter = ({ onChange, isLoading, valueX, valueY }) => {
+    const SORT_MAP_TESTS = {
+        Name: sortTestsByName,
+    };
+
+    const SORT_KEYS_TESTS = Object.keys(SORT_MAP_TESTS);
+
+    return (
+        <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <span>Sorting</span>
+            </AccordionSummary>
+            <AccordionDetails className="accordion-block">
+                <h4>Sort Tests</h4>
+                <Select
+                    className={styles.mediumMenu}
+                    defaultValue={valueY !== undefined ? valueY : 'Name'}
+                    onChange={(e) => {
+                        onChange({ type: MORPHEUS_ACTION.SET_SORT, y: { name: e.target.value, func: SORT_MAP_TESTS[e.target.value] } });
+                    }}
+                    disabled={isLoading}
+                >
+                    {SORT_KEYS_TESTS.map((name, index) => <MenuItem key={index} value={name}>{name}</MenuItem>)}
+                </Select>
+            </AccordionDetails>
+        </Accordion>
+    )
+}
+
+const TestHistorySorter = ({ onChange, isLoading, valueX, valueY }) => {
+    const SORT_MAP_METHODS = {
+        Name: sortMethodsByName,
+    };
+
+    const SORT_KEYS_METHODS = Object.keys(SORT_MAP_METHODS);
+
+    return (
+        <Accordion>
+            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+                <span>Sorting</span>
+            </AccordionSummary>
+            <AccordionDetails className="accordion-block">
+                <h4>Sort Methods</h4>
+                <Select
+                    className={styles.mediumMenu}
+                    defaultValue={valueY !== undefined ? valueY : 'Name'}
+                    onChange={(e) => {
+                        onChange({ type: MORPHEUS_ACTION.SET_SORT, y: { name: e.target.value, func: SORT_MAP_METHODS[e.target.value] } });
+                    }}
+                    disabled={isLoading}
+                >
+                    {SORT_KEYS_METHODS.map((name, index) => <MenuItem key={index} value={name}>{name}</MenuItem>)}
                 </Select>
             </AccordionDetails>
         </Accordion>
@@ -292,9 +347,9 @@ const MethodFilter = ({ onChange, methods }) => {
 
 const TestFilter = ({ onChange, tests, isLoading }) => {
     const TEST_RESULTS = {
-        ALL: ``,
-        PASSED: true,
-        FAILED: false,
+        All: "All",
+        Passed: true,
+        Failed: false,
     }
 
     const TEST_RESULT_KEYS = Object.keys(TEST_RESULTS);
@@ -319,7 +374,7 @@ const TestFilter = ({ onChange, tests, isLoading }) => {
                 <h4>Test Result: </h4>
                 <Select
                     className={styles.mediumMenu}
-                    defaultValue={TEST_RESULTS.ALL.toString()}
+                    defaultValue={TEST_RESULTS.All.toString()}
                     onChange={(e) => {
                         onChange({
                             type: MORPHEUS_ACTION.ADD_FILTER,
