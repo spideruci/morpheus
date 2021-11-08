@@ -141,30 +141,31 @@ const Morpheus = () => {
         Edge.prototype.getColor = function () { return this.getProperty('test_result') ? '#03C03C' : '#FF1C00' };
     } else if (state.info.type === 'COVERAGE') {
         let {x, y, edges} = coverage;
-
-        if ((x.length >= 0 && y.length >= 0 && edges.length > 0) && (x[0].constructor.name === Method.name && y[0].constructor.name === Test.name && edges[0].constructor.name === Edge.name)) {
-
+        if (x.length > 0 && x[0].constructor.name === Method.name) {
             let unique_method_packages = new Set(coverage.x.map((method) => method.getPackageName()));
-            let unique_tests_packages = new Set(coverage.y.map((test) => test.getPackageName()));
-
             const colorX = (d) => {
                 const scale = scaleOrdinal(schemeSet3).domain(Array.from(unique_method_packages));
                 return scale(d);
             }
 
+            Method.prototype.getColor = function () {
+                return colorX(this.getPackageName());
+            };
+        }
+        if (y.length > 0 && y[0].constructor.name === Test.name) {
+            let unique_tests_packages = new Set(coverage.y.map((test) => test.getPackageName()));
             const colorY = (d) => {
                 const scale = scaleOrdinal(schemeSet3).domain(Array.from(unique_tests_packages));
                 return scale(d);
             }
 
-            Edge.prototype.getColor = function () {
-                return this.getProperty('test_result') ? '#03C03C' : '#FF1C00'
-            };
-            Method.prototype.getColor = function () {
-                return colorX(this.getPackageName());
-            };
             Test.prototype.getColor = function () {
                 return colorY(this.getPackageName());
+            };
+        }
+        if (edges.length > 0 && edges[0].constructor.name === Edge.name) {
+            Edge.prototype.getColor = function () {
+                return this.getProperty('test_result') ? '#03C03C' : '#FF1C00'
             };
         }
     }

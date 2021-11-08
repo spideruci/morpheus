@@ -37,12 +37,11 @@ export const TEST_TYPE = {
 export const filterByTestResult = (testResult) => {
     return (coverage, globalCoverage) => {
         const { x, y, edges } = coverage;
-
         if (typeof testResult !== "boolean") {
             return coverage;
         }
 
-        const new_edges = edges.filter((edge) => edge.test_result === testResult);
+        const new_edges = edges.filter((edge) => edge.getProperty("test_result") === testResult);
         const test_ids = new_edges.map(edge => parseInt(edge.getY()))
 
         const newY = y.filter((test) => test_ids.includes(parseInt(test.getID())))
@@ -50,7 +49,7 @@ export const filterByTestResult = (testResult) => {
         return {
             x: x,
             y: newY,
-            edges: edges,
+            edges: new_edges,
         }
     }
 }
