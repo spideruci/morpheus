@@ -40,3 +40,14 @@ public/data
     ├── 1
     └── 2
 ```
+
+At the moment, one dataset is provided in the `datasets` folder. Using the `setup-data.sh` script you can unzip the files and put them in the right place.
+
+```
+// Run this from the root directory of the project
+$ ./setup-data.sh -d datasets/2021110101-jpacman-commons-io.zip
+```
+
+| dataset | projects | notes   |
+|---------|----------|---------|
+| 2021110101.zip | jpacman-framework | Only contains the coverage data of the last 10 release of jpacman. |
