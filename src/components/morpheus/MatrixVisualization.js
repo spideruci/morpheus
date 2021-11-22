@@ -135,50 +135,16 @@ class MatrixVisualization extends Component {
         // let vis_height = h - this.margin.top - this.margin.bottom - 10;
 
         // Scales for X-axis
-        // TODO how to refactor the following so we can make use of a single scale instead of xScale and xLabel?
-        let xRange = scalePoint()
+        let xScale = scalePoint()
             .padding(0.5)
             .range([0, vis_width])
-
-        let xScale = xRange.copy()
             .domain(data.x_labels.map(label => label.getID()));
 
-        let xLabel = xRange.copy()
-            .domain(data.x_labels.map(label => label.toString()));
-
-        if (xLabel.step() !== xScale.step()) {
-            // Meaning duplicate class_name.method_name entries
-            console.error("xLabel and xScale step are not equal...", data.x_labels)
-        }
-
         // Scales for Y-axis
-        // TODO how to refactor the following so we can make use of a single scale instead of yScale and yLabel?
-        let yRange = scalePoint()
+        let yScale = scalePoint()
             .padding(0.5)
             .range([0, vis_height])
-
-        let yScale = yRange.copy()
             .domain(data.y_labels.map(label => label.getID()));
-
-        let yLabel = yRange.copy()
-            .domain(data.y_labels.map(label => label.toString()));
-
-        if (yLabel.step() !== yScale.step()) {
-            // Meaning duplicate class_name.method_name entries
-            console.error("yLabel and yScale step are not equal...", data.y_labels)
-        }
-
-        for (const x of data.x_labels) {
-            if (xScale(x.getID()) !== xLabel(x.toString())) {
-                console.error("we got a problem...", x);
-            }
-        }
-
-        for (const y of data.y_labels) {
-            if (yScale(y.getID()) !== yLabel(y.toString())) {
-                console.error("we got a problem...", y);
-            }
-        }
 
         // Create tick format function, returns a function using the passed parameters.
         function createTickFormatter(labelToggle, labelInterval) {
@@ -227,7 +193,7 @@ class MatrixVisualization extends Component {
             tooltip.select("text")
                 .attr("x", parseFloat(select(this).attr("x")) + 60)
                 .attr("y", parseFloat(select(this).attr("y")) + 45)
-                .html(label)
+                .text(label)
         }
 
         function mouseleave(d) {
@@ -256,18 +222,18 @@ class MatrixVisualization extends Component {
 
         let xAxis = axisTop()
             .tickFormat(createTickFormatter(x_toggle, x_tick_interval))
-            .scale(xLabel);
+            .scale(xScale);
 
         let yAxis = axisLeft()
             .tickFormat(createTickFormatter(y_toggle, y_tick_interval))
-            .scale(yLabel);
+            .scale(xScale);
 
         const t = transition()
             .duration(0)
             .ease(easeLinear);
 
-        let rectWidth = xLabel.step()
-        let rectHeight = yLabel.step()
+        let rectWidth = xScale.step()
+        let rectHeight = yScale.step()
 
         let matrixNodes = select("g.testmatrix")
                 .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
@@ -324,10 +290,10 @@ class MatrixVisualization extends Component {
             .data(data.x_labels)
             .join(
                 enter => enter.append('rect').call(enter => enter
-                    .attr('x', d => `${xLabel(d.toString()) - (tickWidth/2)}px`)
+                    .attr('x', d => `${xScale(d.getID()) - (tickWidth/2)}px`)
                 ),
                 update => update.call(update => update
-                    .attr('x', (d) => `${xLabel(d.toString()) - (tickWidth/2)}px`)
+                    .attr('x', (d) => `${xScale(d.getID()) - (tickWidth/2)}px`)
                 ),
                 exit => exit.remove()
             )
@@ -364,11 +330,11 @@ class MatrixVisualization extends Component {
             .join(
                 enter => enter.append('rect').call(enter => enter
                     .attr('y', d => {
-                        return `${yLabel(d.toString()) - (tickHeight/2)}px`
+                        return `${yScale(d.getID()) - (tickHeight/2)}px`
                     })
                 ),
                 update => update.call(update => update
-                    .attr('y', (d) => `${yLabel(d.toString()) - (tickHeight/2)}px`)
+                    .attr('y', (d) => `${yScale(d.getID()) - (tickHeight/2)}px`)
                 ),
                 exit => exit.remove()
             )
