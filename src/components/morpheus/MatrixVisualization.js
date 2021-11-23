@@ -5,7 +5,7 @@ import { select } from 'd3-selection';
 import { transition } from 'd3-transition';
 import { easeLinear } from 'd3-ease';
 import { isEqual } from 'lodash';
-// import { zoom } from 'd3-zoom';
+import { zoom } from 'd3-zoom';
 
 class MatrixVisualization extends Component {
     constructor(props) {
@@ -107,32 +107,47 @@ class MatrixVisualization extends Component {
     }
 
     update () {
-        // Update viewBox to the state width and height
         const node = this.ref.current;
         let svg = select(node);
 
         let data = this.createMatrix();
 
+        // Update viewBox to the state width and height
+        // the viewbox for the SVG is essentially it's viewport.
+        // pratically, this defines the on-screen dimensions wihtin which
+        // the user can pan around the matrix. Note: the actual dimensions
+        // of the matrix will be relative to this viewBox and can be bigger/
+        // smaller then these dimensions.
         svg.attr("viewBox", [0, 0, this.state.width, this.state.height]);
 
-        let vis_width = this.state.width - this.margin.left - this.margin.right - 10;
-        let vis_height = this.state.height - this.margin.top - this.margin.bottom - 10;
+        // basic D3 incantations to enable zoom in the SVG element.
+        let zoomFun = zoom().on('zoom', e => {
+            select('svg g').attr('transform', e.transform);
+        });
 
-        // let w = data.x_labels.length * 3;
-        // let h = data.y_labels.length * 3;
+        svg.call(zoomFun);
 
-        // svg.attr("viewBox", [0, 0, this.state.width, this.state.height]);
+        // this sets the preliminary position of the SVG: scale at 100%, and set top left corner to 0,0.
+        select('svg g').attr('transform', 'translate(0,0) scale(1.0)');
 
-        // let zoom1 = zoom().on('zoom', e => {
-        //     select('svg g').attr('transform', e.transform);
-        // });
+        // compute the dimensions of the matrix itself
+        // this can be smaller than the SVG's viewbox.
+        var unitSide = 0;
+        if (data.x_labels.length >= data.y_labels.length) {
+            unitSide = (1.0 * this.state.width) / data.x_labels.length
+        }
+        else {
+            unitSide = (1.0 * this.state.height) / data.y_labels.length
+        }
 
-        // svg.call(zoom1);
+        // To adapt width and height perfectly with the canvas' dimensions
+        // just set w and h to state.width and .height respectively.
+        // TODO: ideally expose this as a user pref with a checkbox in the GUI.
+        let w = data.x_labels.length * unitSide; // this.state.width
+        let h = data.y_labels.length * unitSide; // this.state.height
 
-        // select('svg g').attr('transform', 'translate(0,0) scale(1.0)');
-
-        // let vis_width = w - this.margin.left - this.margin.right - 10;
-        // let vis_height = h - this.margin.top - this.margin.bottom - 10;
+        let vis_width = w - this.margin.left - this.margin.right - 10;
+        let vis_height = h - this.margin.top - this.margin.bottom - 10;
 
         // Scales for X-axis
         let xScale = scalePoint()
@@ -226,7 +241,7 @@ class MatrixVisualization extends Component {
 
         let yAxis = axisLeft()
             .tickFormat(createTickFormatter(y_toggle, y_tick_interval))
-            .scale(xScale);
+            .scale(yScale);
 
         const t = transition()
             .duration(0)
