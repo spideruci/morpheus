@@ -3,11 +3,6 @@ import { fetchProjects, fetchCommits } from '../../logic/api/morpheusAPIv2';
 import { Project, Commit } from '../../logic/api/MorpheusTypes';
 import styles from './Toolbar.module.scss';
 
-// Accordion
-import Accordion from '@material-ui/core/Accordion';
-import AccordionSummary from '@material-ui/core/AccordionSummary';
-import AccordionDetails from '@material-ui/core/AccordionDetails';
-import ExpandMoreIcon from '@material-ui/icons/ExpandMore';
 
 import TextField from '@material-ui/core/TextField';
 import Autocomplete from '@material-ui/lab/Autocomplete';
@@ -49,11 +44,13 @@ export const CoverageToolbar = () => {
             <ProjectSelectors
                 onChange={dispatch}
                 project={state.info.project}
-                commit={state.info.commit}
-                />
+                commit={state.info.commit} />
+            <hr/>
             <CoverageSorter
                 isLoading={state.isLoading}
                 onChange={dispatch} />
+            <hr/>
+            <h4 style = {{ margin: '5px' }}>Filters</h4>
             <MethodFilter
                 methods={state.coverage.x}
                 onChange={dispatch}
@@ -66,11 +63,13 @@ export const CoverageToolbar = () => {
                 onChange={dispatch}
                 isLoading={state.isLoading}
             />
+            <hr/>
             <CoverageInfoBox
                 project={state.info.project}
                 commit={state.info.commit}
             />
         </ToolBar>
+       
     )
 }
 
@@ -87,9 +86,11 @@ export const MethodHistoryToolbar = () => {
                 project={state.info.project}
                 commit={state.info.commit}
             />
+            <hr/>
             <MethodHistorySorter
                 isLoading={state.isLoading}
                 onChange={dispatch} />
+            <hr/>
             <MethodInfoBox
                 project={state.info.project}
                 method={state.info.method}
@@ -111,9 +112,11 @@ export const TestHistoryToolbar = () => {
                 project={state.info.project}
                 commit={state.info.commit}
             />
+            <hr/>
             <TestHistorySorter
                 isLoading={state.isLoading}
                 onChange={dispatch} />
+            <hr/>
             <TestInfoBox
                 project={state.info.project}
                 test={state.info.test}
@@ -168,33 +171,29 @@ const ProjectSelectors = ({ onChange, project, commit}) => {
     }
 
     return (
-        <Accordion >
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <span>Project selector</span>
-            </AccordionSummary>
-
-            <AccordionDetails className="accordion-block">
-                <Autocomplete
-                    className={styles.mediumButton}
-                    value={project}
-                    disableClearable={true}
-                    options={projectList}
-                    getOptionLabel={(option) => option === undefined ? '' : option.toString()}
-                    onChange={projectSelect}
-                    renderInput={(params) => <TextField {...params} label="Projects..." variant="outlined" />}
-                />
-                <Autocomplete
-                    className={styles.mediumButton}
-                    value={commit}
-                    disableClearable={true}
-                    disabled={commitList.length === 0}
-                    options={commitList}
-                    getOptionLabel={(option) => option === undefined ? '' : option.toString()}
-                    onChange={commitSelect}
-                    renderInput={(params) => <TextField {...params} label="Commits..." variant="outlined" />}
-                />
-            </AccordionDetails>
-        </Accordion>
+    <div style= {{ display: 'flex' }}>
+            <Autocomplete
+                className={styles.mediumButton}
+                value={project}
+                disableClearable={true}
+                options={projectList}
+                getOptionLabel={(option) => option === undefined ? '' : option.toString()}
+                onChange={projectSelect}
+                renderInput={(params) => <TextField {...params} label="Projects..." variant="outlined" />}
+                style= {{ flex: '1', margin: '2px' }}
+            />
+            <Autocomplete
+                className={styles.mediumButton}
+                value={commit}
+                disableClearable={true}
+                disabled={commitList.length === 0}
+                options={commitList}
+                getOptionLabel={(option) => option === undefined ? '' : option.toString()}
+                onChange={commitSelect}
+                renderInput={(params) => <TextField {...params} label="Commits..." variant="outlined" />}
+                style= {{ flex: '1', margin: '2px' }}
+            />
+    </div>
     )
 }
 
@@ -214,42 +213,38 @@ const CoverageSorter = ({ onChange, isLoading, valueX, valueY }) => {
         Coverage: sortTestsByCoverage,
     };
 
-    const SORT_KEYS_Y = Object.keys(SORT_MAP_Y);    
+    const SORT_KEYS_Y = Object.keys(SORT_MAP_Y);
 
     return (
-        <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <span>Sorting</span>
-            </AccordionSummary>
-            <AccordionDetails className="accordion-block">
-            <div className="block">
-                <h4>Sort Methods</h4>
-                <Select
-                    className={styles.mediumMenu}
-                    defaultValue={valueX !== undefined ? valueX : 'Name'}
-                    onChange={(e) => {
-                        onChange({ type: MORPHEUS_ACTION.SET_SORT, x: { name: e.target.value, func: SORT_MAP_X[e.target.value]}});
-                    }}
-                    disabled={isLoading}
-                >
-                {SORT_KEYS_X.map((name, index) => <MenuItem key={index} value={name}>{name}</MenuItem>)}
-                </Select>
+        <div style = {{ margin: '5px' }}>
+            <h4>Sorting</h4>
+            <div style= {{ display: 'flex' }}>
+                <div style = {{ flex: '1', margin: '2px' }} >
+                    <h6>Sort Methods</h6>
+                    <Select
+                        className={styles.mediumMenu}
+                        defaultValue={valueX !== undefined ? valueX : 'Name'}
+                        onChange={(e) => {
+                            onChange({ type: MORPHEUS_ACTION.SET_SORT, x: { name: e.target.value, func: SORT_MAP_X[e.target.value]}});
+                        }}
+                        disabled={isLoading}>
+                    {SORT_KEYS_X.map((name, index) => <MenuItem key={index} value={name}>{name}</MenuItem>)}
+                    </Select>
                 </div>
-                <div>
-                <h4>Sort Tests</h4>
-                <Select
-                    className={styles.mediumMenu}
-                    defaultValue={valueY !== undefined ? valueY : 'Name'}
-                    onChange={(e) => {
-                        onChange({ type: MORPHEUS_ACTION.SET_SORT, y: { name: e.target.value, func:SORT_MAP_Y[e.target.value] }});
-                    }}
-                    disabled={isLoading}
-                >
-                    {SORT_KEYS_Y.map((name, index) => <MenuItem key={index} value={name}>{name}</MenuItem>)}
-                </Select>
+                <div style = {{ flex: '1', margin: '2px' }}>
+                    <h6>Sort Tests</h6>
+                    <Select
+                        className={styles.mediumMenu}
+                        defaultValue={valueY !== undefined ? valueY : 'Name'}
+                        onChange={(e) => {
+                            onChange({ type: MORPHEUS_ACTION.SET_SORT, y: { name: e.target.value, func:SORT_MAP_Y[e.target.value] }});
+                        }}
+                        disabled={isLoading}>
+                        {SORT_KEYS_Y.map((name, index) => <MenuItem key={index} value={name}>{name}</MenuItem>)}
+                    </Select>
                 </div>
-            </AccordionDetails>
-        </Accordion>
+            </div>
+        </div>
     )
 }
 
@@ -261,24 +256,19 @@ const MethodHistorySorter = ({ onChange, isLoading, valueX, valueY }) => {
     const SORT_KEYS_TESTS = Object.keys(SORT_MAP_TESTS);
 
     return (
-        <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <span>Sorting</span>
-            </AccordionSummary>
-            <AccordionDetails className="accordion-block">
-                <h4>Sort Tests</h4>
-                <Select
-                    className={styles.mediumMenu}
-                    defaultValue={valueY !== undefined ? valueY : 'Name'}
-                    onChange={(e) => {
-                        onChange({ type: MORPHEUS_ACTION.SET_SORT, y: { name: e.target.value, func: SORT_MAP_TESTS[e.target.value] } });
-                    }}
-                    disabled={isLoading}
-                >
-                    {SORT_KEYS_TESTS.map((name, index) => <MenuItem key={index} value={name}>{name}</MenuItem>)}
-                </Select>
-            </AccordionDetails>
-        </Accordion>
+
+        <div style = {{ margin: '5px' }}>
+            <h4>Sort Tests</h4>
+            <Select
+                className={styles.mediumMenu}
+                defaultValue={valueY !== undefined ? valueY : 'Name'}
+                onChange={(e) => {
+                    onChange({ type: MORPHEUS_ACTION.SET_SORT, y: { name: e.target.value, func: SORT_MAP_TESTS[e.target.value] } });
+                }}
+                disabled={isLoading}>
+                {SORT_KEYS_TESTS.map((name, index) => <MenuItem key={index} value={name}>{name}</MenuItem>)}
+            </Select>
+        </div>
     )
 }
 
@@ -290,24 +280,19 @@ const TestHistorySorter = ({ onChange, isLoading, valueX, valueY }) => {
     const SORT_KEYS_METHODS = Object.keys(SORT_MAP_METHODS);
 
     return (
-        <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <span>Sorting</span>
-            </AccordionSummary>
-            <AccordionDetails className="accordion-block">
-                <h4>Sort Methods</h4>
-                <Select
-                    className={styles.mediumMenu}
-                    defaultValue={valueY !== undefined ? valueY : 'Name'}
-                    onChange={(e) => {
-                        onChange({ type: MORPHEUS_ACTION.SET_SORT, y: { name: e.target.value, func: SORT_MAP_METHODS[e.target.value] } });
-                    }}
-                    disabled={isLoading}
-                >
+
+        <div style = {{ margin: '5px' }}>
+            <h4>Sort Methods</h4>
+            <Select
+                className={styles.mediumMenu}
+                defaultValue={valueY !== undefined ? valueY : 'Name'}
+                onChange={(e) => {
+                    onChange({ type: MORPHEUS_ACTION.SET_SORT, y: { name: e.target.value, func: SORT_MAP_METHODS[e.target.value] } });
+                }}
+                disabled={isLoading}>
                     {SORT_KEYS_METHODS.map((name, index) => <MenuItem key={index} value={name}>{name}</MenuItem>)}
                 </Select>
-            </AccordionDetails>
-        </Accordion>
+        </div>
     )
 }
 
@@ -325,23 +310,17 @@ const MethodFilter = ({ onChange, methods }) => {
     }
 
     return (
-        <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <span>Method Filters</span>
-            </AccordionSummary>
-            <AccordionDetails className="accordion-block">
-                <Autocomplete
-                    className={styles.bigMenu}
-                    id="project-menu"
-                    disableClearable={true}
-                    disabled={methods.length === 0}
-                    options={methods}
-                    getOptionLabel={(option) => option.toString()}
-                    onChange={setFilter}
-                    renderInput={(params) => <TextField {...params} label="Method name" variant="outlined" />}
-                />
-            </AccordionDetails>
-        </Accordion>
+        <Autocomplete
+            className={styles.bigMenu}
+            id="project-menu"
+            disableClearable={true}
+            disabled={methods.length === 0}
+            options={methods}
+            getOptionLabel={(option) => option.toString()}
+            onChange={setFilter}
+            renderInput={(params) => <TextField {...params} label="Filter: Method name" variant="outlined" />}
+            style = {{ margin: '5px' }}
+        />
     )
 }
 
@@ -356,55 +335,55 @@ const TestFilter = ({ onChange, tests, isLoading }) => {
     const TEST_TYPES_KEYS = Object.keys(TEST_TYPES);
 
     return (
-        <Accordion>
-            <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-                <span>Test Filters</span>
-            </AccordionSummary>
-            <AccordionDetails className="accordion-block">
-                <Autocomplete
-                    className={styles.bigMenu}
-                    id="project-menu"
-                    disableClearable={true}
-                    disabled={tests.length === 0}
-                    options={tests}
-                    getOptionLabel={(option) => option.toString()}
-                    onChange={onChange}
-                    renderInput={(params) => <TextField {...params} label="Test name" variant="outlined" />}
-                />
-                <h4>Test Result: </h4>
-                <Select
-                    className={styles.mediumMenu}
-                    defaultValue={TEST_RESULTS.All.toString()}
-                    onChange={(e) => {
-                        onChange({
-                            type: MORPHEUS_ACTION.ADD_FILTER,
-                            filters: {
-                                TEST_RESULT: filterByTestResult(e.target.value)
-                            }
-                        })
-                    }}
-                    disabled={isLoading}
-                >
-                    {TEST_RESULT_KEYS.map((name, index) => <MenuItem key={name} value={TEST_RESULTS[name]}>{name}</MenuItem>)}
-                </Select>
-                <h4>Test Type: </h4>
-                <Select
-                    className={styles.mediumMenu}
-                    defaultValue={TEST_TYPES.ALL.toString()}
-                    onChange={(e) => {
-                        onChange({
-                            type: MORPHEUS_ACTION.ADD_FILTER,
-                            filters: {
-                                TEST_TYPE: filterByTestType(e.target.value)
-                            }
-                        })
-                    }}
-                    disabled={isLoading}
-                >
-                    {TEST_TYPES_KEYS.map((name, index) => <MenuItem key={name} value={TEST_TYPES[name]}>{name}</MenuItem>)}
-                </Select>
-            </AccordionDetails>
-        </Accordion>
+        <div>
+            <Autocomplete
+                className={styles.bigMenu}
+                id="project-menu"
+                disableClearable={true}
+                disabled={tests.length === 0}
+                options={tests}
+                getOptionLabel={(option) => option.toString()}
+                onChange={onChange}
+                renderInput={(params) => <TextField {...params} label="Filter: Test name" variant="outlined" />}
+                style = {{ margin: '5px' }}
+            />
+            <div style = {{ display: 'flex', margin: '5px' }}>
+                <div style = {{ flex: '1', padding: '2px' }} >
+                    <h6>Test Result: </h6>
+                    <Select
+                        className={styles.mediumMenu}
+                        defaultValue={TEST_RESULTS.All.toString()}
+                        onChange={(e) => {
+                            onChange({
+                                type: MORPHEUS_ACTION.ADD_FILTER,
+                                filters: {
+                                    TEST_RESULT: filterByTestResult(e.target.value)
+                                }
+                            })
+                        }}
+                        disabled={isLoading}>
+                        {TEST_RESULT_KEYS.map((name, index) => <MenuItem key={name} value={TEST_RESULTS[name]}>{name}</MenuItem>)}
+                    </Select>
+                </div>
+                <div style = {{ flex: '1', padding: '2px' }} >
+                    <h6>Test Type: </h6>
+                    <Select
+                        className={styles.mediumMenu}
+                        defaultValue={TEST_TYPES.ALL.toString()}
+                        onChange={(e) => {
+                            onChange({
+                                type: MORPHEUS_ACTION.ADD_FILTER,
+                                filters: {
+                                    TEST_TYPE: filterByTestType(e.target.value)
+                                }
+                            })
+                        }}
+                        disabled={isLoading}>
+                        {TEST_TYPES_KEYS.map((name, index) => <MenuItem key={name} value={TEST_TYPES[name]}>{name}</MenuItem>)}
+                    </Select>
+                </div>
+            </div>
+        </div>
     )
 }
 
