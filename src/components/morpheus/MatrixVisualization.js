@@ -297,9 +297,15 @@ class MatrixVisualization extends Component {
             .style("stroke", "grey")
             .style("stroke-width", "0.5");
 
-        let tickWidth = rectWidth - (0.1 * rectWidth);
+        // Add rectangular ticks
 
-        // Add circler around ticks
+        let tickWidth = rectWidth - (0.1 * rectWidth);
+        
+        let xTickLength = (d) => {
+            const tickId = d.id;
+            return data.nodes.filter((e) => e.x === tickId).length
+        };
+
         select("g.x-axis")
             .selectAll('.axis-dots-x')
             .data(data.x_labels)
@@ -313,8 +319,8 @@ class MatrixVisualization extends Component {
                 exit => exit.remove()
             )
             .attr("class", "axis-dots-x")
-            .attr('y', -10)
-            .attr('height', 10)
+            .attr('y', (d) => -(xTickLength(d)))
+            .attr('height', xTickLength)
             .attr('width', tickWidth)
             .style('stroke', 'black')
             .style('stroke-width', '0.0')
@@ -339,6 +345,11 @@ class MatrixVisualization extends Component {
 
         let tickHeight = rectHeight - (0.1 * rectHeight);
 
+        let yTickLength = (d) => {
+            const tickId = d.id;
+            return data.nodes.filter((e) => e.y === tickId).length
+        };
+
         select("g.y-axis")
             .selectAll('.axis-dots-y')
             .data(data.y_labels)
@@ -354,8 +365,8 @@ class MatrixVisualization extends Component {
                 exit => exit.remove()
             )
             .attr("class", "axis-dots-y")
-            .attr('x', -10)
-            .attr('width', 10)
+            .attr('x', (d) => -(yTickLength(d)))
+            .attr('width', yTickLength)
             .attr('height', tickHeight)
             .style('stroke', 'black')
             .style('stroke-width', '0')
