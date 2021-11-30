@@ -3,7 +3,6 @@ import { create_coverage_map } from '../util/coverage_map';
 export const filterByCoOccurence = (method) => {
     return (coverage, globalCoverage) => {
         const {x, y, edges} = coverage;
-
         let filterX = x.find(m => m.getMethodName() === method.getMethodName());
 
         if (filterX === undefined) {

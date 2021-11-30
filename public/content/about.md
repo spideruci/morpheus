@@ -3,6 +3,7 @@
 ## the project:
 
 **The goal** of the project is help developers gain a better understanding of their test suite by:
+
 1. providing insight into the structure of the test suite, and
 2. create bidirectional traceability between test and production code.
 

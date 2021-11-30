@@ -16,6 +16,7 @@ import { MorpheusContext } from '../../pages/MorpheusContext';
 
 // Filters
 import { filterByTestType, filterByCoOccurence, filterByTestResult, TEST_TYPES } from '../../logic/filters/methods';
+import { filterByCoexecutedTests } from '../../logic/filters/tests';
 import { sortMethodsByCoverage, sortMethodsByName, sortMethodsBySuspiciousness } from '../../logic/sorting/methods';
 import { sortTestsByCoverage, sortTestsByName } from '../../logic/sorting/tests';
 
@@ -299,12 +300,20 @@ const TestHistorySorter = ({ onChange, isLoading, valueX, valueY }) => {
 const MethodFilter = ({ onChange, methods }) => {
 
     const setFilter = ({ target }) => {
-        const methodName = target.innerHTML;
+        const method_name = target.innerHTML;
+
+        let method = methods.find(method => method.toString() === method_name);
+
+        if (method === undefined) {
+            debugger;
+            console.warn("Method not found in methods", methods, method_name)
+            return;
+        }
 
         onChange({
             type: MORPHEUS_ACTION.ADD_FILTER,
             filters: {
-                METHOD_FILTER: filterByCoOccurence(methodName)
+                METHOD_FILTER: filterByCoOccurence(method)
             }
         })
     }
@@ -334,6 +343,24 @@ const TestFilter = ({ onChange, tests, isLoading }) => {
     const TEST_RESULT_KEYS = Object.keys(TEST_RESULTS);
     const TEST_TYPES_KEYS = Object.keys(TEST_TYPES);
 
+    const setFilter = ({ target }) => {
+        const test_name = target.innerHTML;
+
+        let test = tests.find(test => test.toString() === test_name);
+
+        if (test === undefined) {
+            console.warn("Test not found in tests", tests, test_name)
+            return;
+        }
+
+        onChange({
+            type: MORPHEUS_ACTION.ADD_FILTER,
+            filters: {
+                TEST_FILTER: filterByCoexecutedTests(test)
+            }
+        })
+    }
+
     return (
         <div>
             <Autocomplete
@@ -343,7 +370,7 @@ const TestFilter = ({ onChange, tests, isLoading }) => {
                 disabled={tests.length === 0}
                 options={tests}
                 getOptionLabel={(option) => option.toString()}
-                onChange={onChange}
+                onChange={setFilter}
                 renderInput={(params) => <TextField {...params} label="Filter: Test name" variant="outlined" />}
                 style = {{ margin: '5px' }}
             />

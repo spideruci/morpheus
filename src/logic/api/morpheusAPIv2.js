@@ -26,7 +26,6 @@ const debug_api = (api_endpoint) => {
 const API = process.env.hasOwnProperty('REACT_APP_REST_API') ? DYNAMIC_API : STATIC_API;
 
 export const fetchProjects = () => {
-    debugger;
     return json(debug_api(API.fetchProjects()))
         .then((response) => {
             return response.projects;

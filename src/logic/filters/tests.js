@@ -30,11 +30,6 @@ export function filterByCoexecutedTests(test) {
 
         const filtered_tests = y.filter(test => test_ids.includes(test.getID()));
 
-        console.log("FUCK FUCK", {
-            x: filtered_methods,
-            y: filtered_tests,
-            edges: filtered_edges
-        });
         return {
             x: filtered_methods,
             y: filtered_tests,
