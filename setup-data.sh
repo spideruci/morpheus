@@ -6,7 +6,7 @@ HELP="usage setup-data.sh [-d <dataset-path>] [-h]
 
 Run this script from the root of the repository."
 
-MORPHEUS_PUBLIC="$PWD/public/"
+MORPHEUS_PUBLIC="$PWD/public"
 MORPHEUS_DATA="$MORPHEUS_PUBLIC/data/"
 
 while getopts "hd:" arg; do
@@ -17,7 +17,6 @@ while getopts "hd:" arg; do
       ;;
     d)
       DATASET=$OPTARG
-      echo $strength
       ;;
     *)
       echo "$HELP"
@@ -34,7 +33,7 @@ fi
 
 # Do we want to overwrite the data in the public/data folder?
 echo "Do you want to remove/overwrite the following path [y/n]"
-echo -e "\t$DATA"
+echo -e "\t$MORPHEUS_DATA"
 read choice
 if [[ ! $choice =~ ^[Yy][Ee][Ss]|[Yy] ]];
 then
