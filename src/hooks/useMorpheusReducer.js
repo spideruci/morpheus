@@ -5,13 +5,14 @@ import { Edge, Method, Test, Commit } from '../logic/api/MorpheusTypes';
 import { sortMethodsByName } from '../logic/sorting/methods';
 import { sortTestsByName } from '../logic/sorting/tests';
 import { sortCommitsByDate } from '../logic/sorting/commits';
+import { COLOR_SCHEMES } from '../logic/coloring/useColors';
 
 export const MORPHEUS_ACTION = {
     LOADING: 'LOADING',
-    RESET: 'RESET',
 
     SET_PROJECT: 'SET_PROJECT',
     SET_COMMIT: 'SET_COMMIT',
+    SET_COLOR_SCHEME: 'SET_COLOR_SCHEME',
     SET_METHOD_HISTORY: 'SET_METHOD_HISTORY',
     SET_TEST_HISTORY: 'SET_TEST_HISTORY',
 
@@ -46,7 +47,8 @@ const morpheusReducer = (state, action) => {
                     ...state.info,
                     type: 'COVERAGE',
                     commit: action.commit,
-                }
+                },
+                color_scheme: COLOR_SCHEMES.TEST_RESULT
             };
         case MORPHEUS_ACTION.SET_METHOD_HISTORY:{
             let info = {
@@ -142,23 +144,6 @@ const morpheusReducer = (state, action) => {
                 }
             };
             return new_state
-
-        case MORPHEUS_ACTION.RESET:
-            console.log(MORPHEUS_ACTION.RESET, action, state)
-            return {
-                ...state,
-                filters: {},
-                sort: {
-                    x: {
-                        name: 'NAME',
-                        func: (a, b) => a.toString() > b.toString()
-                    },
-                    y: {
-                        name: 'NAME',
-                        func: (a, b) => a.toString() > b.toString()
-                    },
-                },
-            };
         case MORPHEUS_ACTION.POP_UP:
             console.log(MORPHEUS_ACTION.POP_UP, action, state)
             return {
@@ -166,6 +151,12 @@ const morpheusReducer = (state, action) => {
                 pop_up: {
                     ...action.pop_up
                 }
+            }
+        case MORPHEUS_ACTION.SET_COLOR_SCHEME:
+            console.log(MORPHEUS_ACTION.SET_COLOR_SCHEME, action, state)
+            return {
+                ...state,
+                color_scheme: action.color_scheme
             }
         default:
             console.log('DEFAULT RETURN state', state);
