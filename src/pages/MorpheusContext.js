@@ -1,5 +1,6 @@
 import React, { createContext, useContext } from 'react';
 import { useMorpheusController } from '../hooks/useMorpheusReducer'
+import { AXIS_STATS } from '../logic/axis-stats/stats';
 import { sortMethodsByName } from '../logic/sorting/methods';
 import { sortTestsByName } from '../logic/sorting/tests';
 
@@ -17,6 +18,7 @@ export const initialState = {
     },
     filters: {},
     color_scheme: null,
+    axis_stats: AXIS_STATS.STATS_NONE,
     sort: {
         x: {
             name: 'NAME',

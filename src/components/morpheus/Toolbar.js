@@ -20,6 +20,7 @@ import { filterByCoexecutedTests } from '../../logic/filters/tests';
 import { sortMethodsByCoverage, sortMethodsByName, sortMethodsBySuspiciousness } from '../../logic/sorting/methods';
 import { sortTestsByCoverage, sortTestsByName } from '../../logic/sorting/tests';
 import { COLOR_SCHEMES } from '../../logic/coloring/useColors';
+import { AXIS_STATS } from '../../logic/axis-stats/stats';
 
 
 const ToolBar = ({ onReset, onUndo, onRedo, children}) => {
@@ -302,23 +303,48 @@ const TestHistorySorter = ({ onChange, isLoading, valueX, valueY }) => {
 
 export const CoverageColorSelector = ({ onChange, isLoading }) => {
     const COLOR_SCHEMES_KEYS = Object.values(COLOR_SCHEMES);
+    const AXIS_STATS_KEYS = Object.values(AXIS_STATS);
 
     return (
         <div style = {{ margin: '5px' }}>
-            <h4>Select Color Scheme</h4>
-            <Select
-                className={styles.mediumMenu}
-                defaultValue={COLOR_SCHEMES.TEST_RESULT}
-                onChange={(e) => {
-                    let color_scheme = e.target.value;
-                    onChange({
-                        type: MORPHEUS_ACTION.SET_COLOR_SCHEME,
-                        color_scheme: color_scheme
-                    })
-                }}
-                disabled={isLoading}>
-            {COLOR_SCHEMES_KEYS.map((name, index) => <MenuItem key={index} value={name}>{name}</MenuItem>)}
-            </Select>
+            <h4>Configure Colors and Axis Stats</h4>
+
+            <div style = {{ display: 'flex', margin: '2px' }}>
+                <div style = {{ flex: '1' }} >
+                    <h6>Color Scheme:</h6>
+                    <Select
+                        className={styles.mediumMenu}
+                        defaultValue={COLOR_SCHEMES.TEST_RESULT}
+                        onChange={(e) => {
+                            let color_scheme = e.target.value;
+                            onChange({
+                                type: MORPHEUS_ACTION.SET_COLOR_SCHEME,
+                                color_scheme: color_scheme
+                            })
+                        }}
+                        disabled={isLoading}>
+                        {COLOR_SCHEMES_KEYS.map((name, index) => <MenuItem key={index} value={name}>{name}</MenuItem>)}
+                    </Select>
+                </div>
+
+                <div style = {{ flex: '1' }} >
+                    <h6>Axis Stats:</h6>
+
+                    <Select
+                        className={styles.mediumMenu}
+                        defaultValue={AXIS_STATS.STATS_NONE}
+                        onChange={(e) => {
+                            let axis_stats = e.target.value;
+                            onChange({
+                                type: MORPHEUS_ACTION.SET_AXIS_STATS,
+                                axis_stats: axis_stats
+                            })
+                        }}
+                        disabled={isLoading}>
+                        {AXIS_STATS_KEYS.map((name, index) => <MenuItem key={index} value={name}>{name}</MenuItem>)}
+                    </Select>
+                </div>
+            </div>
         </div>
     )
 }

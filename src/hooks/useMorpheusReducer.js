@@ -6,6 +6,7 @@ import { sortMethodsByName } from '../logic/sorting/methods';
 import { sortTestsByName } from '../logic/sorting/tests';
 import { sortCommitsByDate } from '../logic/sorting/commits';
 import { COLOR_SCHEMES } from '../logic/coloring/useColors';
+import { AXIS_STATS } from '../logic/axis-stats/stats';
 
 export const MORPHEUS_ACTION = {
     LOADING: 'LOADING',
@@ -15,6 +16,8 @@ export const MORPHEUS_ACTION = {
     SET_COLOR_SCHEME: 'SET_COLOR_SCHEME',
     SET_METHOD_HISTORY: 'SET_METHOD_HISTORY',
     SET_TEST_HISTORY: 'SET_TEST_HISTORY',
+
+    SET_AXIS_STATS: 'SET_AXIS_STATS',
 
     SET_SORT: 'SET_SORT',
     ADD_FILTER: 'ADD_FILTER',
@@ -158,6 +161,14 @@ const morpheusReducer = (state, action) => {
                 ...state,
                 color_scheme: action.color_scheme
             }
+
+        case MORPHEUS_ACTION.SET_AXIS_STATS:
+            console.log(MORPHEUS_ACTION.SET_AXIS_STATS, action, state)
+            return {
+                ...state,
+                axis_stats: action.axis_stats ?? AXIS_STATS.STATS_NONE
+            }
+        
         default:
             console.log('DEFAULT RETURN state', state);
             return state;

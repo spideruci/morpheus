@@ -285,9 +285,13 @@ class MatrixVisualization extends Component {
 
         // Add rectangular ticks
 
+        const defaultTickLength = 5.0;
+
         let tickWidth = rectWidth - (0.1 * rectWidth);
         
-        let xTickLength = (d) => {
+        let xTickLength = (this.props.axis_stats === 'None' || this.props.axis_stats === undefined) ?
+        () => defaultTickLength : 
+        (d) => {
             const tickId = d.id;
             return data.nodes.filter((e) => e.x === tickId).length
         };
@@ -331,7 +335,9 @@ class MatrixVisualization extends Component {
 
         let tickHeight = rectHeight - (0.1 * rectHeight);
 
-        let yTickLength = (d) => {
+        let yTickLength = (this.props.axis_stats === 'None' || this.props.axis_stats === undefined) ?
+        () => defaultTickLength :
+        (d) => {
             const tickId = d.id;
             return data.nodes.filter((e) => e.y === tickId).length
         };

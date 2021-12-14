@@ -172,6 +172,7 @@ const Morpheus = () => {
                     }}
                     xLabel={xLabel}
                     yLabel={yLabel}
+                    axis_stats={state.axis_stats}
                     />
                 {getPopover(state, dispatch, console.log, clickHistory)}
             </div>
