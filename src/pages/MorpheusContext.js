@@ -16,6 +16,7 @@ export const initialState = {
         anchor: null,
     },
     filters: {},
+    color_scheme: null,
     sort: {
         x: {
             name: 'NAME',

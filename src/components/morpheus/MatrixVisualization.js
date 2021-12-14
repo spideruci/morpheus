@@ -4,7 +4,7 @@ import { scalePoint } from 'd3-scale';
 import { select } from 'd3-selection';
 import { transition } from 'd3-transition';
 import { easeLinear } from 'd3-ease';
-import { isEqual } from 'lodash';
+// import { isEqual } from 'lodash';
 import { zoom } from 'd3-zoom';
 
 class MatrixVisualization extends Component {
@@ -52,25 +52,10 @@ class MatrixVisualization extends Component {
             };
         }
 
-        let edges = []
-
-        current.edges.forEach((edge, index) => {
-            if (!(edge.getY() === null || edge.getX() === null)){
-                const highlight = edge.hasOwnProperty('highlight') ? edge.highlight : false;
-
-                edges.push({ 
-                    x: parseInt(edge.getX()),
-                    y: parseInt(edge.getY()),
-                    z: edge.getColor(),
-                    highlight: highlight
-                });
-            }
-        });
-
         return {
             x_labels: current.x,
             y_labels: current.y,
-            nodes: edges
+            nodes: current.edges
         };
     }
 
@@ -97,13 +82,14 @@ class MatrixVisualization extends Component {
         this.createTestMatrixView();
     }
 
+    // TODO how to update visualization, when only a function changes, e.g., Edge.prototype.getColor.
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if ((!isEqual(prevProps.coverage.x, this.props.coverage.x)) || (!isEqual(prevProps.coverage.y, this.props.coverage.y)) ) {
-            this.labelToggle = this.props.labelToggle;
-            this.onXClick = this.props.onXClick;
-            this.onYClick = this.props.onYClick;
+    //     if ((!isEqual(prevProps.coverage.x, this.props.coverage.x)) || (!isEqual(prevProps.coverage.y, this.props.coverage.y)) ) {
+    //         this.labelToggle = this.props.labelToggle;
+    //         this.onXClick = this.props.onXClick;
+    //         this.onYClick = this.props.onYClick;
             this.update()
-        }
+    //     }
     }
 
     update () {
@@ -257,25 +243,25 @@ class MatrixVisualization extends Component {
                 .join(
                     enter => enter.append("rect").call(enter => enter
                         .transition(t)
-                            .attr("x", (d) => xScale(d.x) - rectWidth/2)
+                            .attr("x", (d) => xScale(d.getX()) - rectWidth/2)
                         .transition(t)
-                            .attr("y", (d) => yScale(d.y) - rectHeight/2)
+                            .attr("y", (d) => yScale(d.getY()) - rectHeight/2)
                     ),
                     update => update.call(update => update
                         .transition(t)
-                            .attr("x", (d) => xScale(d.x) - rectWidth / 2)
+                            .attr("x", (d) => xScale(d.getX()) - rectWidth / 2)
                         .transition(t)
-                            .attr("y", (d) => yScale(d.y) - rectHeight / 2)
+                            .attr("y", (d) => yScale(d.getY()) - rectHeight / 2)
                     ),
                     exit => exit.remove()
                 )
                 .attr("class", "cell")
-                .attr("fill", (d) => d.z)
+                .attr("fill", (d) => d.getColor())
                 .attr("width", rectWidth)
                 .attr("height", rectHeight)
                 .attr("rx", Math.max(1, xScale.step()/2))
-                .attr("stroke", (d) => d.highlight ? 'black' : null)
-                .attr("stoke-width", (d) => d.highlight ? '1px' : '0px')
+                .attr("stroke", (d) => d.getProperty('highlight') ? 'black' : null)
+                .attr("stoke-width", (d) => d.getProperty('highlight') ? '1px' : '0px')
                 .on("mouseover", mouseover)
                 .on("mousemove", mousemove)
                 .on("mouseleave", mouseleave);

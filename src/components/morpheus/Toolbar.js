@@ -19,7 +19,7 @@ import { filterByTestType, filterByCoOccurence, filterByTestResult, TEST_TYPES }
 import { filterByCoexecutedTests } from '../../logic/filters/tests';
 import { sortMethodsByCoverage, sortMethodsByName, sortMethodsBySuspiciousness } from '../../logic/sorting/methods';
 import { sortTestsByCoverage, sortTestsByName } from '../../logic/sorting/tests';
-
+import { COLOR_SCHEMES } from '../../logic/coloring/useColors';
 
 
 const ToolBar = ({ onReset, onUndo, onRedo, children}) => {
@@ -65,12 +65,15 @@ export const CoverageToolbar = () => {
                 isLoading={state.isLoading}
             />
             <hr/>
+            <CoverageColorSelector
+                onChange={dispatch}
+                isLoading={state.isLoading}/>
+            <hr/>
             <CoverageInfoBox
                 project={state.info.project}
                 commit={state.info.commit}
             />
         </ToolBar>
-       
     )
 }
 
@@ -201,7 +204,6 @@ const ProjectSelectors = ({ onChange, project, commit}) => {
 const CoverageSorter = ({ onChange, isLoading, valueX, valueY }) => {
 
     const SORT_MAP_X = {
-        // Id: (a, b) => a.getID() > b.getID(),
         Name: sortMethodsByName,
         Coverage: sortMethodsByCoverage,
         Suspiciousness: sortMethodsBySuspiciousness
@@ -297,6 +299,30 @@ const TestHistorySorter = ({ onChange, isLoading, valueX, valueY }) => {
     )
 }
 
+
+export const CoverageColorSelector = ({ onChange, isLoading }) => {
+    const COLOR_SCHEMES_KEYS = Object.values(COLOR_SCHEMES);
+
+    return (
+        <div style = {{ margin: '5px' }}>
+            <h4>Select Color Scheme</h4>
+            <Select
+                className={styles.mediumMenu}
+                defaultValue={COLOR_SCHEMES.TEST_RESULT}
+                onChange={(e) => {
+                    let color_scheme = e.target.value;
+                    onChange({
+                        type: MORPHEUS_ACTION.SET_COLOR_SCHEME,
+                        color_scheme: color_scheme
+                    })
+                }}
+                disabled={isLoading}>
+            {COLOR_SCHEMES_KEYS.map((name, index) => <MenuItem key={index} value={name}>{name}</MenuItem>)}
+            </Select>
+        </div>
+    )
+}
+
 const MethodFilter = ({ onChange, methods }) => {
 
     const setFilter = ({ target }) => {
@@ -305,7 +331,6 @@ const MethodFilter = ({ onChange, methods }) => {
         let method = methods.find(method => method.toString() === method_name);
 
         if (method === undefined) {
-            debugger;
             console.warn("Method not found in methods", methods, method_name)
             return;
         }
@@ -336,12 +361,12 @@ const MethodFilter = ({ onChange, methods }) => {
 const TestFilter = ({ onChange, tests, isLoading }) => {
     const TEST_RESULTS = {
         All: "All",
-        Passed: true,
-        Failed: false,
+        Passed: "Passed",
+        Failed: "Failed",
     }
 
-    const TEST_RESULT_KEYS = Object.keys(TEST_RESULTS);
-    const TEST_TYPES_KEYS = Object.keys(TEST_TYPES);
+    const TEST_RESULT_VALUES = Object.values(TEST_RESULTS);
+    const TEST_TYPES_VALUES = Object.values(TEST_TYPES);
 
     const setFilter = ({ target }) => {
         const test_name = target.innerHTML;
@@ -379,24 +404,31 @@ const TestFilter = ({ onChange, tests, isLoading }) => {
                     <h6>Test Result: </h6>
                     <Select
                         className={styles.mediumMenu}
-                        defaultValue={TEST_RESULTS.All.toString()}
+                        defaultValue={TEST_RESULTS.All}
                         onChange={(e) => {
+                            const select = e.target.value;
+                            let test_result = undefined;
+                            // Assume no filter else it is passed or failed.
+                            if (select === TEST_RESULTS.Passed || select === TEST_RESULTS.Failed) {
+                                test_result = (select === TEST_RESULTS.Passed);
+                            }
+
                             onChange({
                                 type: MORPHEUS_ACTION.ADD_FILTER,
                                 filters: {
-                                    TEST_RESULT: filterByTestResult(e.target.value)
+                                    TEST_RESULT: filterByTestResult(test_result)
                                 }
                             })
                         }}
                         disabled={isLoading}>
-                        {TEST_RESULT_KEYS.map((name, index) => <MenuItem key={name} value={TEST_RESULTS[name]}>{name}</MenuItem>)}
+                        {TEST_RESULT_VALUES.map((name, index) => <MenuItem key={index} value={name.toString()}>{name.toString()}</MenuItem>)}
                     </Select>
                 </div>
                 <div style = {{ flex: '1', padding: '2px' }} >
                     <h6>Test Type: </h6>
                     <Select
                         className={styles.mediumMenu}
-                        defaultValue={TEST_TYPES.ALL.toString()}
+                        defaultValue={TEST_TYPES.ALL}
                         onChange={(e) => {
                             onChange({
                                 type: MORPHEUS_ACTION.ADD_FILTER,
@@ -406,7 +438,7 @@ const TestFilter = ({ onChange, tests, isLoading }) => {
                             })
                         }}
                         disabled={isLoading}>
-                        {TEST_TYPES_KEYS.map((name, index) => <MenuItem key={name} value={TEST_TYPES[name]}>{name}</MenuItem>)}
+                        {TEST_TYPES_VALUES.map((name, index) => <MenuItem key={index} value={name.toString()}>{name}</MenuItem>)}
                     </Select>
                 </div>
             </div>

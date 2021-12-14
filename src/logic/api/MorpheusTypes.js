@@ -23,6 +23,9 @@ export class Edge {
     getProperty(property) {
         return property in this.properties ? this.properties[property] : null
     };
+    setProperty(key, value) {
+        this.properties[key] = value
+    }
 }
 
 export class Method {
@@ -49,6 +52,7 @@ export class Test {
         this.packageName = packageName;
         this.className = className;
         this.testName = testName;
+        this.properties = {};
     }
 
     getID() { return this.id };
@@ -57,6 +61,12 @@ export class Test {
     getClassName() { return this.className };
     getMethodName() { return this.testName };
     toString() { return `${this.packageName} ${this.className} ${this.testName}` };
+    getProperty(property) {
+        return property in this.properties ? this.properties[property] : null
+    };
+    setProperty(key, value) {
+        this.properties[key] = value
+    }
 }
 
 export class Commit {

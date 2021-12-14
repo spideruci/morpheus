@@ -4,16 +4,15 @@ import { useProcessCoverage } from '../hooks/useProcessCoverage';
 import MatrixVisualization from '../components/morpheus/MatrixVisualization';
 import { CoverageToolbar, MethodHistoryToolbar, TestHistoryToolbar } from '../components/morpheus/Toolbar';
 import { MethodPopover, CommitPopover} from '../components/morpheus/MethodPopover';
-import {Edge, Test, Method, Commit} from '../logic/api/MorpheusTypes';
+import { Test, Method, Commit} from '../logic/api/MorpheusTypes';
 
 import styles from './Morpheus.module.scss';
 import { MorpheusContext } from './MorpheusContext';
 import { MORPHEUS_ACTION } from '../hooks/useMorpheusReducer';
 
-import { scaleOrdinal } from 'd3-scale';
-import { schemeSet3 } from 'd3-scale-chromatic';
 import { filterByCoOccurence } from '../logic/filters/methods';
 import { filterByCoexecutedTests } from '../logic/filters/tests';
+import { setColorScheme } from '../logic/coloring/useColors';
 
 const useLoading = (Component, LoadingComponent = <div />) => {
     return (props) => props.isLoading ? LoadingComponent : <Component {...props} />;
@@ -135,41 +134,7 @@ const Morpheus = () => {
         }
     }
 
-    if ((state.info.type === 'TEST_HISTORY')) {
-        // TODO change this idea to make it work for all options.
-        Edge.prototype.getColor = function () { return this.getProperty('test_result') ? '#03C03C' : '#FF1C00' };
-    } else if (state.info.type === 'METHOD_HISTORY') {
-        Edge.prototype.getColor = function () { return this.getProperty('test_result') ? '#03C03C' : '#FF1C00' };
-    } else if (state.info.type === 'COVERAGE') {
-        let {x, y, edges} = coverage;
-        if (x.length > 0 && x[0].constructor.name === Method.name) {
-            let unique_method_packages = new Set(coverage.x.map((method) => method.getPackageName()));
-            const colorX = (d) => {
-                const scale = scaleOrdinal(schemeSet3).domain(Array.from(unique_method_packages));
-                return scale(d);
-            }
-
-            Method.prototype.getColor = function () {
-                return colorX(this.getPackageName());
-            };
-        }
-        if (y.length > 0 && y[0].constructor.name === Test.name) {
-            let unique_tests_packages = new Set(coverage.y.map((test) => test.getPackageName()));
-            const colorY = (d) => {
-                const scale = scaleOrdinal(schemeSet3).domain(Array.from(unique_tests_packages));
-                return scale(d);
-            }
-
-            Test.prototype.getColor = function () {
-                return colorY(this.getPackageName());
-            };
-        }
-        if (edges.length > 0 && edges[0].constructor.name === Edge.name) {
-            Edge.prototype.getColor = function () {
-                return this.getProperty('test_result') ? '#03C03C' : '#FF1C00'
-            };
-        }
-    }
+    setColorScheme(state.color_scheme, state.info.type, coverage, state.coverage);
 
     return (
         <>
