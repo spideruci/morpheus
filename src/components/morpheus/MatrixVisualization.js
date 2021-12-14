@@ -2,9 +2,7 @@ import React, { Component } from 'react';
 import { axisTop, axisLeft } from 'd3-axis';
 import { scalePoint } from 'd3-scale';
 import { select } from 'd3-selection';
-import { transition } from 'd3-transition';
-import { easeLinear } from 'd3-ease';
-// import { isEqual } from 'lodash';
+import { isEqual } from 'lodash';
 import { zoom } from 'd3-zoom';
 
 class MatrixVisualization extends Component {
@@ -84,15 +82,18 @@ class MatrixVisualization extends Component {
 
     // TODO how to update visualization, when only a function changes, e.g., Edge.prototype.getColor.
     componentDidUpdate(prevProps, prevState, snapshot) {
-    //     if ((!isEqual(prevProps.coverage.x, this.props.coverage.x)) || (!isEqual(prevProps.coverage.y, this.props.coverage.y)) ) {
-    //         this.labelToggle = this.props.labelToggle;
-    //         this.onXClick = this.props.onXClick;
-    //         this.onYClick = this.props.onYClick;
+        if ((!isEqual(prevProps.coverage.x, this.props.coverage.x)) || (!isEqual(prevProps.coverage.y, this.props.coverage.y)) ||
+                (this.props.color_scheme !== prevProps.color_scheme) ||
+                (this.props.axis_stats !== prevProps.axis_stats) ) {
+            this.labelToggle = this.props.labelToggle;
+            this.onXClick = this.props.onXClick;
+            this.onYClick = this.props.onYClick;
             this.update()
-    //     }
+        }
     }
 
     update () {
+        console.debug("Rerender visualization")
         const node = this.ref.current;
         let svg = select(node);
 
@@ -116,24 +117,23 @@ class MatrixVisualization extends Component {
         // this sets the preliminary position of the SVG: scale at 100%, and set top left corner to 0,0.
         select('svg g').attr('transform', 'translate(0,0) scale(1.0)');
 
-        // compute the dimensions of the matrix itself
-        // this can be smaller than the SVG's viewbox.
-        var unitSide = 0;
+        // Get max size the matrix can have within the canvas
+        let max_vis_width = this.state.width - this.margin.left - this.margin.right - 10;
+        let max_vis_height = this.state.height - this.margin.top - this.margin.bottom - 10;
+
+        // Determine the unit size to maintain ratios
+        let unitSide = 0;
+
         if (data.x_labels.length >= data.y_labels.length) {
-            unitSide = (1.0 * this.state.width) / data.x_labels.length
+            unitSide = max_vis_width / data.x_labels.length
         }
         else {
-            unitSide = (1.0 * this.state.height) / data.y_labels.length
+            unitSide = max_vis_height / data.y_labels.length
         }
 
-        // To adapt width and height perfectly with the canvas' dimensions
-        // just set w and h to state.width and .height respectively.
-        // TODO: ideally expose this as a user pref with a checkbox in the GUI.
-        let w = data.x_labels.length * unitSide; // this.state.width
-        let h = data.y_labels.length * unitSide; // this.state.height
-
-        let vis_width = w - this.margin.left - this.margin.right - 10;
-        let vis_height = h - this.margin.top - this.margin.bottom - 10;
+        // Compute the width/height of each axis
+        let vis_width = data.x_labels.length * unitSide;
+        let vis_height = data.y_labels.length * unitSide;
 
         // Scales for X-axis
         let xScale = scalePoint()
@@ -154,7 +154,6 @@ class MatrixVisualization extends Component {
                 if (!labelToggle) {
                     label = "";   
                 }
-
                 return i % labelInterval !== 0 ? " " : label;
             }
         }
@@ -229,10 +228,6 @@ class MatrixVisualization extends Component {
             .tickFormat(createTickFormatter(y_toggle, y_tick_interval))
             .scale(yScale);
 
-        const t = transition()
-            .duration(0)
-            .ease(easeLinear);
-
         let rectWidth = xScale.step()
         let rectHeight = yScale.step()
 
@@ -242,16 +237,12 @@ class MatrixVisualization extends Component {
                 .data(data.nodes)
                 .join(
                     enter => enter.append("rect").call(enter => enter
-                        .transition(t)
-                            .attr("x", (d) => xScale(d.getX()) - rectWidth/2)
-                        .transition(t)
-                            .attr("y", (d) => yScale(d.getY()) - rectHeight/2)
+                        .attr("x", (d) => xScale(d.getX()) - rectWidth/2)
+                        .attr("y", (d) => yScale(d.getY()) - rectHeight/2)
                     ),
                     update => update.call(update => update
-                        .transition(t)
-                            .attr("x", (d) => xScale(d.getX()) - rectWidth / 2)
-                        .transition(t)
-                            .attr("y", (d) => yScale(d.getY()) - rectHeight / 2)
+                        .attr("x", (d) => xScale(d.getX()) - rectWidth / 2)
+                        .attr("y", (d) => yScale(d.getY()) - rectHeight / 2)
                     ),
                     exit => exit.remove()
                 )
