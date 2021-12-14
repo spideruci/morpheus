@@ -50,6 +50,7 @@ class MatrixVisualization extends Component {
             };
         }
 
+        console.debug(`Stats: X: ${current.x.length}, Y: ${current.y.length}, edges: ${current.edges.length}`)
         return {
             x_labels: current.x,
             y_labels: current.y,
