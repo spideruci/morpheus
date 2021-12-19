@@ -25,7 +25,7 @@ import { AXIS_STATS } from '../../logic/axis-stats/stats';
 
 const ToolBar = ({ onReset, onUndo, onRedo, children}) => {
     return (
-        <div className={styles.toolbar}>
+        <div className={styles.toolbar} style={{ overflowY: 'scroll' }}>
             <h4>Toolbar</h4>
             { children }
             <Button onClick={onReset}>Reset</Button>
