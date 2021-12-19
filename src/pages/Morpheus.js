@@ -46,7 +46,10 @@ const getLabels = (type, xCount, yCount) => {
             yLabel = `y-axis`;
     }
 
-    return { xLabel: `${xLabel} (${xCount})`, yLabel: `${yLabel} (${yCount})` }
+    return { 
+        xLabel: {label: xLabel, count: xCount}, 
+        yLabel: {label: yLabel, count: yCount }
+    }
 }
 
 const getPopover = (state, dispatch, onFilterClick, onHistoryClick) => {

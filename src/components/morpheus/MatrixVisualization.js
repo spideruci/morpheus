@@ -33,6 +33,9 @@ class MatrixVisualization extends Component {
         this.onXClick = props.onXClick;
         this.onYClick = props.onYClick;
         this.onRightClick = props.onRightClick;
+
+        this.xLabel = 'x-axis';
+        this.yLabel = 'y-axis';
     }
 
     createMatrix() {
@@ -83,12 +86,17 @@ class MatrixVisualization extends Component {
 
     // TODO how to update visualization, when only a function changes, e.g., Edge.prototype.getColor.
     componentDidUpdate(prevProps, prevState, snapshot) {
-        if ((!isEqual(prevProps.coverage.x, this.props.coverage.x)) || (!isEqual(prevProps.coverage.y, this.props.coverage.y)) ||
-                (this.props.color_scheme !== prevProps.color_scheme) ||
-                (this.props.axis_stats !== prevProps.axis_stats) ) {
+        if ((!isEqual(prevProps.coverage.x, this.props.coverage.x)) 
+            || (!isEqual(prevProps.coverage.y, this.props.coverage.y)) 
+            || (!isEqual(prevProps.coverage.edges.length, this.props.coverage.edges.length))
+            || (this.props.color_scheme !== prevProps.color_scheme) 
+            || (this.props.axis_stats !== prevProps.axis_stats) ) {
+
             this.labelToggle = this.props.labelToggle;
             this.onXClick = this.props.onXClick;
             this.onYClick = this.props.onYClick;
+            this.xLabel = this.props.xLabel;
+            this.yLabel = this.props.yLabel;
             this.update()
         }
     }
@@ -366,7 +374,7 @@ class MatrixVisualization extends Component {
             .attr("x", this.state.width / 2)
             .attr("y", 11)
             .style("text-anchor", "middle")
-            .text(this.props.xLabel);
+            .text(`${this.xLabel.label} (${this.xLabel.count})`);
 
         // text label for the y axis
         svg.select(".ylabel")
@@ -375,7 +383,7 @@ class MatrixVisualization extends Component {
             .attr("x", -this.state.height / 2)
             .attr("dy", "0.7em")
             .style("text-anchor", "middle")
-            .text(this.props.yLabel);
+            .text(`${this.yLabel.label} (${this.yLabel.count})`);
     }
 
     createTestMatrixView() {
