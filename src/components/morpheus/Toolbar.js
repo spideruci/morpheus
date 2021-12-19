@@ -179,6 +179,7 @@ const ProjectSelectors = ({ onChange, project, commit}) => {
     <div style= {{ display: 'flex' }}>
             <Autocomplete
                 className={styles.mediumButton}
+                size={'small'}
                 value={project}
                 disableClearable={true}
                 options={projectList}
@@ -189,6 +190,7 @@ const ProjectSelectors = ({ onChange, project, commit}) => {
             />
             <Autocomplete
                 className={styles.mediumButton}
+                size={'small'}
                 value={commit}
                 disableClearable={true}
                 disabled={commitList.length === 0}
@@ -372,6 +374,7 @@ const MethodFilter = ({ onChange, methods }) => {
     return (
         <Autocomplete
             className={styles.bigMenu}
+            size={'small'}
             id="project-menu"
             disableClearable={true}
             disabled={methods.length === 0}
@@ -417,6 +420,7 @@ const TestFilter = ({ onChange, tests, isLoading }) => {
             <Autocomplete
                 className={styles.bigMenu}
                 id="project-menu"
+                size={'small'}
                 disableClearable={true}
                 disabled={tests.length === 0}
                 options={tests}
