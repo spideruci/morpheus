@@ -25,17 +25,28 @@ const MatrixVisualizationWithLoading = useLoading(
     </div>
 )
 
-const getLabels = (type) => {
+const getLabels = (type, xCount, yCount) => {
+    let xLabel = 'x-axis';
+    let yLabel = 'y-axis';
     switch (type) {
         case 'COVERAGE':
-            return { xLabel: 'Methods', yLabel: 'Tests' }
+            xLabel = `Methods`; 
+            yLabel = `Tests`;
+            break;
         case 'TEST_HISTORY':
-            return { xLabel: 'Commits', yLabel: 'Methods' }
+            xLabel = `Commits`;
+            yLabel = `Methods`;
+            break;
         case 'METHOD_HISTORY':
-            return { xLabel: 'Commits', yLabel: 'Tests' }
+            xLabel = `Commits`;
+            yLabel = `Tests`;
+            break;
         default:
-            return { xLabel: null, yLabel: null }
+            xLabel = `x-axis`;
+            yLabel = `y-axis`;
     }
+
+    return { xLabel: `${xLabel} (${xCount})`, yLabel: `${yLabel} (${yCount})` }
 }
 
 const getPopover = (state, dispatch, onFilterClick, onHistoryClick) => {
@@ -92,8 +103,10 @@ const Morpheus = () => {
 
     const coverage = useProcessCoverage(state);
 
+    console.log(coverage);
+
     //  Get label names
-    let {xLabel, yLabel} = state.info.type !== null ? getLabels(state.info.type) : {xLabel: null, yLabel: null}
+    let {xLabel, yLabel} = state.info.type !== null ? getLabels(state.info.type, coverage.x?.length ?? 0, coverage.y?.length ?? 0) : {xLabel: null, yLabel: null}
 
     const toolbar = {
         'DEFAULT': <CoverageToolbar />,
