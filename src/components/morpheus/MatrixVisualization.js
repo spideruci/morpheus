@@ -166,47 +166,13 @@ class MatrixVisualization extends Component {
                 return i % labelInterval !== 0 ? " " : label;
             }
         }
-
-        // Tooltip
-        let tooltip = svg.select(".tooltip").style("visibility", 'visible');
-
-        tooltip.append("text")
-            .attr("id", "tooltip-text")
-            .attr("dominant-baseline", "auto")
-            .attr("text-anchor", "start")
-            .attr("stroke", "grey")
-            .attr("stroke-opacity", "0.3")
-            .attr("stroke-width", "5")
-            .attr("fill", "black")
-            .style("font-size", "12px")
-            .style("opacity", 0)
-            .html("");
     
         function mouseover(d) {
-            tooltip.select("text").style("opacity", 1)
             select(this).style("stroke", "black")
-        }
-
-        function mousemove() {
-            let self = select(this);
-            let datum = self.datum();
-
-            let label = "";
-            if (datum.x === undefined) {
-                label = datum.toString();
-            }
-            else {
-                label = edgeLabel(datum);
-            }
-
-            tooltip.select("text")
-                .attr("x", parseFloat(select(this).attr("x")) + 60)
-                .attr("y", parseFloat(select(this).attr("y")) + 45)
-                .text(label)
+            select(this).style("stroke-width", "1px")
         }
 
         function mouseleave(d) {
-            tooltip.select("text").style("opacity", 0);
             select(this).style("stroke", "none");
         }
 
@@ -219,6 +185,16 @@ class MatrixVisualization extends Component {
             let yLabel = yLabelObject.toString()
             
             return `${xLabel} tested by ${yLabel}`;
+        }
+
+        function xAxisLabel(d) {
+            let object = data.x_labels.find(e => e.getID() === d.getID());
+            return `${object.toString()}`;
+        }
+
+        function yAxisLabel(d) {
+            let object = data.y_labels.find(e => e.getID() === d.getID());
+            return `${object.toString()}`;
         }
 
         // Create both axis
@@ -263,9 +239,8 @@ class MatrixVisualization extends Component {
                 .attr("stroke", (d) => d.getProperty('highlight') ? 'black' : null)
                 .attr("stoke-width", (d) => d.getProperty('highlight') ? '1px' : '0px')
                 .on("mouseover", mouseover)
-                .on("mousemove", mousemove)
                 .on("mouseleave", mouseleave);
-        
+
         matrixNodes.selectAll("*").remove();
         matrixNodes.append("title")
                     .text(edgeLabel);
@@ -276,15 +251,9 @@ class MatrixVisualization extends Component {
             .call(xAxis)
             .selectAll("line")
             .style("stroke", "white")
-            .style("stroke-width", "0.0");
-        
-        select("g.x-axis")
-            .select("path")
-            .style("stroke", "grey")
-            .style("stroke-width", "0.5");
+            .style("stroke-width", "0.0")
 
         // Add rectangular ticks
-
         const defaultTickLength = 5.0;
 
         let tickWidth = rectWidth - (0.1 * rectWidth);
@@ -296,7 +265,7 @@ class MatrixVisualization extends Component {
             return data.nodes.filter((e) => e.x === tickId).length
         };
 
-        select("g.x-axis")
+        let xAxisTicks = select("g.x-axis")
             .selectAll('.axis-dots-x')
             .data(data.x_labels)
             .join(
@@ -318,9 +287,12 @@ class MatrixVisualization extends Component {
             .on('click', this.onXClick)
             .on('contextmenu', this.onRightClick)
             .on("mouseover", mouseover)
-            .on("mousemove", mousemove)
             .on("mouseleave", mouseleave);
-        
+
+        xAxisTicks.selectAll("*").remove();
+        xAxisTicks.append("title")
+            .text(xAxisLabel);
+
         select("g.y-axis")
             .attr("transform", `translate(${this.margin.left}, ${this.margin.top})`)
             .call(yAxis)
@@ -342,7 +314,7 @@ class MatrixVisualization extends Component {
             return data.nodes.filter((e) => e.y === tickId).length
         };
 
-        select("g.y-axis")
+        let yAxisTicks = select("g.y-axis")
             .selectAll('.axis-dots-y')
             .data(data.y_labels)
             .join(
@@ -366,8 +338,11 @@ class MatrixVisualization extends Component {
             .on('click', this.onYClick)
             .on('contextmenu', this.onRightClick)
             .on("mouseover", mouseover)
-            .on("mousemove", mousemove)
             .on("mouseleave", mouseleave);
+
+        yAxisTicks.selectAll("*").remove();
+        yAxisTicks.append("title")
+            .text(yAxisLabel);
 
         // text label for the x axis
         svg.select(".xlabel")

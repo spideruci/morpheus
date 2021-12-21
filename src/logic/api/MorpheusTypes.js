@@ -83,7 +83,7 @@ export class Commit {
     getDate() { return this.date };
     getSHA() { return this.sha};
     toString() {
-        const short_sha = this.sha.slice(this.sha.length - 7, this.sha.length);
+        const short_sha = this.sha.slice(0, 7);
         const date = this.date.toDateString();
         return `${short_sha}, ${date}`;
     }
