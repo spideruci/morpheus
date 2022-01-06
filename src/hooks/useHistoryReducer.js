@@ -13,7 +13,6 @@ export const historyReducer = (reducer, initialState) => {
 
     const combinedReducer = (state = historyState, action) => {
         const { past, present, future } = state;
-
         switch (action.type) {
             case HISTORY_ACTION.UNDO: {
                 const [newPresent, ...newPast] = past;

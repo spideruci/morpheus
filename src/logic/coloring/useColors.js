@@ -19,7 +19,7 @@ export const COLOR_SCHEMES = {
  * @param {*} coverage, All coverage information
  */
 export const setColorScheme = (colorScheme, coverageType,  currentCoverage, globalCoverage) => {
-    console.log("SET COLOR", colorScheme, coverageType)
+
     if (coverageType === "COVERAGE"){
         if (colorScheme === COLOR_SCHEMES.TEST_RESULT || colorScheme === null) {
             const {x, y, edges} = currentCoverage;

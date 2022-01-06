@@ -29,6 +29,25 @@ export const filterByCoOccurence = (method) => {
     }
 }
 
+export const filterNotTested = (checked) => {
+    return (coverage, globalCoverage) => {
+        const { x, y, edges } = coverage;
+
+        if (!checked) {
+            return coverage;
+        }
+
+        let covered_methods_ids = new Set(edges.map(e => e.getX()));
+        let covered_methods = x.filter(m => covered_methods_ids.has(m.getID()));
+
+        return {
+            x: covered_methods,
+            y: y,
+            edges: edges
+        }
+    }
+}
+
 export const filterByTestResult = (testResult) => {
     return (coverage, globalCoverage) => {
         const { x, y, edges } = coverage;
