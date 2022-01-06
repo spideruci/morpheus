@@ -9,13 +9,14 @@ import Autocomplete from '@material-ui/lab/Autocomplete';
 import Select from '@material-ui/core/Select';
 import MenuItem from '@material-ui/core/MenuItem';
 import Button from '@material-ui/core/Button';
+import Switch from '@material-ui/core/Switch';
 
 import { MORPHEUS_ACTION } from '../../hooks/useMorpheusReducer';
 import { HISTORY_ACTION } from '../../hooks/useHistoryReducer';
 import { MorpheusContext } from '../../pages/MorpheusContext';
 
 // Filters
-import { filterByTestType, filterByCoOccurence, filterByTestResult, TEST_TYPES } from '../../logic/filters/methods';
+import { filterByTestType, filterByCoOccurence, filterByTestResult, filterNotTested, TEST_TYPES } from '../../logic/filters/methods';
 import { filterByCoexecutedTests } from '../../logic/filters/tests';
 import { sortMethodsByCoverage, sortMethodsByName, sortMethodsBySuspiciousness } from '../../logic/sorting/methods';
 import { sortTestsByCoverage, sortTestsByName } from '../../logic/sorting/tests';
@@ -397,6 +398,17 @@ const TestFilter = ({ onChange, tests, isLoading }) => {
     const TEST_RESULT_VALUES = Object.values(TEST_RESULTS);
     const TEST_TYPES_VALUES = Object.values(TEST_TYPES);
 
+    let [checked, setChecked] = useState(false);
+
+    useEffect(() => {
+        onChange({
+            type: MORPHEUS_ACTION.ADD_FILTER,
+            filters: {
+                COVERED: filterNotTested(checked)
+            }
+        })
+    }, [checked, onChange]);
+
     const setFilter = ({ target }) => {
         const test_name = target.innerHTML;
 
@@ -470,6 +482,15 @@ const TestFilter = ({ onChange, tests, isLoading }) => {
                         disabled={isLoading}>
                         {TEST_TYPES_VALUES.map((name, index) => <MenuItem key={index} value={name.toString()}>{name}</MenuItem>)}
                     </Select>
+                </div>
+                <div style = {{ flex: '1', padding: '2px' }} >
+                    <h6>Covered methods Only</h6>
+                    <Switch
+                        checked={checked}
+                        onChange={() => {
+                            setChecked(!checked);
+                        }}
+                    />
                 </div>
             </div>
         </div>
