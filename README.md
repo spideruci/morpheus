@@ -51,3 +51,9 @@ $ ./setup-data.sh -d datasets/2021110101-jpacman-commons-io.zip
 | dataset | projects | notes   |
 |---------|----------|---------|
 | 2021110101.zip | jpacman-framework | Only contains the coverage data of the last 10 release of jpacman. |
+
+## Convert svg to pdf
+The svg files can be downloaded by clicking the download button at the bottom of the toolbar. These svg files can then be converted to pdf using inkscape as following: 
+```
+inkscape commons-cli_3f150ee.svg --export-area-drawing --batch-process --export-type=pdf --export-filename=output.pdf
+````

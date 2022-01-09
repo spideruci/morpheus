@@ -23,8 +23,48 @@ import { sortTestsByCoverage, sortTestsByName } from '../../logic/sorting/tests'
 import { COLOR_SCHEMES } from '../../logic/coloring/useColors';
 import { AXIS_STATS } from '../../logic/axis-stats/stats';
 
+import { saveAs } from 'file-saver';
 
-const ToolBar = ({ onReset, onUndo, onRedo, children}) => {
+const downloadSVGElement = (svgHtml, filename) => {
+    let START = "<svg xmlns=\"http://www.w3.org/2000/svg\">"
+    let END = "</svg>"
+    let main = svgHtml.getElementsByClassName("main");
+    let classes = ["testmatrix", "x-axis", "y-axis"];
+
+    for (const clazz of classes) {
+        let elem = svgHtml.getElementsByClassName(clazz);
+        elem[0].setAttribute("transform", "translate(15,15)");
+    }
+
+    let serializer = new XMLSerializer(),
+        svgData = serializer.serializeToString(main[0]),
+        svgBlob = new Blob([START, svgData, END], {type:"image/svg+xml;charset=utf-8"});
+
+    saveAs(svgBlob, filename);
+
+    for (const clazz of classes) {
+        let elem = svgHtml.getElementsByClassName(clazz);
+        elem[0].setAttribute("transform", "translate(50,50)");
+    }
+}
+
+const download = (project, commit) => {
+    const svgElement = document.getElementsByClassName("morpheus");
+
+    let project_name = project.getProjectName();
+    let commit_sha = commit.getSHA().slice(0,7)
+    let file_name = `${project_name}_${commit_sha}.json`;
+
+    if ( svgElement === null || svgElement === undefined || svgElement.length === 0 ) {
+        console.error("SVG element not found");
+        return
+    }
+
+    console.log(svgElement[0], file_name)
+    downloadSVGElement(svgElement[0], file_name);
+}
+
+const ToolBar = ({ onReset, onUndo, onRedo, onDownload, children}) => {
     return (
         <div className={styles.toolbar} style={{ overflowY: 'scroll' }}>
             <h4>Toolbar</h4>
@@ -32,6 +72,7 @@ const ToolBar = ({ onReset, onUndo, onRedo, children}) => {
             <Button onClick={onReset}>Reset</Button>
             <Button onClick={onUndo}>Undo</Button>
             <Button onClick={onRedo}>Redo</Button>
+            <Button onClick={onDownload}>Download</Button>
         </div>
     )
 }
@@ -43,7 +84,8 @@ export const CoverageToolbar = () => {
         <ToolBar
             onReset={() => dispatch({ type: HISTORY_ACTION.RESET })}
             onUndo={() => dispatch({ type: HISTORY_ACTION.UNDO })}
-            onRedo={() => dispatch({ type: HISTORY_ACTION.REDO })}>
+            onRedo={() => dispatch({ type: HISTORY_ACTION.REDO })}
+            onDownload={() => download(state.info.project, state.info.commit)}>
             <ProjectSelectors
                 onChange={dispatch}
                 project={state.info.project}

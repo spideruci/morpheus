@@ -114,7 +114,8 @@ class MatrixVisualization extends Component {
         // the user can pan around the matrix. Note: the actual dimensions
         // of the matrix will be relative to this viewBox and can be bigger/
         // smaller then these dimensions.
-        svg.attr("viewBox", [0, 0, this.state.width, this.state.height]);
+        svg.attr("viewBox", [0, 0, this.state.width, this.state.height])
+            .attr("class", "morpheus");
 
         // basic D3 incantations to enable zoom in the SVG element.
         let zoomFun = zoom().on('zoom', e => {
@@ -124,7 +125,9 @@ class MatrixVisualization extends Component {
         svg.call(zoomFun);
 
         // this sets the preliminary position of the SVG: scale at 100%, and set top left corner to 0,0.
-        select('svg g').attr('transform', 'translate(0,0) scale(1.0)');
+        select('svg g')
+            .attr("class", "main")
+            .attr('transform', 'translate(0,0) scale(1.0)');
 
         // Get max size the matrix can have within the canvas
         let max_vis_width = this.state.width - this.margin.left - this.margin.right - 10;
