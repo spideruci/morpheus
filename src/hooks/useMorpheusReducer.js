@@ -69,7 +69,8 @@ const morpheusReducer = (state, action) => {
                     isVisible: false,
                     label: null,
                     anchor: null,
-                }
+                },
+                filters: {}
             }
         }
         case MORPHEUS_ACTION.SET_TEST_HISTORY:{
@@ -88,7 +89,8 @@ const morpheusReducer = (state, action) => {
                     isVisible: false,
                     label: null,
                     anchor: null,
-                }
+                },
+                filters: {}
             }
         }
         case MORPHEUS_ACTION.SET_SORT:
