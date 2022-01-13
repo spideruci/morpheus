@@ -48,12 +48,8 @@ const downloadSVGElement = (svgHtml, filename) => {
     }
 }
 
-const download = (project, commit) => {
+const download = (file_name) => {
     const svgElement = document.getElementsByClassName("morpheus");
-
-    let project_name = project.getProjectName();
-    let commit_sha = commit.getSHA().slice(0,7)
-    let file_name = `${project_name}_${commit_sha}.json`;
 
     if ( svgElement === null || svgElement === undefined || svgElement.length === 0 ) {
         console.error("SVG element not found");
@@ -85,7 +81,12 @@ export const CoverageToolbar = () => {
             onReset={() => dispatch({ type: HISTORY_ACTION.RESET })}
             onUndo={() => dispatch({ type: HISTORY_ACTION.UNDO })}
             onRedo={() => dispatch({ type: HISTORY_ACTION.REDO })}
-            onDownload={() => download(state.info.project, state.info.commit)}>
+            onDownload={() => {
+                let project_name = state.info.project.getProjectName();
+                let commit_sha = state.info.commit.getSHA().slice(0,7);
+                let file_name = `${project_name}_${commit_sha}.svg`;
+                download(file_name);
+            }}>
             <ProjectSelectors
                 onChange={dispatch}
                 project={state.info.project}
@@ -128,7 +129,13 @@ export const MethodHistoryToolbar = () => {
         <ToolBar
             onReset={() => dispatch({ type: HISTORY_ACTION.RESET })}
             onUndo={() => dispatch({ type: HISTORY_ACTION.UNDO })}
-            onRedo={() => dispatch({ type: HISTORY_ACTION.REDO })}>
+            onRedo={() => dispatch({ type: HISTORY_ACTION.REDO })}
+            onDownload={() => {
+                let project_name = state.info.project.getProjectName();
+                let method_name = state.info.method.getMethodName();
+                let file_name = `${project_name}_${method_name}.svg`;
+                download(file_name);
+            }}>
             <ProjectSelectors
                 onChange={dispatch}
                 project={state.info.project}
@@ -154,7 +161,13 @@ export const TestHistoryToolbar = () => {
         <ToolBar
             onReset={() => dispatch({ type: HISTORY_ACTION.RESET })}
             onUndo={() => dispatch({ type: HISTORY_ACTION.UNDO })}
-            onRedo={() => dispatch({ type: HISTORY_ACTION.REDO })}>
+            onRedo={() => dispatch({ type: HISTORY_ACTION.REDO })}
+            onDownload={() => {
+                let project_name = state.info.project.getProjectName();
+                let test_name = state.info.test.getMethodName();
+                let file_name = `${project_name}_${test_name}.svg`;
+                download(file_name);
+            }}>
             <ProjectSelectors
                 onChange={dispatch}
                 project={state.info.project}
