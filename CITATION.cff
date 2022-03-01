@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+
+type: conference-paper
+authors:
+  - family-names: Dreef
+    given-names: Kaj
+  - family-names: Palepu
+    given-names: Vijay Krishna
+  - family-names: Jones
+    given-names: James A.
+title: "Global Overviews of Granular Test Coverage with Matrix Visualizations"
+booktitle: "2021 Working Conference on Software Visualization (VISSOFT)"
+year: 2021
+start: 44
+end: 54
+publisher: "IEEE" 
+date-released: 2021-09
+doi: "10.1109/VISSOFT52517.2021.00014"
