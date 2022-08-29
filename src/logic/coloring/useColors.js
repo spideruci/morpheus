@@ -1,5 +1,5 @@
 import { Edge, Method, Test } from "../api/MorpheusTypes";
-import { schemeSet3 } from "d3-scale-chromatic";
+import { schemeDark2 } from "d3-scale-chromatic";
 import { scaleOrdinal } from "d3-scale";
 import { create_coverage_map } from "../util/coverage_map";
 
@@ -60,7 +60,7 @@ const METHOD_COLOR_FUNCTIONS = {
         if (methods.length > 0 && methods[0].constructor.name === Method.name) {
             let unique_method_packages = new Set(methods.map((method) => method.getPackageName()));
             const colorX = (d) => {
-                const scale = scaleOrdinal(schemeSet3).domain(Array.from(unique_method_packages));
+                const scale = scaleOrdinal(schemeDark2).domain(Array.from(unique_method_packages));
                 return scale(d);
             }
 
@@ -76,7 +76,7 @@ const TEST_COLOR_FUNCTIONS = {
         if (tests.length > 0 && tests[0].constructor.name === Test.name) {
             let unique_tests_packages = new Set(tests.map((test) => test.getPackageName()));
             const colorY = (d) => {
-                const scale = scaleOrdinal(schemeSet3).domain(Array.from(unique_tests_packages));
+                const scale = scaleOrdinal(schemeDark2).domain(Array.from(unique_tests_packages));
                 return scale(d);
             }
 

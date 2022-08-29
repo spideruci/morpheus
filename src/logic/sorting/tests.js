@@ -1,7 +1,7 @@
 import { create_coverage_map } from '../util/coverage_map';
 
 export function sortTestsByName(axis, current_state, all_data) {
-    return axis.sort((a, b) => a.toString() > b.toString())
+    return axis.sort((a, b) => a.toString() < b.toString())
 }
 
 export function sortTestsByCoverage(axis, current_state, all_data) {
